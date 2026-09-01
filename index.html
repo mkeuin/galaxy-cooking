@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -269,7 +268,11 @@ input[type="number"]{
   border-top:1px solid var(--line);
 }
 
-/* 단체주문 */
+
+/* ==================================================
+   단체주문
+================================================== */
+
 .group-order-card{
   padding:20px;
   margin-bottom:16px;
@@ -305,9 +308,17 @@ input[type="number"]{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
 }
 
+.admin-btn:hover,
+.save-btn:hover{
+  filter:brightness(1.08);
+}
+
 .logout-btn{
   background:rgba(255,255,255,.12);
 }
+
+
+/* 로그인 */
 
 .login-box{
   display:grid;
@@ -325,17 +336,26 @@ input[type="number"]{
   background:#090b23;
   color:white;
   font-size:16px;
+  outline:none;
 }
+
+.group-food input:focus,
+.login-box input:focus{
+  border-color:var(--accent2);
+}
+
+
+/* 관리자 음식 입력 */
 
 .group-order-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
   gap:10px;
   margin-bottom:14px;
 }
 
 .group-food{
-  padding:14px;
+  padding:15px;
   border:1px solid var(--line);
   border-radius:12px;
   background:rgba(255,255,255,.04);
@@ -343,23 +363,94 @@ input[type="number"]{
 
 .group-food label{
   display:block;
-  margin-bottom:8px;
+  margin-bottom:10px;
   color:#d9d7ff;
   font-weight:bold;
+  font-size:17px;
+}
+
+.group-food .input-title{
+  display:block;
+  margin:6px 0 5px;
+  color:var(--muted);
+  font-size:13px;
 }
 
 .group-food input{
   margin-bottom:7px;
 }
 
+.group-food-total{
+  margin-top:6px;
+  padding:10px;
+  border-radius:9px;
+  background:rgba(97,214,255,.08);
+  border:1px solid rgba(97,214,255,.15);
+  font-size:14px;
+}
+
+.group-food-total strong{
+  display:block;
+  margin-top:3px;
+  font-size:19px;
+}
+
+
+/* 할인/가산율 선택 */
+
+.price-rate-box{
+  margin:15px 0;
+  padding:16px;
+  border-radius:14px;
+  background:rgba(255,255,255,.045);
+  border:1px solid var(--line);
+}
+
+.price-rate-title{
+  font-size:17px;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+.rate-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.rate-btn{
+  min-width:80px;
+  padding:11px 15px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.06);
+  color:white;
+  cursor:pointer;
+  font-size:16px;
+  font-weight:bold;
+}
+
+.rate-btn:hover{
+  border-color:var(--accent2);
+}
+
+.rate-btn.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-color:transparent;
+  box-shadow:0 0 15px rgba(97,214,255,.2);
+}
+
+
+/* 사용자 단체주문 표시 */
+
 .group-order-view{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
   gap:10px;
 }
 
 .group-order-item{
-  padding:15px;
+  padding:16px;
   border-radius:12px;
   background:rgba(110,85,255,.14);
   border:1px solid rgba(150,150,255,.22);
@@ -368,8 +459,59 @@ input[type="number"]{
 .group-order-item strong{
   display:block;
   font-size:18px;
-  margin-bottom:7px;
+  margin-bottom:8px;
 }
+
+.group-order-info{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.7;
+}
+
+.group-order-base-price{
+  margin-top:8px;
+  font-size:15px;
+}
+
+.group-order-final-price{
+  margin-top:5px;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.group-order-total{
+  grid-column:1 / -1;
+  padding:18px;
+  border-radius:14px;
+  margin-top:4px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(110,85,255,.25),
+      rgba(55,180,255,.18)
+    );
+  border:1px solid rgba(150,150,255,.3);
+}
+
+.group-order-total-title{
+  color:var(--muted);
+  font-size:15px;
+}
+
+.group-order-total-price{
+  margin-top:4px;
+  font-size:32px;
+  font-weight:bold;
+}
+
+.group-order-total-detail{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:14px;
+}
+
+
+/* 에러 */
 
 .error-box{
   padding:15px;
@@ -380,6 +522,9 @@ input[type="number"]{
   color:#ffb8b8;
   display:none;
 }
+
+
+/* 모바일 */
 
 @media(max-width:700px){
 
@@ -424,6 +569,15 @@ input[type="number"]{
   .login-box{
     grid-template-columns:1fr;
   }
+
+  .rate-btn{
+    flex:1;
+    min-width:65px;
+  }
+
+  .group-order-total-price{
+    font-size:27px;
+  }
 }
 </style>
 
@@ -438,133 +592,209 @@ input[type="number"]{
     <p>64개 = 1세트 · 보유 재료를 세트 + 낱개로 입력하세요</p>
   </div>
 
-  <!-- 단체주문 -->
+
+  <!-- ==================================================
+       단체주문
+  ================================================== -->
 
   <div class="card group-order-card">
 
-```
-<div class="group-order-header">
+    <div class="group-order-header">
 
-  <div>
-    <h2>📦 단체주문</h2>
-    <p id="groupOrderStatus">단체주문 내용을 불러오는 중...</p>
-  </div>
+      <div>
+        <h2>📦 단체주문</h2>
+        <p id="groupOrderStatus">
+          단체주문 내용을 불러오는 중...
+        </p>
+      </div>
 
-  <div class="admin-area">
-    <button id="loginBtn" class="admin-btn">
-      🔐 관리자 로그인
-    </button>
+      <div class="admin-area">
 
-    <button
-      id="logoutBtn"
-      class="admin-btn logout-btn"
+        <button
+          id="loginBtn"
+          class="admin-btn"
+        >
+          🔐 관리자 로그인
+        </button>
+
+        <button
+          id="logoutBtn"
+          class="admin-btn logout-btn"
+          style="display:none"
+        >
+          로그아웃
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- 관리자 로그인 -->
+
+    <div
+      id="loginBox"
+      class="login-box"
       style="display:none"
     >
-      로그아웃
-    </button>
+
+      <input
+        id="adminEmail"
+        type="email"
+        placeholder="관리자 이메일"
+      >
+
+      <input
+        id="adminPassword"
+        type="password"
+        placeholder="비밀번호"
+      >
+
+      <button
+        id="loginSubmit"
+        class="save-btn"
+      >
+        로그인
+      </button>
+
+    </div>
+
+
+    <!-- 관리자 단체주문 입력 -->
+
+    <div
+      id="groupOrderEditor"
+      style="display:none"
+    >
+
+      <div
+        class="group-order-grid"
+        id="groupOrderGrid"
+      ></div>
+
+      <button
+        id="saveGroupOrder"
+        class="save-btn"
+      >
+        💾 단체주문 저장
+      </button>
+
+    </div>
+
+
+    <!-- 사용자 할인/가산율 선택 -->
+
+    <div class="price-rate-box">
+
+      <div class="price-rate-title">
+        💰 금액 적용률
+      </div>
+
+      <div class="rate-buttons">
+
+        <button
+          class="rate-btn active"
+          data-rate="0"
+        >
+          0%
+        </button>
+
+        <button
+          class="rate-btn"
+          data-rate="5"
+        >
+          5%
+        </button>
+
+        <button
+          class="rate-btn"
+          data-rate="10"
+        >
+          10%
+        </button>
+
+        <button
+          class="rate-btn"
+          data-rate="15"
+        >
+          15%
+        </button>
+
+      </div>
+
+      <div
+        id="rateDescription"
+        class="note"
+        style="margin-top:9px"
+      >
+        기본 금액 그대로 표시됩니다.
+      </div>
+
+    </div>
+
+
+    <!-- 단체주문 표시 -->
+
+    <div
+      id="groupOrderView"
+      class="group-order-view"
+    >
+      불러오는 중...
+    </div>
+
+
+    <div
+      id="firebaseError"
+      class="error-box"
+    ></div>
+
   </div>
 
-</div>
 
-<div
-  id="loginBox"
-  class="login-box"
-  style="display:none"
->
-
-  <input
-    id="adminEmail"
-    type="email"
-    placeholder="관리자 이메일"
-  >
-
-  <input
-    id="adminPassword"
-    type="password"
-    placeholder="비밀번호"
-  >
-
-  <button id="loginSubmit" class="save-btn">
-    로그인
-  </button>
-
-</div>
-
-<div
-  id="groupOrderEditor"
-  style="display:none"
->
-
-  <div
-    class="group-order-grid"
-    id="groupOrderGrid"
-  ></div>
-
-  <button
-    id="saveGroupOrder"
-    class="save-btn"
-  >
-    💾 단체주문 저장
-  </button>
-
-</div>
-
-<div
-  id="groupOrderView"
-  class="group-order-view"
->
-  불러오는 중...
-</div>
-
-<div
-  id="firebaseError"
-  class="error-box"
-></div>
-```
-
-  </div>
-
-  <!-- 검색 및 요리 목록 -->
+  <!-- ==================================================
+       검색 및 요리 목록
+  ================================================== -->
 
   <div class="card controls">
 
-```
-<input
-  id="search"
-  class="search"
-  placeholder="🔎 요리 이름을 검색하세요"
->
+    <input
+      id="search"
+      class="search"
+      placeholder="🔎 요리 이름을 검색하세요"
+    >
 
-<div
-  id="recipeList"
-  class="recipe-list"
-></div>
-```
+    <div
+      id="recipeList"
+      class="recipe-list"
+    ></div>
 
   </div>
 
-  <!-- 계산 화면 -->
+
+  <!-- ==================================================
+       계산 화면
+  ================================================== -->
 
   <div class="card content">
 
-```
-<div
-  id="appContent"
-  class="empty"
->
-  위에서 요리를 선택해주세요.
-</div>
-```
+    <div
+      id="appContent"
+      class="empty"
+    >
+      위에서 요리를 선택해주세요.
+    </div>
 
   </div>
 
 </div>
 
+
 <script type="module">
 
-/* =========================
+
+/* ==================================================
    Firebase
-========================= */
+================================================== */
 
 import {
   initializeApp
@@ -586,42 +816,81 @@ import {
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBi3CTzTaWPwDJ9CgwuRgpROac45Ag-54Y",
-  authDomain: "galaxy-cooking.firebaseapp.com",
-  projectId: "galaxy-cooking",
-  storageBucket: "galaxy-cooking.firebasestorage.app",
-  messagingSenderId: "885308286326",
-  appId: "1:885308286326:web:ceeec8b4491cd9385a0657"
+
+  apiKey:
+    "AIzaSyBi3CTzTaWPwDJ9CgwuRgpROac45Ag-54Y",
+
+  authDomain:
+    "galaxy-cooking.firebaseapp.com",
+
+  projectId:
+    "galaxy-cooking",
+
+  storageBucket:
+    "galaxy-cooking.firebasestorage.app",
+
+  messagingSenderId:
+    "885308286326",
+
+  appId:
+    "1:885308286326:web:ceeec8b4491cd9385a0657"
+
 };
 
 
-const firebaseApp = initializeApp(firebaseConfig);
+const firebaseApp =
+  initializeApp(firebaseConfig);
 
-const auth = getAuth(firebaseApp);
+const auth =
+  getAuth(firebaseApp);
 
-const db = getFirestore(firebaseApp);
+const db =
+  getFirestore(firebaseApp);
 
-const ADMIN_UID = "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
+
+const ADMIN_UID =
+  "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
 
 const STACK = 64;
 
 let isAdmin = false;
 
+
+/* ==================================================
+   단체주문 데이터
+================================================== */
+
 let groupOrderData =
   Array.from(
     {length:5},
     () => ({
+
       name:"",
+      price:0,
       amount:0
+
     })
   );
 
 
-/* =========================
+/*
+  사용자가 선택한 적용률
+
+  0  = 기본금액
+  5  = +5%
+  10 = +10%
+  15 = +15%
+*/
+
+let selectedRate = 0;
+
+
+/* ==================================================
    요리 데이터
-========================= */
+================================================== */
 
 const recipes = {
+
 
 "일반":{
 
@@ -892,9 +1161,9 @@ const recipes = {
 };
 
 
-/* =========================
+/* ==================================================
    요리 데이터 통합
-========================= */
+================================================== */
 
 const all = {};
 
@@ -907,9 +1176,9 @@ let selected = null;
 let selectedGrade = null;
 
 
-/* =========================
+/* ==================================================
    상위 요리 기본재료 계산
-========================= */
+================================================== */
 
 function expandRecipe(
   name,
@@ -952,9 +1221,9 @@ function expandRecipe(
 }
 
 
-/* =========================
+/* ==================================================
    세트 표시
-========================= */
+================================================== */
 
 function formatStack(n){
 
@@ -986,9 +1255,9 @@ function formatStack(n){
 }
 
 
-/* =========================
+/* ==================================================
    재료 분류
-========================= */
+================================================== */
 
 const FISH = [
   "요정 피쉬",
@@ -1040,9 +1309,9 @@ function getCategoryName(category){
 }
 
 
-/* =========================
+/* ==================================================
    HTML ID 생성
-========================= */
+================================================== */
 
 function cssId(name){
 
@@ -1059,9 +1328,9 @@ function cssId(name){
 }
 
 
-/* =========================
+/* ==================================================
    재료 행 생성
-========================= */
+================================================== */
 
 function createIngredientRow(
   name,
@@ -1112,9 +1381,9 @@ function createIngredientRow(
 }
 
 
-/* =========================
+/* ==================================================
    재료 그룹 생성
-========================= */
+================================================== */
 
 function createGroupedIngredientRows(
   ingredients
@@ -1193,9 +1462,9 @@ function createGroupedIngredientRows(
 }
 
 
-/* =========================
+/* ==================================================
    요리 목록
-========================= */
+================================================== */
 
 function renderList(){
 
@@ -1290,9 +1559,9 @@ function renderList(){
 }
 
 
-/* =========================
+/* ==================================================
    요리 선택
-========================= */
+================================================== */
 
 function selectRecipe(
   grade,
@@ -1310,9 +1579,9 @@ function selectRecipe(
 }
 
 
-/* =========================
+/* ==================================================
    요리 화면
-========================= */
+================================================== */
 
 function renderRecipe(){
 
@@ -1486,9 +1755,9 @@ function renderRecipe(){
 }
 
 
-/* =========================
+/* ==================================================
    계산
-========================= */
+================================================== */
 
 function updateCalculation(){
 
@@ -1601,9 +1870,9 @@ function updateCalculation(){
 }
 
 
-/* =========================
+/* ==================================================
    TAB 이동
-========================= */
+================================================== */
 
 function handleTab(e){
 
@@ -1667,9 +1936,9 @@ function handleTab(e){
 }
 
 
-/* =========================
+/* ==================================================
    검색
-========================= */
+================================================== */
 
 document
   .getElementById("search")
@@ -1703,9 +1972,9 @@ document
   );
 
 
-/* =========================
+/* ==================================================
    숫자 입력
-========================= */
+================================================== */
 
 document.addEventListener(
   "focusin",
@@ -1770,9 +2039,9 @@ document.addEventListener(
 );
 
 
-/* =========================
+/* ==================================================
    Firebase 단체주문
-========================= */
+================================================== */
 
 const groupOrderRef =
   doc(
@@ -1782,9 +2051,102 @@ const groupOrderRef =
   );
 
 
-/* =========================
+/* ==================================================
+   금액 표시 함수
+================================================== */
+
+function formatWon(amount){
+
+  const value =
+    Math.round(
+      Number(amount) || 0
+    );
+
+  return value.toLocaleString() + "원";
+
+}
+
+
+/* ==================================================
+   적용률 계산
+================================================== */
+
+function calculateRatePrice(
+  basePrice,
+  rate
+){
+
+  return Math.round(
+    basePrice *
+    (1 + rate / 100)
+  );
+
+}
+
+
+/* ==================================================
+   적용률 버튼
+================================================== */
+
+function updateRateButtons(){
+
+  document
+    .querySelectorAll(".rate-btn")
+    .forEach(button=>{
+
+      const rate =
+        Number(
+          button.dataset.rate
+        );
+
+      button.classList.toggle(
+        "active",
+        rate === selectedRate
+      );
+
+    });
+
+
+  const description =
+    document.getElementById(
+      "rateDescription"
+    );
+
+
+  if(!description){
+    return;
+  }
+
+
+  if(selectedRate === 0){
+
+    description.textContent =
+      "기본 금액 그대로 표시됩니다.";
+
+  }else{
+
+    description.textContent =
+      `기본 금액에 ${selectedRate}%가 적용됩니다.`;
+
+  }
+
+}
+
+
+/* ==================================================
+   단체주문 금액 다시 계산
+================================================== */
+
+function refreshGroupOrderPrices(){
+
+  renderGroupOrderView();
+
+}
+
+
+/* ==================================================
    단체주문 편집창
-========================= */
+================================================== */
 
 function renderGroupOrderEditor(){
 
@@ -1802,8 +2164,13 @@ function renderGroupOrderEditor(){
         <div class="group-food">
 
           <label>
-            음식 ${i + 1}
+            🍳 음식 ${i + 1}
           </label>
+
+
+          <span class="input-title">
+            음식 이름
+          </span>
 
           <input
             class="group-food-name"
@@ -1811,14 +2178,44 @@ function renderGroupOrderEditor(){
             placeholder="음식 이름"
           >
 
+
+          <span class="input-title">
+            음식 1개 가격
+          </span>
+
+          <input
+            class="group-food-price"
+            data-index="${i}"
+            type="number"
+            min="0"
+            step="1"
+            value="0"
+            placeholder="예: 12000"
+          >
+
+
+          <span class="input-title">
+            주문 배수
+          </span>
+
           <input
             class="group-food-amount"
             data-index="${i}"
             type="number"
             min="0"
+            step="1"
             value="0"
-            placeholder="주문 수량"
+            placeholder="예: 10"
           >
+
+
+          <div
+            class="group-food-total"
+            id="group-food-total-${i}"
+          >
+            기본 금액
+            <strong>0원</strong>
+          </div>
 
         </div>
 
@@ -1826,14 +2223,91 @@ function renderGroupOrderEditor(){
     ).join("");
 
 
+  document
+    .querySelectorAll(
+      ".group-food-price,.group-food-amount"
+    )
+    .forEach(input=>{
+
+      input.addEventListener(
+        "input",
+        updateGroupEditorTotals
+      );
+
+    });
+
+
   fillGroupOrderEditor();
+
+  updateGroupEditorTotals();
 
 }
 
 
-/* =========================
+/* ==================================================
+   관리자 편집창 금액 표시
+================================================== */
+
+function updateGroupEditorTotals(){
+
+  for(
+    let i=0;
+    i<5;
+    i++
+  ){
+
+    const priceInput =
+      document.querySelector(
+        `.group-food-price[data-index="${i}"]`
+      );
+
+    const amountInput =
+      document.querySelector(
+        `.group-food-amount[data-index="${i}"]`
+      );
+
+    const total =
+      document.getElementById(
+        `group-food-total-${i}`
+      );
+
+
+    if(!priceInput || !amountInput || !total){
+      continue;
+    }
+
+
+    const price =
+      Math.max(
+        0,
+        Number(priceInput.value) || 0
+      );
+
+
+    const amount =
+      Math.max(
+        0,
+        Number(amountInput.value) || 0
+      );
+
+
+    const basePrice =
+      price * amount;
+
+
+    total.innerHTML = `
+      기본 금액
+      <strong>${formatWon(basePrice)}</strong>
+    `;
+
+  }
+
+}
+
+
+/* ==================================================
    단체주문 표시
-========================= */
+================================================== */
 
 function renderGroupOrderView(){
 
@@ -1864,34 +2338,141 @@ function renderGroupOrderView(){
   }
 
 
-  view.innerHTML =
+  let totalBase = 0;
+  let totalFinal = 0;
+
+
+  const foodHtml =
     valid
       .map(
-        food=>`
+        food=>{
 
-          <div class="group-order-item">
+          const price =
+            Math.max(
+              0,
+              Number(food.price) || 0
+            );
 
-            <strong>
-              🍳 ${escapeHtml(food.name)}
-            </strong>
 
-            주문 수량:
-            <b>
-              ${Number(food.amount || 0).toLocaleString()}개
-            </b>
+          const amount =
+            Math.max(
+              0,
+              Number(food.amount) || 0
+            );
 
-          </div>
 
-        `
+          const basePrice =
+            price * amount;
+
+
+          const finalPrice =
+            calculateRatePrice(
+              basePrice,
+              selectedRate
+            );
+
+
+          totalBase += basePrice;
+          totalFinal += finalPrice;
+
+
+          return `
+
+            <div class="group-order-item">
+
+              <strong>
+                🍳 ${escapeHtml(food.name)}
+              </strong>
+
+
+              <div class="group-order-info">
+
+                1개 가격:
+                <b>
+                  ${formatWon(price)}
+                </b>
+
+                <br>
+
+                주문 배수:
+                <b>
+                  × ${amount.toLocaleString()}
+                </b>
+
+              </div>
+
+
+              <div class="group-order-base-price">
+
+                기본 금액:
+                <b>
+                  ${formatWon(basePrice)}
+                </b>
+
+              </div>
+
+
+              <div class="group-order-final-price">
+
+                ${formatWon(finalPrice)}
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
       )
       .join("");
+
+
+  const rateText =
+    selectedRate === 0
+      ? "기본 금액"
+      : `+${selectedRate}% 적용`;
+
+
+  view.innerHTML =
+    foodHtml
+    +
+    `
+
+      <div class="group-order-total">
+
+        <div class="group-order-total-title">
+          📦 단체주문 총 금액 · ${rateText}
+        </div>
+
+
+        <div class="group-order-total-price">
+          ${formatWon(totalFinal)}
+        </div>
+
+
+        <div class="group-order-total-detail">
+
+          기본 총액:
+          ${formatWon(totalBase)}
+
+          ${
+            selectedRate === 0
+              ? ""
+              : ` → +${selectedRate}%`
+          }
+
+        </div>
+
+      </div>
+
+    `;
 
 }
 
 
-/* =========================
+/* ==================================================
    HTML 이스케이프
-========================= */
+================================================== */
 
 function escapeHtml(text){
 
@@ -1900,16 +2481,17 @@ function escapeHtml(text){
       "div"
     );
 
-  div.textContent = text;
+  div.textContent =
+    text;
 
   return div.innerHTML;
 
 }
 
 
-/* =========================
+/* ==================================================
    편집창 데이터 입력
-========================= */
+================================================== */
 
 function fillGroupOrderEditor(){
 
@@ -1926,7 +2508,27 @@ function fillGroupOrderEditor(){
 
 
       input.value =
-        groupOrderData[i]?.name || "";
+        groupOrderData[i]?.name
+        || "";
+
+    });
+
+
+  document
+    .querySelectorAll(
+      ".group-food-price"
+    )
+    .forEach(input=>{
+
+      const i =
+        Number(
+          input.dataset.index
+        );
+
+
+      input.value =
+        groupOrderData[i]?.price
+        ?? 0;
 
     });
 
@@ -1944,16 +2546,20 @@ function fillGroupOrderEditor(){
 
 
       input.value =
-        groupOrderData[i]?.amount ?? 0;
+        groupOrderData[i]?.amount
+        ?? 0;
 
     });
+
+
+  updateGroupEditorTotals();
 
 }
 
 
-/* =========================
+/* ==================================================
    Firebase 데이터 감시
-========================= */
+================================================== */
 
 renderGroupOrderEditor();
 
@@ -1978,19 +2584,49 @@ onSnapshot(
         groupOrderData =
           Array.from(
             {length:5},
-            (_,i)=>({
+            (_,i)=>{
 
-              name:
-                data.foods[i]?.name
-                || "",
+              const oldFood =
+                data.foods[i] || {};
 
-              amount:
-                Number(
-                  data.foods[i]?.amount
-                )
-                || 0
 
-            })
+              /*
+                새 데이터:
+                name
+                price
+                amount
+
+
+                예전 데이터:
+                name
+                amount
+
+                예전 amount는 가격이 아니라
+                주문수량으로 저장되어 있으므로
+                가격은 0으로 처리
+              */
+
+              return {
+
+                name:
+                  oldFood.name
+                  || "",
+
+                price:
+                  Number(
+                    oldFood.price
+                  )
+                  || 0,
+
+                amount:
+                  Number(
+                    oldFood.amount
+                  )
+                  || 0
+
+              };
+
+            }
           );
 
       }
@@ -2055,9 +2691,9 @@ onSnapshot(
 );
 
 
-/* =========================
+/* ==================================================
    관리자 로그인 버튼
-========================= */
+================================================== */
 
 document
   .getElementById("loginBtn")
@@ -2091,9 +2727,9 @@ document
   );
 
 
-/* =========================
+/* ==================================================
    로그인
-========================= */
+================================================== */
 
 document
   .getElementById("loginSubmit")
@@ -2154,9 +2790,9 @@ document
   );
 
 
-/* =========================
+/* ==================================================
    로그인 상태 확인
-========================= */
+================================================== */
 
 onAuthStateChanged(
   auth,
@@ -2264,9 +2900,9 @@ onAuthStateChanged(
 );
 
 
-/* =========================
+/* ==================================================
    로그아웃
-========================= */
+================================================== */
 
 document
   .getElementById("logoutBtn")
@@ -2290,9 +2926,9 @@ document
   );
 
 
-/* =========================
+/* ==================================================
    단체주문 저장
-========================= */
+================================================== */
 
 document
   .getElementById("saveGroupOrder")
@@ -2329,23 +2965,46 @@ document
             .trim();
 
 
+        const price =
+          Math.max(
+            0,
+            Math.floor(
+              Number(
+                document
+                  .querySelector(
+                    `.group-food-price[data-index="${i}"]`
+                  )
+                  .value
+              )
+              || 0
+            )
+          );
+
+
         const amount =
           Math.max(
             0,
-            Number(
-              document
-                .querySelector(
-                  `.group-food-amount[data-index="${i}"]`
-                )
-                .value
+            Math.floor(
+              Number(
+                document
+                  .querySelector(
+                    `.group-food-amount[data-index="${i}"]`
+                  )
+                  .value
+              )
+              || 0
             )
-            || 0
           );
 
 
         foods.push({
+
           name,
+
+          price,
+
           amount
+
         });
 
       }
@@ -2357,8 +3016,10 @@ document
           groupOrderRef,
           {
             foods,
+
             updatedAt:
               new Date().toISOString()
+
           },
           {
             merge:true
@@ -2388,9 +3049,39 @@ document
   );
 
 
-/* =========================
+/* ==================================================
+   적용률 버튼 클릭
+================================================== */
+
+document
+  .querySelectorAll(".rate-btn")
+  .forEach(button=>{
+
+    button.addEventListener(
+      "click",
+      ()=>{
+
+        selectedRate =
+          Number(
+            button.dataset.rate
+          );
+
+
+        updateRateButtons();
+
+        refreshGroupOrderPrices();
+
+      }
+    );
+
+  });
+
+
+/* ==================================================
    시작
-========================= */
+================================================== */
+
+updateRateButtons();
 
 renderList();
 
