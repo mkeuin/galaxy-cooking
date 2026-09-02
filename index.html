@@ -207,7 +207,10 @@ input[type="number"]{
   border-top:1px solid var(--line);
 }
 
-/* 단체주문 */
+/* =========================
+   단체주문
+========================= */
+
 .group-order-card{
   padding:20px;
   margin-bottom:16px;
@@ -294,6 +297,53 @@ input[type="number"]{
   font-size:18px;
   margin-bottom:7px;
 }
+.order-summary{
+  grid-column:1 / -1;
+  margin-top:14px;
+  padding:16px;
+  border-radius:12px;
+  background:rgba(97,214,255,.10);
+  border:1px solid rgba(97,214,255,.22);
+}
+.order-summary-row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:5px 0;
+}
+.order-summary-total{
+  font-size:22px;
+  font-weight:bold;
+  margin-top:6px;
+  padding-top:10px;
+  border-top:1px solid var(--line);
+}
+.percent-toggle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:12px 0 14px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:rgba(255,255,255,.04);
+}
+.percent-toggle input{
+  width:20px;
+  height:20px;
+  accent-color:#9b8cff;
+}
+.percent-toggle label{
+  cursor:pointer;
+}
+.percent-badge{
+  display:inline-block;
+  padding:3px 8px;
+  border-radius:20px;
+  background:rgba(155,140,255,.18);
+  font-size:13px;
+  margin-left:6px;
+}
 
 @media(max-width:700px){
   .app{
@@ -342,18 +392,27 @@ input[type="number"]{
     <p>64개 = 1세트 · 보유 재료를 세트 + 낱개로 입력하세요</p>
   </div>
 
-  <!-- 단체주문 -->
+  <!-- =========================
+       단체주문
+  ========================== -->
+
   <div class="card group-order-card">
 
     <div class="group-order-header">
 
       <div>
         <h2>📦 단체주문</h2>
-        <p id="groupOrderStatus">단체주문 내용을 불러오는 중...</p>
+        <p id="groupOrderStatus">
+          단체주문 내용을 불러오는 중...
+        </p>
       </div>
 
       <div class="admin-area">
-        <button id="loginBtn" class="admin-btn">
+
+        <button
+          id="loginBtn"
+          class="admin-btn"
+        >
           🔐 관리자 로그인
         </button>
 
@@ -364,6 +423,7 @@ input[type="number"]{
         >
           로그아웃
         </button>
+
       </div>
 
     </div>
@@ -373,6 +433,7 @@ input[type="number"]{
       class="login-box"
       style="display:none"
     >
+
       <input
         id="adminEmail"
         type="email"
@@ -385,15 +446,36 @@ input[type="number"]{
         placeholder="비밀번호"
       >
 
-      <button id="loginSubmit" class="save-btn">
+      <button
+        id="loginSubmit"
+        class="save-btn"
+      >
         로그인
       </button>
+
     </div>
 
     <div
       id="groupOrderEditor"
       style="display:none"
     >
+
+      <div class="percent-toggle">
+
+        <input
+          id="groupOrderPercent"
+          type="checkbox"
+        >
+
+        <label for="groupOrderPercent">
+          <b>15% 적용</b>
+          <span class="percent-badge">
+            금액에만 적용
+          </span>
+        </label>
+
+      </div>
+
       <div
         class="group-order-grid"
         id="groupOrderGrid"
@@ -405,6 +487,7 @@ input[type="number"]{
       >
         💾 단체주문 저장
       </button>
+
     </div>
 
     <div
@@ -416,7 +499,10 @@ input[type="number"]{
 
   </div>
 
-  <!-- 검색 및 요리 목록 -->
+  <!-- =========================
+       검색 및 요리 목록
+  ========================== -->
+
   <div class="card controls">
 
     <input
@@ -432,7 +518,10 @@ input[type="number"]{
 
   </div>
 
-  <!-- 계산 화면 -->
+  <!-- =========================
+       계산 화면
+  ========================== -->
+
   <div class="card content">
 
     <div
@@ -445,6 +534,7 @@ input[type="number"]{
   </div>
 
 </div>
+
 
 <script>
 
@@ -476,17 +566,21 @@ let setDoc = null;
 let onSnapshot = null;
 
 const ADMIN_UID = "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
+
 const STACK = 64;
 
 let isAdmin = false;
 
-let groupOrderData = Array.from(
-  {length:5},
-  () => ({
-    name:"",
-    amount:0
-  })
-);
+let groupOrderData =
+  Array.from(
+    {length:5},
+    () => ({
+      name:"",
+      amount:0
+    })
+  );
+
+let groupOrderPercentEnabled = false;
 
 
 /* =========================
@@ -772,7 +866,7 @@ Object.values(recipes).forEach(group=>{
 });
 
 
-function expandRecipe(name, visited=new Set()){
+function expandRecipe(name,visited=new Set()){
 
   if(visited.has(name)){
     return {};
@@ -788,24 +882,38 @@ function expandRecipe(name, visited=new Set()){
 
   const result={};
 
-  for(const [ingredient,amount] of Object.entries(recipe)){
+  for(
+    const [ingredient,amount]
+    of Object.entries(recipe)
+  ){
 
     if(all[ingredient]){
 
-      const expanded=expandRecipe(
-        ingredient,
-        new Set(visited)
-      );
+      const expanded=
+        expandRecipe(
+          ingredient,
+          new Set(visited)
+        );
 
-      for(const [subName,subAmount] of Object.entries(expanded)){
-        result[subName]=(result[subName]||0)+(subAmount*amount);
+      for(
+        const [subName,subAmount]
+        of Object.entries(expanded)
+      ){
+
+        result[subName]=
+          (result[subName]||0)+
+          (subAmount*amount);
+
       }
 
     }else{
 
-      result[ingredient]=(result[ingredient]||0)+amount;
+      result[ingredient]=
+        (result[ingredient]||0)+
+        amount;
 
     }
+
   }
 
   return result;
@@ -813,28 +921,35 @@ function expandRecipe(name, visited=new Set()){
 
 
 /* =========================
-   계산기
+   공통 함수
 ========================= */
 
-let selected=null;
-let selectedGrade=null;
-
-
 function cssId(text){
+
   return "id-"+btoa(
     unescape(
       encodeURIComponent(text)
     )
-  ).replace(/[^a-zA-Z0-9]/g,"");
+  ).replace(
+    /[^a-zA-Z0-9]/g,
+    ""
+  );
+
 }
 
 
 function formatStack(num){
 
-  num=Math.max(0,Math.floor(num||0));
+  num=Math.max(
+    0,
+    Math.floor(num||0)
+  );
 
-  const sets=Math.floor(num/STACK);
-  const pieces=num%STACK;
+  const sets=
+    Math.floor(num/STACK);
+
+  const pieces=
+    num%STACK;
 
   if(sets>0 && pieces>0){
     return `${sets}세트 ${pieces}개`;
@@ -848,6 +963,22 @@ function formatStack(num){
 }
 
 
+function escapeHtml(text){
+
+  const div=
+    document.createElement("div");
+
+  div.textContent=text;
+
+  return div.innerHTML;
+
+}
+
+
+/* =========================
+   재료 계산
+========================= */
+
 function createIngredientRow(name,need){
 
   const id=cssId(name);
@@ -855,11 +986,14 @@ function createIngredientRow(name,need){
   return `
   <tr>
 
-    <td>${name}</td>
+    <td>${escapeHtml(name)}</td>
 
     <td>${need}</td>
 
-    <td class="owned" id="owned-${id}">
+    <td
+      class="owned"
+      id="owned-${id}"
+    >
       0개
     </td>
 
@@ -893,29 +1027,48 @@ function createGroupedIngredientRows(ingredients){
 
   const categories={};
 
-  for(const [name,need] of Object.entries(ingredients)){
+  for(
+    const [name,need]
+    of Object.entries(ingredients)
+  ){
 
-    const first=name.charAt(0);
+    const first=
+      name.charAt(0);
 
     if(!categories[first]){
       categories[first]=[];
     }
 
-    categories[first].push([name,need]);
+    categories[first].push([
+      name,
+      need
+    ]);
+
   }
 
-  for(const [category,items] of Object.entries(categories)){
+  for(
+    const [category,items]
+    of Object.entries(categories)
+  ){
 
     html+=`
     <tr class="category-row">
+
       <td colspan="5">
-        ${category}
+        ${escapeHtml(category)}
       </td>
+
     </tr>`;
 
-    items.forEach(([name,need])=>{
-      html+=createIngredientRow(name,need);
-    });
+    items.forEach(
+      ([name,need])=>{
+        html+=
+          createIngredientRow(
+            name,
+            need
+          );
+      }
+    );
 
   }
 
@@ -923,44 +1076,75 @@ function createGroupedIngredientRows(ingredients){
 }
 
 
+/* =========================
+   레시피 목록
+========================= */
+
+let selected=null;
+let selectedGrade=null;
+
+
 function renderList(){
 
-  const q=document
-    .getElementById("search")
-    .value
-    .trim()
-    .toLowerCase();
+  const q=
+    document
+      .getElementById("search")
+      .value
+      .trim()
+      .toLowerCase();
 
-  const list=document.getElementById("recipeList");
+  const list=
+    document.getElementById(
+      "recipeList"
+    );
 
   list.innerHTML="";
 
-  for(const [grade,group] of Object.entries(recipes)){
+  for(
+    const [grade,group]
+    of Object.entries(recipes)
+  ){
 
-    for(const name of Object.keys(group)){
+    for(
+      const name
+      of Object.keys(group)
+    ){
 
       if(
         (grade+" "+name)
-        .toLowerCase()
-        .includes(q)
+          .toLowerCase()
+          .includes(q)
       ){
 
-        const button=document.createElement("button");
+        const button=
+          document.createElement(
+            "button"
+          );
 
         button.className=
           "recipe-btn"+
-          (selected===name?" active":"");
+          (
+            selected===name
+              ? " active"
+              : ""
+          );
 
         button.innerHTML=`
-          <span class="grade">${grade}</span>
-          ${name}
+          <span class="grade">
+            ${escapeHtml(grade)}
+          </span>
+          ${escapeHtml(name)}
         `;
 
         button.onclick=()=>{
-          selectRecipe(grade,name);
+          selectRecipe(
+            grade,
+            name
+          );
         };
 
         list.appendChild(button);
+
       }
 
     }
@@ -987,7 +1171,10 @@ function renderRecipe(){
     return;
   }
 
-  const content=document.getElementById("appContent");
+  const content=
+    document.getElementById(
+      "appContent"
+    );
 
   const isHighGrade=
     selectedGrade==="전설" ||
@@ -1016,13 +1203,14 @@ function renderRecipe(){
 
         ${
           Object.entries(sub)
-          .map(
-            ([name,amount])=>
-              `<div class="sub">
-                ${name} × ${amount}
-              </div>`
-          )
-          .join("")
+            .map(
+              ([name,amount])=>
+                `<div class="sub">
+                  ${escapeHtml(name)}
+                  × ${amount}
+                </div>`
+            )
+            .join("")
         }
 
       </div>
@@ -1031,34 +1219,44 @@ function renderRecipe(){
         📋 실제 기본 재료
       </div>
     `;
+
   }
 
   const rows=
     isHighGrade
-      ? createGroupedIngredientRows(ingredients)
+      ? createGroupedIngredientRows(
+          ingredients
+        )
       : Object.entries(ingredients)
           .map(
             ([name,need])=>
-              createIngredientRow(name,need)
+              createIngredientRow(
+                name,
+                need
+              )
           )
           .join("");
 
   content.innerHTML=`
 
     <div class="selected">
-      [${selectedGrade}] ${selected}
+      [${escapeHtml(selectedGrade)}]
+      ${escapeHtml(selected)}
     </div>
 
     <div class="result">
 
-      <span>🍲 만들 수 있는 요리</span>
+      <span>
+        🍲 만들 수 있는 요리
+      </span>
 
       <strong id="result">
         0개
       </strong>
 
       <div class="note">
-        가장 부족한 재료를 기준으로 자동 계산됩니다.
+        가장 부족한 재료를 기준으로
+        자동 계산됩니다.
       </div>
 
     </div>
@@ -1070,6 +1268,7 @@ function renderRecipe(){
       <table class="table">
 
         <thead>
+
           <tr>
             <th>재료</th>
             <th>요리 1개 필요량</th>
@@ -1077,6 +1276,7 @@ function renderRecipe(){
             <th>세트</th>
             <th>낱개</th>
           </tr>
+
         </thead>
 
         <tbody>
@@ -1089,7 +1289,9 @@ function renderRecipe(){
   `;
 
   document
-    .querySelectorAll(".set-input,.piece-input")
+    .querySelectorAll(
+      ".set-input,.piece-input"
+    )
     .forEach(el=>{
 
       el.addEventListener(
@@ -1105,6 +1307,7 @@ function renderRecipe(){
     });
 
   updateCalculation();
+
 }
 
 
@@ -1129,44 +1332,57 @@ function updateCalculation(){
     of Object.entries(req)
   ){
 
-    const setInput=document.querySelector(
-      `.set-input[data-name="${CSS.escape(name)}"]`
-    );
+    const setInput=
+      document.querySelector(
+        `.set-input[data-name="${CSS.escape(name)}"]`
+      );
 
-    const pieceInput=document.querySelector(
-      `.piece-input[data-name="${CSS.escape(name)}"]`
-    );
+    const pieceInput=
+      document.querySelector(
+        `.piece-input[data-name="${CSS.escape(name)}"]`
+      );
 
-    if(!setInput || !pieceInput){
+    if(
+      !setInput ||
+      !pieceInput
+    ){
       continue;
     }
 
-    const sets=Math.max(
-      0,
-      Number(setInput.value)||0
-    );
+    const sets=
+      Math.max(
+        0,
+        Number(setInput.value)||0
+      );
 
-    const pieces=Math.max(
-      0,
-      Number(pieceInput.value)||0
-    );
+    const pieces=
+      Math.max(
+        0,
+        Number(pieceInput.value)||0
+      );
 
     const owned=
       Math.floor(sets)*STACK+
       Math.floor(pieces);
 
-    possible=Math.min(
-      possible,
-      Math.floor(owned/need)
-    );
+    possible=
+      Math.min(
+        possible,
+        Math.floor(
+          owned/need
+        )
+      );
 
-    const cell=document.getElementById(
-      "owned-"+cssId(name)
-    );
+    const cell=
+      document.getElementById(
+        "owned-"+cssId(name)
+      );
 
     if(cell){
+
       cell.textContent=
         formatStack(owned);
+
     }
 
   }
@@ -1175,12 +1391,18 @@ function updateCalculation(){
     possible=0;
   }
 
-  const result=document.getElementById("result");
+  const result=
+    document.getElementById(
+      "result"
+    );
 
   if(result){
+
     result.textContent=
       formatStack(possible);
+
   }
+
 }
 
 
@@ -1196,7 +1418,8 @@ function handleTab(e){
     )
   ];
 
-  const index=inputs.indexOf(e.target);
+  const index=
+    inputs.indexOf(e.target);
 
   if(index<0){
     return;
@@ -1204,14 +1427,30 @@ function handleTab(e){
 
   e.preventDefault();
 
-  const next=e.shiftKey
-    ? inputs[Math.max(0,index-1)]
-    : inputs[Math.min(inputs.length-1,index+1)];
+  const next=
+    e.shiftKey
+      ? inputs[
+          Math.max(
+            0,
+            index-1
+          )
+        ]
+      : inputs[
+          Math.min(
+            inputs.length-1,
+            index+1
+          )
+        ];
 
   next.focus();
   next.select();
+
 }
 
+
+/* =========================
+   검색
+========================= */
 
 document
   .getElementById("search")
@@ -1230,7 +1469,9 @@ document
       if(e.key==="Enter"){
 
         const first=
-          document.querySelector(".recipe-btn");
+          document.querySelector(
+            ".recipe-btn"
+          );
 
         if(first){
           first.click();
@@ -1242,7 +1483,9 @@ document
   );
 
 
-/* 숫자 입력: 0 클릭 시 바로 선택 */
+/* =========================
+   숫자 입력
+========================= */
 
 document.addEventListener(
   "focusin",
@@ -1259,7 +1502,9 @@ document.addEventListener(
         if(
           Number(e.target.value)===0
         ){
+
           e.target.select();
+
         }
 
       },0);
@@ -1280,8 +1525,12 @@ document.addEventListener(
       )
     ){
 
-      if(e.target.value===""){
+      if(
+        e.target.value===""
+      ){
+
         e.target.value="0";
+
       }
 
       if(
@@ -1289,7 +1538,9 @@ document.addEventListener(
           ".set-input,.piece-input"
         )
       ){
+
         updateCalculation();
+
       }
 
     }
@@ -1299,7 +1550,7 @@ document.addEventListener(
 
 
 /* =========================
-   단체주문
+   단체주문 관리자 입력창
 ========================= */
 
 function renderGroupOrderEditor(){
@@ -1332,7 +1583,7 @@ function renderGroupOrderEditor(){
           type="number"
           min="0"
           value="0"
-          placeholder="주문 수량"
+          placeholder="주문 금액 (원)"
         >
 
       </div>
@@ -1341,8 +1592,64 @@ function renderGroupOrderEditor(){
     ).join("");
 
   fillGroupOrderEditor();
+
 }
 
+
+function fillGroupOrderEditor(){
+
+  const percent=
+    document.getElementById(
+      "groupOrderPercent"
+    );
+
+  if(percent){
+
+    percent.checked=
+      groupOrderPercentEnabled;
+
+  }
+
+  document
+    .querySelectorAll(
+      ".group-food-name"
+    )
+    .forEach(input=>{
+
+      const i=
+        Number(
+          input.dataset.index
+        );
+
+      input.value=
+        groupOrderData[i]?.name ||
+        "";
+
+    });
+
+  document
+    .querySelectorAll(
+      ".group-food-amount"
+    )
+    .forEach(input=>{
+
+      const i=
+        Number(
+          input.dataset.index
+        );
+
+      input.value=
+        groupOrderData[i]?.amount ??
+        0;
+
+    });
+
+}
+
+
+/* =========================
+   단체주문 표시
+========================= */
 
 function renderGroupOrderView(){
 
@@ -1367,68 +1674,132 @@ function renderGroupOrderView(){
     `;
 
     return;
+
   }
+
+  /*
+    15%는 오직 금액에만 적용.
+    음식 개수/제작 개수에는 적용하지 않음.
+  */
+
+  const rate=
+    groupOrderPercentEnabled
+      ? 1.15
+      : 1;
+
+  const originalTotal=
+    valid.reduce(
+      (sum,food)=>
+        sum+
+        Number(food.amount||0),
+      0
+    );
+
+  const finalTotal=
+    Math.round(
+      originalTotal*rate
+    );
 
   view.innerHTML=
     valid.map(
-      food=>`
+      food=>{
 
-      <div class="group-order-item">
+        const original=
+          Number(food.amount||0);
 
-        <strong>
-          🍳 ${escapeHtml(food.name)}
-        </strong>
+        const final=
+          Math.round(
+            original*rate
+          );
 
-        주문 수량:
+        return `
+
+          <div class="group-order-item">
+
+            <strong>
+              🍳 ${escapeHtml(food.name)}
+            </strong>
+
+            <div>
+              주문 금액:
+              <b>
+                ${original.toLocaleString()}원
+              </b>
+            </div>
+
+            ${
+              groupOrderPercentEnabled
+                ? `
+                  <div class="note">
+                    15% 적용:
+                    ${final.toLocaleString()}원
+                  </div>
+                `
+                : ""
+            }
+
+          </div>
+
+        `;
+
+      }
+    ).join("");
+
+
+  view.innerHTML+=`
+
+    <div class="order-summary">
+
+      <div class="order-summary-row">
+
+        <span>
+          원래 총 금액
+        </span>
+
         <b>
-          ${Number(food.amount||0).toLocaleString()}개
+          ${originalTotal.toLocaleString()}원
         </b>
 
       </div>
 
-    `
-    ).join("");
-}
+      <div class="order-summary-row">
 
+        <span>
+          15% 적용
+        </span>
 
-function escapeHtml(text){
+        <b>
+          ${
+            groupOrderPercentEnabled
+              ? "ON"
+              : "OFF"
+          }
+        </b>
 
-  const div=document.createElement("div");
+      </div>
 
-  div.textContent=text;
+      <div class="order-summary-row order-summary-total">
 
-  return div.innerHTML;
-}
+        <span>
+          최종 총 금액
+        </span>
 
+        <b>
+          ${finalTotal.toLocaleString()}원
+        </b>
 
-function fillGroupOrderEditor(){
+      </div>
 
-  document
-    .querySelectorAll(".group-food-name")
-    .forEach(input=>{
+    </div>
 
-      const i=
-        Number(input.dataset.index);
-
-      input.value=
-        groupOrderData[i]?.name || "";
-
-    });
-
-  document
-    .querySelectorAll(".group-food-amount")
-    .forEach(input=>{
-
-      const i=
-        Number(input.dataset.index);
-
-      input.value=
-        groupOrderData[i]?.amount ?? 0;
-
-    });
+  `;
 
 }
 
+
+/* =========================
+   Firebase 단체주문
+========================= */
 
 function setupGroupOrderFirebase(){
 
@@ -1437,7 +1808,9 @@ function setupGroupOrderFirebase(){
     !doc ||
     !onSnapshot
   ){
+
     return;
+
   }
 
   groupOrderRef=
@@ -1447,15 +1820,19 @@ function setupGroupOrderFirebase(){
       "main"
     );
 
+
   onSnapshot(
     groupOrderRef,
     snapshot=>{
 
       if(snapshot.exists()){
 
-        const data=snapshot.data();
+        const data=
+          snapshot.data();
 
-        if(Array.isArray(data.foods)){
+        if(
+          Array.isArray(data.foods)
+        ){
 
           groupOrderData=
             Array.from(
@@ -1463,7 +1840,8 @@ function setupGroupOrderFirebase(){
               (_,i)=>({
 
                 name:
-                  data.foods[i]?.name || "",
+                  data.foods[i]?.name ||
+                  "",
 
                 amount:
                   Number(
@@ -1475,12 +1853,24 @@ function setupGroupOrderFirebase(){
 
         }
 
+        /*
+          기존 데이터에 percent15가 없으면
+          OFF로 처리.
+        */
+
+        groupOrderPercentEnabled=
+          Boolean(
+            data.percent15
+          );
+
       }
 
       renderGroupOrderView();
 
       if(isAdmin){
+
         fillGroupOrderEditor();
+
       }
 
       if(!isAdmin){
@@ -1493,6 +1883,7 @@ function setupGroupOrderFirebase(){
       }
 
     },
+
     error=>{
 
       console.error(error);
@@ -1505,6 +1896,7 @@ function setupGroupOrderFirebase(){
       renderGroupOrderView();
 
     }
+
   );
 
 }
@@ -1545,22 +1937,30 @@ document
 
       const email=
         document
-          .getElementById("adminEmail")
+          .getElementById(
+            "adminEmail"
+          )
           .value
           .trim();
 
       const password=
         document
-          .getElementById("adminPassword")
+          .getElementById(
+            "adminPassword"
+          )
           .value;
 
-      if(!email || !password){
+      if(
+        !email ||
+        !password
+      ){
 
         alert(
           "이메일과 비밀번호를 입력해주세요."
         );
 
         return;
+
       }
 
       if(
@@ -1573,6 +1973,7 @@ document
         );
 
         return;
+
       }
 
       try{
@@ -1603,9 +2004,37 @@ document
     "click",
     async()=>{
 
-      if(auth && signOut){
+      if(
+        auth &&
+        signOut
+      ){
+
         await signOut(auth);
+
       }
+
+    }
+  );
+
+
+/* =========================
+   15% 적용 버튼
+========================= */
+
+document
+  .getElementById(
+    "groupOrderPercent"
+  )
+  .addEventListener(
+    "change",
+    ()=>{
+
+      groupOrderPercentEnabled=
+        document.getElementById(
+          "groupOrderPercent"
+        ).checked;
+
+      renderGroupOrderView();
 
     }
   );
@@ -1616,7 +2045,9 @@ document
 ========================= */
 
 document
-  .getElementById("saveGroupOrder")
+  .getElementById(
+    "saveGroupOrder"
+  )
   .addEventListener(
     "click",
     async()=>{
@@ -1628,6 +2059,7 @@ document
         );
 
         return;
+
       }
 
       if(
@@ -1640,6 +2072,7 @@ document
         );
 
         return;
+
       }
 
       const foods=[];
@@ -1647,17 +2080,22 @@ document
       for(let i=0;i<5;i++){
 
         const name=
-          document.querySelector(
-            `.group-food-name[data-index="${i}"]`
-          ).value.trim();
+          document
+            .querySelector(
+              `.group-food-name[data-index="${i}"]`
+            )
+            .value
+            .trim();
 
         const amount=
           Math.max(
             0,
             Number(
-              document.querySelector(
-                `.group-food-amount[data-index="${i}"]`
-              ).value
+              document
+                .querySelector(
+                  `.group-food-amount[data-index="${i}"]`
+                )
+                .value
             ) || 0
           );
 
@@ -1668,19 +2106,35 @@ document
 
       }
 
+      groupOrderPercentEnabled=
+        document.getElementById(
+          "groupOrderPercent"
+        ).checked;
+
+
       try{
 
         await setDoc(
           groupOrderRef,
           {
             foods,
+
+            /*
+              15% 적용 여부 저장
+            */
+            percent15:
+              groupOrderPercentEnabled,
+
             updatedAt:
               new Date().toISOString()
+
           },
           {
             merge:true
           }
         );
+
+        renderGroupOrderView();
 
         alert(
           "단체주문이 저장되었습니다!"
@@ -1702,9 +2156,8 @@ document
 
 /* =========================
    Firebase 초기화
-   계산기 화면이 Firebase와
-   상관없이 먼저 표시되도록
-   동적 import 사용
+   계산기는 Firebase와
+   상관없이 먼저 표시
 ========================= */
 
 async function initFirebase(){
@@ -1762,10 +2215,14 @@ async function initFirebase(){
 
 
     auth=
-      getAuth(firebaseApp);
+      getAuth(
+        firebaseApp
+      );
 
     db=
-      getFirestore(firebaseApp);
+      getFirestore(
+        firebaseApp
+      );
 
 
     setupGroupOrderFirebase();
