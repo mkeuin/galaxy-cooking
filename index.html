@@ -11,9 +11,13 @@
   --text:#f4f5ff; --muted:#b9bddb; --line:rgba(255,255,255,.13);
   --accent:#9b8cff; --accent2:#61d6ff;
 }
+
 *{box-sizing:border-box}
+
 body{
-  margin:0; min-height:100vh; color:var(--text);
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
   font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
   background:
     radial-gradient(circle at 15% 20%,rgba(111,76,255,.38),transparent 28%),
@@ -21,135 +25,552 @@ body{
     radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),
     linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
-body:before,body:after{
-  position:fixed; top:0; width:50%; height:100%; pointer-events:none;
-  opacity:.45; font-size:32px; letter-spacing:24px; line-height:140px;
-  overflow:hidden; z-index:0;
-}
-body:before{content:"✦  ·  ✧     ·       ✦       ·  ✧      ·       ✦       ·    ✧";left:0}
-body:after{content:"✧  ·  ✦     ·       ✧       ·  ✦       ·  ✧      ·       ✦";right:0;text-align:right}
-.app{position:relative;z-index:1;max-width:1150px;margin:auto;padding:25px 16px 45px}
-.hero{text-align:center;margin-bottom:18px}
-.hero h1{margin:0;font-size:clamp(28px,5vw,48px);text-shadow:0 0 24px rgba(150,120,255,.7)}
-.hero p{color:var(--muted);margin:8px 0 0;font-size:17px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
-.controls{padding:18px;margin-bottom:16px}
-.search{width:100%;padding:16px 18px;border-radius:12px;border:1px solid var(--line);background:#080a20;color:var(--text);font-size:19px;outline:none}
-.recipe-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:14px;max-height:300px;overflow:auto}
-.recipe-btn{padding:15px;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;cursor:pointer;text-align:left;font-size:19px;font-weight:bold}
-.recipe-btn:hover,.recipe-btn.active{border-color:var(--accent2);box-shadow:0 0 16px rgba(97,214,255,.22)}
-.grade{font-size:14px;opacity:.75;display:block;margin-bottom:5px}
-.content{padding:20px}
-.selected{font-size:26px;font-weight:bold;margin:0 0 16px}
-.result{padding:18px;border-radius:16px;background:linear-gradient(135deg,rgba(110,85,255,.22),rgba(55,180,255,.14));border:1px solid rgba(150,150,255,.28);margin-bottom:18px;font-size:18px}
-.result strong{font-size:clamp(28px,4vw,42px);display:block;margin-top:6px}
-.section-title{font-size:21px;font-weight:bold;margin:22px 0 10px}
-.table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:14px;font-size:16px}
-th,td{padding:13px 10px;border-bottom:1px solid var(--line);text-align:center}
-th{color:#d9d7ff;background:rgba(255,255,255,.05);font-size:16px}
-td:first-child{text-align:left;font-weight:bold}
-input.num{width:90px;padding:11px;border-radius:9px;border:1px solid var(--line);background:#090b23;color:white;text-align:center;font-size:17px}
-input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-input[type="number"]{-moz-appearance:textfield;appearance:textfield}
-.owned{white-space:nowrap}
-.subrecipes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
-.sub{padding:13px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:16px}
-.note{color:var(--muted);font-size:14px}
-.empty{text-align:center;color:var(--muted);padding:30px;font-size:18px}
-.category-row td{text-align:left!important;font-size:18px!important;font-weight:bold!important;padding:14px 12px!important;background:rgba(255,255,255,.08);border-top:1px solid var(--line)}
 
-/* 단체주문 */
-.group-order-card{padding:20px;margin-bottom:16px}
-.group-order-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}
-.group-order-header h2{margin:0 0 5px;font-size:24px}
-.group-order-header p{margin:0;color:var(--muted)}
-.admin-btn,.save-btn{border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:white;font-size:16px;font-weight:bold;background:linear-gradient(135deg,var(--accent),var(--accent2))}
-.logout-btn{background:rgba(255,255,255,.12)}
-.login-box{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:15px}
-.login-box input,.group-food input{width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:#090b23;color:white;font-size:16px}
-.group-order-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
-.group-food{padding:14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.04)}
-.group-food label{display:block;margin-bottom:8px;color:#d9d7ff;font-weight:bold}
-.group-food input{margin-bottom:7px}
-.group-order-view{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
-.group-order-item{padding:15px;border-radius:12px;background:rgba(110,85,255,.14);border:1px solid rgba(150,150,255,.22)}
-.group-order-item strong{display:block;font-size:18px;margin-bottom:7px}
-.order-price{margin-top:6px;color:#d9d7ff}
-.order-price-final{margin-top:5px;font-weight:bold;font-size:16px}
-.percent-toggle{display:flex;align-items:center;gap:8px;margin:0 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.04)}
-.percent-toggle input{width:18px;height:18px}
-.percent-badge{display:inline-block;margin-left:6px;padding:3px 7px;border-radius:6px;background:rgba(97,214,255,.15);color:#61d6ff;font-size:12px}
-.order-summary{margin-top:14px;padding:16px;border-radius:12px;background:rgba(97,214,255,.10);border:1px solid rgba(97,214,255,.22)}
-.order-summary-row{display:flex;justify-content:space-between;gap:10px;padding:5px 0}
-.order-summary-total{font-size:22px;font-weight:bold;margin-top:6px;padding-top:10px;border-top:1px solid var(--line)}
-.percent-toggle{display:flex;align-items:center;gap:10px;margin:12px 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.04)}
-.percent-toggle input{width:20px;height:20px;accent-color:#9b8cff}
-.percent-badge{display:inline-block;padding:3px 8px;border-radius:20px;background:rgba(155,140,255,.18);font-size:13px;margin-left:6px}
+body:before,
+body:after{
+  position:fixed;
+  top:0;
+  width:50%;
+  height:100%;
+  pointer-events:none;
+  opacity:.45;
+  font-size:32px;
+  letter-spacing:24px;
+  line-height:140px;
+  overflow:hidden;
+  z-index:0;
+}
+
+body:before{
+  content:"✦  ·  ✧     ·       ✦       ·  ✧      ·       ✦       ·    ✧";
+  left:0;
+}
+
+body:after{
+  content:"✧  ·  ✦     ·       ✧       ·  ✦       ·  ✧      ·       ✦";
+  right:0;
+  text-align:right;
+}
+
+.app{
+  position:relative;
+  z-index:1;
+  max-width:1150px;
+  margin:auto;
+  padding:25px 16px 45px;
+}
+
+.hero{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.hero h1{
+  margin:0;
+  font-size:clamp(28px,5vw,48px);
+  text-shadow:0 0 24px rgba(150,120,255,.7);
+}
+
+.hero p{
+  color:var(--muted);
+  margin:8px 0 0;
+  font-size:17px;
+}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:22px;
+  backdrop-filter:blur(14px);
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+.controls{
+  padding:18px;
+  margin-bottom:16px;
+}
+
+.search{
+  width:100%;
+  padding:16px 18px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#080a20;
+  color:var(--text);
+  font-size:19px;
+  outline:none;
+}
+
+.recipe-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:8px;
+  margin-top:14px;
+  max-height:300px;
+  overflow:auto;
+}
+
+.recipe-btn{
+  padding:15px;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:var(--text);
+  border-radius:12px;
+  cursor:pointer;
+  text-align:left;
+  font-size:19px;
+  font-weight:bold;
+}
+
+.recipe-btn:hover,
+.recipe-btn.active{
+  border-color:var(--accent2);
+  box-shadow:0 0 16px rgba(97,214,255,.22);
+}
+
+.grade{
+  font-size:14px;
+  opacity:.75;
+  display:block;
+  margin-bottom:5px;
+}
+
+.content{
+  padding:20px;
+}
+
+.selected{
+  font-size:26px;
+  font-weight:bold;
+  margin:0 0 16px;
+}
+
+.result{
+  padding:18px;
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(110,85,255,.22),rgba(55,180,255,.14));
+  border:1px solid rgba(150,150,255,.28);
+  margin-bottom:18px;
+  font-size:18px;
+}
+
+.result strong{
+  font-size:clamp(28px,4vw,42px);
+  display:block;
+  margin-top:6px;
+}
+
+.section-title{
+  font-size:21px;
+  font-weight:bold;
+  margin:22px 0 10px;
+}
+
+.table{
+  width:100%;
+  border-collapse:collapse;
+  overflow:hidden;
+  border-radius:14px;
+  font-size:16px;
+}
+
+th,
+td{
+  padding:13px 10px;
+  border-bottom:1px solid var(--line);
+  text-align:center;
+}
+
+th{
+  color:#d9d7ff;
+  background:rgba(255,255,255,.05);
+  font-size:16px;
+}
+
+td:first-child{
+  text-align:left;
+  font-weight:bold;
+}
+
+input.num{
+  width:90px;
+  padding:11px;
+  border-radius:9px;
+  border:1px solid var(--line);
+  background:#090b23;
+  color:white;
+  text-align:center;
+  font-size:17px;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+
+input[type="number"]{
+  -moz-appearance:textfield;
+  appearance:textfield;
+}
+
+.owned{
+  white-space:nowrap;
+}
+
+.subrecipes{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:8px;
+}
+
+.sub{
+  padding:13px 14px;
+  border-radius:10px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--line);
+  font-size:16px;
+}
+
+.note{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:30px;
+  font-size:18px;
+}
+
+.category-row td{
+  text-align:left!important;
+  font-size:18px!important;
+  font-weight:bold!important;
+  padding:14px 12px!important;
+  background:rgba(255,255,255,.08);
+  border-top:1px solid var(--line);
+}
+
+/* =========================
+   단체주문
+========================= */
+
+.group-order-card{
+  padding:20px;
+  margin-bottom:16px;
+}
+
+.group-order-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:18px;
+}
+
+.group-order-header h2{
+  margin:0 0 5px;
+  font-size:24px;
+}
+
+.group-order-header p{
+  margin:0;
+  color:var(--muted);
+}
+
+.admin-btn,
+.save-btn{
+  border:none;
+  border-radius:10px;
+  padding:12px 18px;
+  cursor:pointer;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+}
+
+.logout-btn{
+  background:rgba(255,255,255,.12);
+}
+
+.login-box{
+  display:grid;
+  grid-template-columns:1fr 1fr auto;
+  gap:8px;
+  margin-bottom:15px;
+}
+
+.login-box input,
+.group-food input{
+  width:100%;
+  padding:12px;
+  border-radius:9px;
+  border:1px solid var(--line);
+  background:#090b23;
+  color:white;
+  font-size:16px;
+}
+
+.group-order-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.group-food{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+}
+
+.group-food label{
+  display:block;
+  margin-bottom:8px;
+  color:#d9d7ff;
+  font-weight:bold;
+}
+
+.group-food input{
+  margin-bottom:7px;
+}
+
+.group-order-view{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
+
+.group-order-item{
+  padding:15px;
+  border-radius:12px;
+  background:rgba(110,85,255,.14);
+  border:1px solid rgba(150,150,255,.22);
+}
+
+.group-order-item strong{
+  display:block;
+  font-size:18px;
+  margin-bottom:7px;
+}
+
+.order-price{
+  margin-top:6px;
+  color:#d9d7ff;
+}
+
+.order-price-final{
+  margin-top:5px;
+  font-weight:bold;
+  font-size:16px;
+}
+
+.percent-toggle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:12px 0 14px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:rgba(255,255,255,.04);
+}
+
+.percent-toggle input{
+  width:20px;
+  height:20px;
+  accent-color:#9b8cff;
+}
+
+.percent-badge{
+  display:inline-block;
+  padding:3px 8px;
+  border-radius:20px;
+  background:rgba(155,140,255,.18);
+  font-size:13px;
+  margin-left:6px;
+}
 
 @media(max-width:700px){
-  .app{padding:14px 8px 30px}.content,.controls{padding:13px}
-  th:nth-child(2),td:nth-child(2){display:none}.table{font-size:13px}
-  input.num{width:60px}.recipe-btn{font-size:18px}
-  body:before,body:after{font-size:24px;letter-spacing:14px;line-height:110px}
-  .group-order-header{flex-direction:column;align-items:flex-start}
-  .login-box{grid-template-columns:1fr}
+  .app{
+    padding:14px 8px 30px;
+  }
+
+  .content,
+  .controls{
+    padding:13px;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2){
+    display:none;
+  }
+
+  .table{
+    font-size:13px;
+  }
+
+  input.num{
+    width:60px;
+  }
+
+  .recipe-btn{
+    font-size:18px;
+  }
+
+  body:before,
+  body:after{
+    font-size:24px;
+    letter-spacing:14px;
+    line-height:110px;
+  }
+
+  .group-order-header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .login-box{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
 
 <body>
+
 <div class="app">
+
   <div class="hero">
     <h1>🌌 은하 요리 계산기 🍳</h1>
     <p>64개 = 1세트 · 보유 재료를 세트 + 낱개로 입력하세요</p>
   </div>
 
-  <!-- 단체주문 -->
+  <!-- =========================
+       단체주문
+  ========================= -->
+
   <div class="card group-order-card">
+
     <div class="group-order-header">
+
       <div>
         <h2>📦 단체주문</h2>
         <p id="groupOrderStatus">단체주문 내용을 불러오는 중...</p>
       </div>
+
       <div class="admin-area">
-        <button id="loginBtn" class="admin-btn">🔐 관리자 로그인</button>
-        <button id="logoutBtn" class="admin-btn logout-btn" style="display:none">로그아웃</button>
+        <button id="loginBtn" class="admin-btn">
+          🔐 관리자 로그인
+        </button>
+
+        <button id="logoutBtn"
+                class="admin-btn logout-btn"
+                style="display:none">
+          로그아웃
+        </button>
       </div>
+
     </div>
 
-    <div id="loginBox" class="login-box" style="display:none">
-      <input id="adminEmail" type="email" placeholder="관리자 이메일">
-      <input id="adminPassword" type="password" placeholder="비밀번호">
-      <button id="loginSubmit" class="save-btn">로그인</button>
+    <div id="loginBox"
+         class="login-box"
+         style="display:none">
+
+      <input id="adminEmail"
+             type="email"
+             placeholder="관리자 이메일">
+
+      <input id="adminPassword"
+             type="password"
+             placeholder="비밀번호">
+
+      <button id="loginSubmit"
+              class="save-btn">
+        로그인
+      </button>
+
     </div>
 
-    <div id="groupOrderEditor" style="display:none">
+    <div id="groupOrderEditor"
+         style="display:none">
+
       <div class="percent-toggle">
-        <input id="groupOrderPercent" type="checkbox">
-        <label for="groupOrderPercent"><b>15% 적용</b><span class="percent-badge">금액에만 적용</span></label>
+
+        <input id="groupOrderPercent"
+               type="checkbox">
+
+        <label for="groupOrderPercent">
+          <b>15% 적용</b>
+          <span class="percent-badge">
+            금액에만 적용
+          </span>
+        </label>
+
       </div>
-      <div class="group-order-grid" id="groupOrderGrid"></div>
-      <button id="saveGroupOrder" class="save-btn">💾 단체주문 저장</button>
+
+      <div class="group-order-grid"
+           id="groupOrderGrid">
+      </div>
+
+      <button id="saveGroupOrder"
+              class="save-btn">
+        💾 단체주문 저장
+      </button>
+
     </div>
 
-    <div id="groupOrderView" class="group-order-view">불러오는 중...</div>
+    <div id="groupOrderView"
+         class="group-order-view">
+      불러오는 중...
+    </div>
+
   </div>
 
-  <!-- 검색 및 요리 목록 -->
+
+  <!-- =========================
+       검색 및 요리 목록
+  ========================= -->
+
   <div class="card controls">
-    <input id="search" class="search" placeholder="🔎 요리 이름을 검색하세요">
-    <div id="recipeList" class="recipe-list"></div>
+
+    <input id="search"
+           class="search"
+           placeholder="🔎 요리 이름을 검색하세요">
+
+    <div id="recipeList"
+         class="recipe-list">
+    </div>
+
   </div>
 
-  <!-- 계산 화면 -->
+
+  <!-- =========================
+       계산 화면
+  ========================= -->
+
   <div class="card content">
-    <div id="appContent" class="empty">위에서 요리를 선택해주세요.</div>
+
+    <div id="appContent"
+         class="empty">
+      위에서 요리를 선택해주세요.
+    </div>
+
   </div>
+
 </div>
+
 
 <script>
 
-/* Firebase 설정 */
+/* =========================
+   Firebase 설정
+========================= */
+
 const firebaseConfig = {
   apiKey: "AIzaSyBi3CTzTaWPwDJ9CgwuRgpROac45Ag-54Y",
   authDomain: "galaxy-cooking.firebaseapp.com",
@@ -162,6 +583,7 @@ const firebaseConfig = {
 let auth=null;
 let db=null;
 let groupOrderRef=null;
+
 let initializeApp=null;
 let getAuth=null;
 let signInWithEmailAndPassword=null;
@@ -171,519 +593,1815 @@ let getFirestore=null;
 let doc=null;
 let setDoc=null;
 let onSnapshot=null;
-const ADMIN_UID = "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
-const STACK = 64;
 
-let isAdmin = false;
-let groupOrderData = Array.from({length:5},()=>({name:"",amount:0}));
-let groupOrderPercentEnabled = false;
+const ADMIN_UID =
+  "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
+
+const STACK=64;
+
+let isAdmin=false;
+
+let groupOrderData=
+  Array.from(
+    {length:5},
+    ()=>({
+      name:"",
+      amount:0
+    })
+  );
+
+let groupOrderPercentEnabled=false;
+
 
 /* =========================
    요리 데이터
 ========================= */
-const recipes = {
+
+const recipes={
+
 "일반":{
-"요정 피쉬 꽃튀김":{"요정 피쉬":1,"마나블라썸":4,"밀가루":4,"빵가루":4},
-"호박 마나푸딩":{"마나블라썸":4,"호박 퓌레":4,"우유":4,"각설탕":4},
-"젤리 버섯 크림수프":{"젤리버섯":6,"우유":4,"밀가루":4},
-"피치 가지 디저트구이":{"피치가지":4,"수박시럽":4,"각설탕":4,"우유":4},
-"피치가지 크림닭구이":{"피치가지":4,"익힌 닭고기":4,"우유":4,"수박시럽":4},
-"마나블라썸 밀크":{"마나블라썸":6,"우유":4,"각설탕":4},
-"피치 가지 수박파르페":{"피치가지":4,"수박시럽":4,"베리소스":4,"우유":4},
-"홀로그램 피쉬 바삭튀김":{"홀로그램 피쉬":1,"슬라임 콜라비":4,"밀가루":4,"빵가루":4,"수박시럽":4},
-"레드펄 양파 스튜":{"레드펄 양파":6,"감자 전분":4,"고기 육수":4},
-"마나블라썸 차":{"마나블라썸":4,"각설탕":4,"우유":4},
-"슬라임 콜라비 튀김":{"슬라임 콜라비":6,"밀가루":4,"빵가루":4},
-"엔더 콩 스튜":{"엔더 콩":6,"치킨스톡":4,"감자 전분":4},
-"초승달 무 샐러드":{"초승달 무":4,"비트소스":4,"베리소스":4},
-"슬라임 콜라비 돼지찜":{"슬라임 콜라비":4,"익힌 돼지고기":4,"고기 육수":4,"감자 전분":4},
-"젤리 버섯 닭볶음":{"젤리버섯":4,"익힌 닭고기":4,"베리소스":4,"치킨스톡":4},
-"팬텀 양배추 소고기스튜":{"팬텀 양배추":4,"익힌 소고기":4,"고기 육수":4,"우유":4},
-"팬텀 양배추 고기말이":{"팬텀 양배추":4,"익힌 소고기":4,"익힌 돼지고기":4,"고기 육수":4},
-"레드펄 소고기볶음":{"레드펄 양파":4,"익힌 소고기":4,"비트소스":4}
+
+"요정 피쉬 꽃튀김":{
+  "요정 피쉬":1,
+  "마나블라썸":4,
+  "밀가루":4,
+  "빵가루":4
 },
-"영웅":{
-"마나 해산물 스튜":{"요정 피쉬":1,"엔젤 피쉬":1,"마나블라썸":8,"치킨스톡":4,"우유":4},
-"엔젤피쉬 황금호박스튜":{"엔젤 피쉬":1,"마나블라썸":8,"호박 퓌레":4,"당근즙":4,"우유":4},
-"그림자 생선조림":{"다크 피쉬":1,"고스트 피쉬":1,"엔더 콩":8,"비트소스":4,"고기 육수":4},
-"환영 생선 샐러드":{"홀로그램 피쉬":1,"초승달 무":8,"슬라임 콜라비":6,"베리소스":4,"수박시럽":4},
-"천상의 크림스튜":{"엔젤 피쉬":1,"피치가지":8,"호박 퓌레":4,"우유":4,"각설탕":4},
-"마녀의 심해탕":{"다크 피쉬":1,"젤리버섯":8,"팬텀 양배추":6,"비트소스":4,"치킨스톡":4},
-"고스트 피쉬 크림탕":{"고스트 피쉬":1,"팬텀 양배추":8,"우유":4,"치킨스톡":4},
-"고스트 피쉬 양배추말이":{"고스트 피쉬":1,"팬텀 양배추":8,"초승달 무":4,"치킨스톡":4},
-"요정 피쉬 마나찜":{"요정 피쉬":1,"마나블라썸":8,"당근즙":4,"우유":4},
-"홀로그램 피쉬 베리글레이즈":{"홀로그램 피쉬":1,"슬라임 콜라비":8,"베리소스":4,"수박시럽":4},
-"다크 피쉬 비트조림":{"다크 피쉬":1,"레드펄 양파":8,"비트소스":4,"고기 육수":4},
-"다크 피쉬 매운구이":{"다크 피쉬":1,"엔더 콩":8,"비트소스":4,"빵가루":4},
-"엔젤피쉬 크림구이":{"엔젤 피쉬":1,"마나블라썸":6,"우유":4,"호박 퓌레":4,"빵가루":4},
-"젤리 버섯 푸딩":{"젤리버섯":8,"우유":4,"각설탕":4,"수박시럽":4}
+
+"호박 마나푸딩":{
+  "마나블라썸":4,
+  "호박 퓌레":4,
+  "우유":4,
+  "각설탕":4
 },
-"전설":{
-"아스텔라 A급 생선 정식":{"요정 피쉬 마나찜":1,"홀로그램 피쉬 베리글레이즈":1,"다크 피쉬 비트조림":1,"고스트 피쉬 크림탕":1,"엔젤피쉬 황금호박스튜":1},
-"아스텔라 축제 도시락":{"레드펄 양파 스튜":1,"슬라임 콜라비 튀김":1,"팬텀 양배추 고기말이":1,"피치 가지 수박파르페":1}
+
+"젤리 버섯 크림수프":{
+  "젤리버섯":6,
+  "우유":4,
+  "밀가루":4
 },
-"신화":{
-"왕실 해산물 만찬":{"마나 해산물 스튜":1,"그림자 생선조림":1,"환영 생선 샐러드":1,"천상의 크림스튜":1,"마나블라썸 밀크":1}
+
+"피치 가지 디저트구이":{
+  "피치가지":4,
+  "수박시럽":4,
+  "각설탕":4,
+  "우유":4
+},
+
+"피치가지 크림닭구이":{
+  "피치가지":4,
+  "익힌 닭고기":4,
+  "우유":4,
+  "수박시럽":4
+},
+
+"마나블라썸 밀크":{
+  "마나블라썸":6,
+  "우유":4,
+  "각설탕":4
+},
+
+"피치 가지 수박파르페":{
+  "피치가지":4,
+  "수박시럽":4,
+  "베리소스":4,
+  "우유":4
+},
+
+"홀로그램 피쉬 바삭튀김":{
+  "홀로그램 피쉬":1,
+  "슬라임 콜라비":4,
+  "밀가루":4,
+  "빵가루":4,
+  "수박시럽":4
+},
+
+"레드펄 양파 스튜":{
+  "레드펄 양파":6,
+  "감자 전분":4,
+  "고기 육수":4
+},
+
+"마나블라썸 차":{
+  "마나블라썸":4,
+  "각설탕":4,
+  "우유":4
+},
+
+"슬라임 콜라비 튀김":{
+  "슬라임 콜라비":6,
+  "밀가루":4,
+  "빵가루":4
+},
+
+"엔더 콩 스튜":{
+  "엔더 콩":6,
+  "치킨스톡":4,
+  "감자 전분":4
+},
+
+"초승달 무 샐러드":{
+  "초승달 무":4,
+  "비트소스":4,
+  "베리소스":4
+},
+
+"슬라임 콜라비 돼지찜":{
+  "슬라임 콜라비":4,
+  "익힌 돼지고기":4,
+  "고기 육수":4,
+  "감자 전분":4
+},
+
+"젤리 버섯 닭볶음":{
+  "젤리버섯":4,
+  "익힌 닭고기":4,
+  "베리소스":4,
+  "치킨스톡":4
+},
+
+"팬텀 양배추 소고기스튜":{
+  "팬텀 양배추":4,
+  "익힌 소고기":4,
+  "고기 육수":4,
+  "우유":4
+},
+
+"팬텀 양배추 고기말이":{
+  "팬텀 양배추":4,
+  "익힌 소고기":4,
+  "익힌 돼지고기":4,
+  "고기 육수":4
+},
+
+"레드펄 소고기볶음":{
+  "레드펄 양파":4,
+  "익힌 소고기":4,
+  "비트소스":4
 }
+
+},
+
+"영웅":{
+
+"마나 해산물 스튜":{
+  "요정 피쉬":1,
+  "엔젤 피쉬":1,
+  "마나블라썸":8,
+  "치킨스톡":4,
+  "우유":4
+},
+
+"엔젤피쉬 황금호박스튜":{
+  "엔젤 피쉬":1,
+  "마나블라썸":8,
+  "호박 퓌레":4,
+  "당근즙":4,
+  "우유":4
+},
+
+"그림자 생선조림":{
+  "다크 피쉬":1,
+  "고스트 피쉬":1,
+  "엔더 콩":8,
+  "비트소스":4,
+  "고기 육수":4
+},
+
+"환영 생선 샐러드":{
+  "홀로그램 피쉬":1,
+  "초승달 무":8,
+  "슬라임 콜라비":6,
+  "베리소스":4,
+  "수박시럽":4
+},
+
+"천상의 크림스튜":{
+  "엔젤 피쉬":1,
+  "피치가지":8,
+  "호박 퓌레":4,
+  "우유":4,
+  "각설탕":4
+},
+
+"마녀의 심해탕":{
+  "다크 피쉬":1,
+  "젤리버섯":8,
+  "팬텀 양배추":6,
+  "비트소스":4,
+  "치킨스톡":4
+},
+
+"고스트 피쉬 크림탕":{
+  "고스트 피쉬":1,
+  "팬텀 양배추":8,
+  "우유":4,
+  "치킨스톡":4
+},
+
+"고스트 피쉬 양배추말이":{
+  "고스트 피쉬":1,
+  "팬텀 양배추":8,
+  "초승달 무":4,
+  "치킨스톡":4
+},
+
+"요정 피쉬 마나찜":{
+  "요정 피쉬":1,
+  "마나블라썸":8,
+  "당근즙":4,
+  "우유":4
+},
+
+"홀로그램 피쉬 베리글레이즈":{
+  "홀로그램 피쉬":1,
+  "슬라임 콜라비":8,
+  "베리소스":4,
+  "수박시럽":4
+},
+
+"다크 피쉬 비트조림":{
+  "다크 피쉬":1,
+  "레드펄 양파":8,
+  "비트소스":4,
+  "고기 육수":4
+},
+
+"다크 피쉬 매운구이":{
+  "다크 피쉬":1,
+  "엔더 콩":8,
+  "비트소스":4,
+  "빵가루":4
+},
+
+"엔젤피쉬 크림구이":{
+  "엔젤 피쉬":1,
+  "마나블라썸":6,
+  "우유":4,
+  "호박 퓌레":4,
+  "빵가루":4
+},
+
+"젤리 버섯 푸딩":{
+  "젤리버섯":8,
+  "우유":4,
+  "각설탕":4,
+  "수박시럽":4
+}
+
+},
+
+"전설":{
+
+"아스텔라 A급 생선 정식":{
+  "요정 피쉬 마나찜":1,
+  "홀로그램 피쉬 베리글레이즈":1,
+  "다크 피쉬 비트조림":1,
+  "고스트 피쉬 크림탕":1,
+  "엔젤피쉬 황금호박스튜":1
+},
+
+"아스텔라 축제 도시락":{
+  "레드펄 양파 스튜":1,
+  "슬라임 콜라비 튀김":1,
+  "팬텀 양배추 고기말이":1,
+  "피치 가지 수박파르페":1
+}
+
+},
+
+"신화":{
+
+"왕실 해산물 만찬":{
+  "마나 해산물 스튜":1,
+  "그림자 생선조림":1,
+  "환영 생선 샐러드":1,
+  "천상의 크림스튜":1,
+  "마나블라썸 밀크":1
+}
+
+}
+
 };
 
+
+/* =========================
+   전체 레시피
+========================= */
+
 const all={};
-Object.values(recipes).forEach(group=>Object.assign(all,group));
+
+Object.values(recipes)
+  .forEach(group=>Object.assign(all,group));
+
 let selected=null;
 let selectedGrade=null;
 
-function expandRecipe(name,amount=1,result={}){
-  for(const [item,need] of Object.entries(all[name])){
+
+/* =========================
+   레시피 확장
+========================= */
+
+function expandRecipe(
+  name,
+  amount=1,
+  result={}
+){
+
+  for(
+    const [item,need]
+    of Object.entries(all[name])
+  ){
+
     const total=need*amount;
-    if(all[item]) expandRecipe(item,total,result);
-    else result[item]=(result[item]||0)+total;
+
+    if(all[item]){
+      expandRecipe(
+        item,
+        total,
+        result
+      );
+    }
+    else{
+      result[item]=
+        (result[item]||0)+total;
+    }
+
   }
+
   return result;
 }
 
+
+/* =========================
+   세트 표시
+========================= */
+
 function formatStack(n){
-  const sets=Math.floor(n/STACK),pieces=n%STACK;
-  if(sets&&pieces)return `${n.toLocaleString()}개 (${sets}세트 + ${pieces}개)`;
-  if(sets)return `${n.toLocaleString()}개 (${sets}세트)`;
+
+  const sets=Math.floor(n/STACK);
+  const pieces=n%STACK;
+
+  if(sets&&pieces){
+    return `${n.toLocaleString()}개 (${sets}세트 + ${pieces}개)`;
+  }
+
+  if(sets){
+    return `${n.toLocaleString()}개 (${sets}세트)`;
+  }
+
   return `${n.toLocaleString()}개`;
 }
 
-const FISH=["요정 피쉬","엔젤 피쉬","다크 피쉬","고스트 피쉬","홀로그램 피쉬"];
-const CROPS=["마나블라썸","피치가지","젤리버섯","팬텀 양배추","레드펄 양파","슬라임 콜라비","엔더 콩","초승달 무"];
+
+/* =========================
+   재료 분류
+========================= */
+
+const FISH=[
+  "요정 피쉬",
+  "엔젤 피쉬",
+  "다크 피쉬",
+  "고스트 피쉬",
+  "홀로그램 피쉬"
+];
+
+const CROPS=[
+  "마나블라썸",
+  "피치가지",
+  "젤리버섯",
+  "팬텀 양배추",
+  "레드펄 양파",
+  "슬라임 콜라비",
+  "엔더 콩",
+  "초승달 무"
+];
 
 function getIngredientCategory(name){
-  return FISH.includes(name)?1:CROPS.includes(name)?2:3
+
+  return FISH.includes(name)
+    ? 1
+    : CROPS.includes(name)
+      ? 2
+      : 3;
 }
 
 function getCategoryName(c){
-  return c===1?"🐟 피쉬":c===2?"🌱 작물":"🧂 가공재료"
+
+  return c===1
+    ? "🐟 피쉬"
+    : c===2
+      ? "🌱 작물"
+      : "🧂 가공재료";
 }
+
+
+/* =========================
+   CSS ID
+========================= */
 
 function cssId(name){
-  return btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g,"");
+
+  return btoa(
+    unescape(
+      encodeURIComponent(name)
+    )
+  ).replace(
+    /[^a-zA-Z0-9]/g,
+    ""
+  );
 }
 
-function createIngredientRow(name,need){
+
+/* =========================
+   재료 행
+========================= */
+
+function createIngredientRow(
+  name,
+  need
+){
+
   return `<tr>
     <td>${name}</td>
     <td>${need}개</td>
-    <td class="owned" id="owned-${cssId(name)}">0개</td>
-    <td><input class="num set-input" data-name="${name}" type="number" min="0" value="0"></td>
-    <td><input class="num piece-input" data-name="${name}" type="number" min="0" value="0"></td>
+    <td class="owned"
+        id="owned-${cssId(name)}">
+      0개
+    </td>
+    <td>
+      <input
+        class="num set-input"
+        data-name="${name}"
+        type="number"
+        min="0"
+        value="0">
+    </td>
+    <td>
+      <input
+        class="num piece-input"
+        data-name="${name}"
+        type="number"
+        min="0"
+        value="0">
+    </td>
   </tr>`;
 }
 
-function createGroupedIngredientRows(ingredients){
-  const groups={1:[],2:[],3:[]};
-  Object.entries(ingredients).forEach(([name,need])=>groups[getIngredientCategory(name)].push([name,need]));
+
+/* =========================
+   재료 그룹 행
+========================= */
+
+function createGroupedIngredientRows(
+  ingredients
+){
+
+  const groups={
+    1:[],
+    2:[],
+    3:[]
+  };
+
+  Object.entries(ingredients)
+    .forEach(([name,need])=>{
+      groups[
+        getIngredientCategory(name)
+      ].push([name,need]);
+    });
+
   let html="";
+
   for(let c=1;c<=3;c++){
+
     if(!groups[c].length)continue;
-    groups[c].sort(([a],[b])=>a.localeCompare(b,"ko"));
-    html+=`<tr class="category-row"><td colspan="5">${getCategoryName(c)}</td></tr>`;
-    groups[c].forEach(([name,need])=>html+=createIngredientRow(name,need));
+
+    groups[c].sort(
+      ([a],[b])=>
+        a.localeCompare(b,"ko")
+    );
+
+    html+=`
+      <tr class="category-row">
+        <td colspan="5">
+          ${getCategoryName(c)}
+        </td>
+      </tr>
+    `;
+
+    groups[c].forEach(
+      ([name,need])=>{
+        html+=createIngredientRow(
+          name,
+          need
+        );
+      }
+    );
   }
+
   return html;
 }
 
+
+/* =========================
+   요리 목록
+========================= */
+
 function renderList(){
-  const q=document.getElementById("search").value.trim().toLowerCase();
-  const list=document.getElementById("recipeList");
+
+  const q=
+    document.getElementById("search")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const list=
+    document.getElementById("recipeList");
+
   list.innerHTML="";
-  for(const [grade,group] of Object.entries(recipes)){
-    for(const name of Object.keys(group)){
-      if((grade+" "+name).toLowerCase().includes(q)){
-        const button=document.createElement("button");
-        button.className="recipe-btn"+(selected===name?" active":"");
-        button.innerHTML=`<span class="grade">${grade}</span>${name}`;
-        button.onclick=()=>selectRecipe(grade,name);
+
+  for(
+    const [grade,group]
+    of Object.entries(recipes)
+  ){
+
+    for(
+      const name
+      of Object.keys(group)
+    ){
+
+      if(
+        (grade+" "+name)
+          .toLowerCase()
+          .includes(q)
+      ){
+
+        const button=
+          document.createElement("button");
+
+        button.className=
+          "recipe-btn"+
+          (selected===name
+            ? " active"
+            : "");
+
+        button.innerHTML=
+          `<span class="grade">
+             ${grade}
+           </span>
+           ${name}`;
+
+        button.onclick=()=>
+          selectRecipe(
+            grade,
+            name
+          );
+
         list.appendChild(button);
       }
     }
   }
 }
 
-function selectRecipe(grade,name){
+
+/* =========================
+   요리 선택
+========================= */
+
+function selectRecipe(
+  grade,
+  name
+){
+
   selected=name;
   selectedGrade=grade;
+
   renderList();
-  renderRecipe()
+  renderRecipe();
 }
 
+
+/* =========================
+   요리 화면
+========================= */
+
 function renderRecipe(){
+
   if(!selected)return;
-  const content=document.getElementById("appContent");
-  const isHighGrade=selectedGrade==="전설"||selectedGrade==="신화";
-  const ingredients=isHighGrade?expandRecipe(selected):all[selected];
-  const sub=isHighGrade?all[selected]:null;
+
+  const content=
+    document.getElementById("appContent");
+
+  const isHighGrade=
+    selectedGrade==="전설" ||
+    selectedGrade==="신화";
+
+  const ingredients=
+    isHighGrade
+      ? expandRecipe(selected)
+      : all[selected];
+
+  const sub=
+    isHighGrade
+      ? all[selected]
+      : null;
+
   let subHtml="";
 
   if(sub){
-    subHtml=`<div class="section-title">🥘 필요한 하위 요리</div>
-    <div class="subrecipes">${Object.entries(sub).map(([name,amount])=>`<div class="sub">${name} × ${amount}</div>`).join("")}</div>
-    <div class="section-title">📋 실제 기본 재료</div>`;
+
+    subHtml=`
+      <div class="section-title">
+        🥘 필요한 하위 요리
+      </div>
+
+      <div class="subrecipes">
+
+        ${
+          Object.entries(sub)
+            .map(
+              ([name,amount])=>
+                `<div class="sub">
+                  ${name} × ${amount}
+                </div>`
+            )
+            .join("")
+        }
+
+      </div>
+
+      <div class="section-title">
+        📋 실제 기본 재료
+      </div>
+    `;
   }
 
-  const rows=isHighGrade?createGroupedIngredientRows(ingredients):Object.entries(ingredients).map(([name,need])=>createIngredientRow(name,need)).join("");
+  const rows=
+    isHighGrade
+      ? createGroupedIngredientRows(
+          ingredients
+        )
+      : Object.entries(ingredients)
+          .map(
+            ([name,need])=>
+              createIngredientRow(
+                name,
+                need
+              )
+          )
+          .join("");
 
   content.innerHTML=`
-    <div class="selected">[${selectedGrade}] ${selected}</div>
-    <div class="result"><span>🍲 만들 수 있는 요리</span><strong id="result">0개</strong>
-    </div>
-    ${subHtml}
-    <div style="overflow:auto">
-      <table class="table">
-        <thead><tr><th>재료</th><th>요리 1개 필요량</th><th>보유량</th><th>세트</th><th>낱개</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
 
-  document.querySelectorAll(".set-input,.piece-input").forEach(el=>{
-    el.addEventListener("input",updateCalculation);
-    el.addEventListener("keydown",handleTab);
-  });
+    <div class="selected">
+      [${selectedGrade}] ${selected}
+    </div>
+
+    <div class="result">
+
+      <span>
+        🍲 만들 수 있는 요리
+      </span>
+
+      <strong id="result">
+        0개
+      </strong>
+
+      <div id="orderMoneyResult"></div>
+
+    </div>
+
+    ${subHtml}
+
+    <div style="overflow:auto">
+
+      <table class="table">
+
+        <thead>
+          <tr>
+            <th>재료</th>
+            <th>요리 1개 필요량</th>
+            <th>보유량</th>
+            <th>세트</th>
+            <th>낱개</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${rows}
+        </tbody>
+
+      </table>
+
+    </div>
+  `;
+
+  document
+    .querySelectorAll(
+      ".set-input,.piece-input"
+    )
+    .forEach(el=>{
+
+      el.addEventListener(
+        "input",
+        updateCalculation
+      );
+
+      el.addEventListener(
+        "keydown",
+        handleTab
+      );
+
+    });
 
   updateCalculation();
 }
 
-function getGroupOrderPrice(recipeName){
-  const found=groupOrderData.find(food=>food.name&&food.name.trim()===recipeName);
+
+/* =========================
+   단체주문 가격 찾기
+========================= */
+
+function getGroupOrderPrice(
+  recipeName
+){
+
+  const found=
+    groupOrderData.find(
+      food=>
+        food.name &&
+        food.name.trim()===recipeName
+    );
+
   if(!found)return null;
-  const price=Math.max(0,Number(found.amount)||0);
+
+  const price=
+    Math.max(
+      0,
+      Number(found.amount)||0
+    );
+
   return price;
 }
 
+
+/* =========================
+   원화 표시
+========================= */
+
 function formatWon(n){
-  return Math.round(n).toLocaleString()+"원";
+
+  return (
+    Math.round(n)
+      .toLocaleString()
+    + "원"
+  );
 }
 
+
+/* =========================
+   계산
+========================= */
+
 function updateCalculation(){
+
   if(!selected)return;
 
-  const req=(selectedGrade==="전설"||selectedGrade==="신화")?expandRecipe(selected):all[selected];
+  const req=
+    (
+      selectedGrade==="전설" ||
+      selectedGrade==="신화"
+    )
+      ? expandRecipe(selected)
+      : all[selected];
+
   let possible=Infinity;
 
-  for(const [name,need] of Object.entries(req)){
-    const setInput=document.querySelector(`.set-input[data-name="${CSS.escape(name)}"]`);
-    const pieceInput=document.querySelector(`.piece-input[data-name="${CSS.escape(name)}"]`);
+  for(
+    const [name,need]
+    of Object.entries(req)
+  ){
+
+    const setInput=
+      document.querySelector(
+        `.set-input[data-name="${CSS.escape(name)}"]`
+      );
+
+    const pieceInput=
+      document.querySelector(
+        `.piece-input[data-name="${CSS.escape(name)}"]`
+      );
 
     if(!setInput||!pieceInput)continue;
 
-    const sets=Math.max(0,Number(setInput.value)||0);
-    const pieces=Math.max(0,Number(pieceInput.value)||0);
-    const owned=Math.floor(sets)*STACK+Math.floor(pieces);
+    const sets=
+      Math.max(
+        0,
+        Number(setInput.value)||0
+      );
 
-    possible=Math.min(possible,Math.floor(owned/need));
+    const pieces=
+      Math.max(
+        0,
+        Number(pieceInput.value)||0
+      );
 
-    const cell=document.getElementById("owned-"+cssId(name));
-    if(cell)cell.textContent=formatStack(owned);
+    const owned=
+      Math.floor(sets)*STACK+
+      Math.floor(pieces);
+
+    possible=
+      Math.min(
+        possible,
+        Math.floor(
+          owned/need
+        )
+      );
+
+    const cell=
+      document.getElementById(
+        "owned-"+cssId(name)
+      );
+
+    if(cell){
+      cell.textContent=
+        formatStack(owned);
+    }
   }
 
-  if(possible===Infinity)possible=0;
+  if(possible===Infinity){
+    possible=0;
+  }
 
-  document.getElementById("result").textContent=formatStack(possible);
+  /*
+    음식 개수는 여기서 계산된 possible 값을 그대로 유지한다.
+    15%는 절대로 possible에 적용하지 않는다.
+  */
 
-  const moneyBox=document.getElementById("orderMoneyResult");
+  document.getElementById(
+    "result"
+  ).textContent=
+    formatStack(possible);
+
+
+  /* =========================
+     단체주문 금액 계산
+     
+     음식 개수 × 음식 1개당 주문 금액
+     
+     15%는 금액에만 적용
+  ========================= */
+
+  const moneyBox=
+    document.getElementById(
+      "orderMoneyResult"
+    );
 
   if(moneyBox){
-    const unitPrice=getGroupOrderPrice(selected);
+
+    const unitPrice=
+      getGroupOrderPrice(
+        selected
+      );
 
     if(unitPrice!==null){
-      const original=possible*unitPrice;
-      const finalAmount=groupOrderPercentEnabled?Math.round(original*1.15):original;
 
-      moneyBox.innerHTML=`<div class="section-title" style="margin:14px 0 4px">💰 단체주문 금액</div>
-        <div>주문 금액 ${formatWon(unitPrice)} × ${possible.toLocaleString()}개 = <b>${formatWon(original)}</b></div>
-        ${groupOrderPercentEnabled?`<div class="order-price-final">15% 적용 → ${formatWon(finalAmount)}</div>`:`<div class="note">15% 미적용</div>`}`;
-    }else{
-      moneyBox.innerHTML=`<div class="note" style="margin-top:12px">📦 이 음식의 단체주문 금액이 등록되어 있지 않습니다.</div>`;
+      const original=
+        possible*unitPrice;
+
+      const finalAmount=
+        groupOrderPercentEnabled
+          ? Math.round(
+              original*1.15
+            )
+          : original;
+
+      moneyBox.innerHTML=`
+
+        <div
+          class="section-title"
+          style="margin:14px 0 4px">
+          💰 단체주문 금액
+        </div>
+
+        <div>
+          주문 금액
+          ${formatWon(unitPrice)}
+          ×
+          ${possible.toLocaleString()}개
+          =
+          <b>
+            ${formatWon(original)}
+          </b>
+        </div>
+
+        ${
+          groupOrderPercentEnabled
+            ? `
+              <div class="order-price-final">
+                15% 적용 →
+                ${formatWon(finalAmount)}
+              </div>
+            `
+            : `
+              <div class="note">
+                15% 미적용
+              </div>
+            `
+        }
+
+      `;
+
+    }
+    else{
+
+      moneyBox.innerHTML=`
+
+        <div
+          class="note"
+          style="margin-top:12px">
+
+          📦 이 음식의 단체주문 금액이
+          등록되어 있지 않습니다.
+
+        </div>
+
+      `;
     }
   }
 }
 
+
+/* =========================
+   Tab 이동
+========================= */
+
 function handleTab(e){
+
   if(e.key!=="Tab")return;
 
-  const inputs=[...document.querySelectorAll(".set-input,.piece-input")];
-  const index=inputs.indexOf(e.target);
+  const inputs=[
+    ...document.querySelectorAll(
+      ".set-input,.piece-input"
+    )
+  ];
+
+  const index=
+    inputs.indexOf(e.target);
 
   if(index<0)return;
 
   e.preventDefault();
 
-  const next=e.shiftKey
-    ?inputs[Math.max(0,index-1)]
-    :inputs[Math.min(inputs.length-1,index+1)];
+  const next=
+    e.shiftKey
+      ? inputs[
+          Math.max(
+            0,
+            index-1
+          )
+        ]
+      : inputs[
+          Math.min(
+            inputs.length-1,
+            index+1
+          )
+        ];
 
   next.focus();
   next.select();
 }
 
-document.getElementById("search").addEventListener("input",renderList);
-
-document.getElementById("search").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
-    const first=document.querySelector(".recipe-btn");
-    if(first)first.click();
-  }
-});
-
-/* 숫자 입력: 0 클릭 시 바로 선택 */
-document.addEventListener("focusin",e=>{
-  if(e.target.matches('input[type="number"]')){
-    setTimeout(()=>{
-      if(Number(e.target.value)===0)e.target.select();
-    },0);
-  }
-});
-
-document.addEventListener("focusout",e=>{
-  if(e.target.matches('input[type="number"]')){
-    if(e.target.value==="")e.target.value="0";
-    if(e.target.matches(".set-input,.piece-input"))updateCalculation();
-  }
-});
 
 /* =========================
-   단체주문 Firebase
+   검색
 ========================= */
-function renderGroupOrderEditor(){
-  const grid=document.getElementById("groupOrderGrid");
 
-  grid.innerHTML=Array.from({length:5},(_,i)=>`
-    <div class="group-food">
-      <label>음식 ${i+1}</label>
-      <input class="group-food-name" data-index="${i}" placeholder="음식 이름">
-      <input class="group-food-amount" data-index="${i}" type="number" min="0" value="0" placeholder="주문 금액 (원)">
-    </div>`).join("");
+document
+  .getElementById("search")
+  .addEventListener(
+    "input",
+    renderList
+  );
+
+document
+  .getElementById("search")
+  .addEventListener(
+    "keydown",
+    e=>{
+
+      if(e.key==="Enter"){
+
+        const first=
+          document.querySelector(
+            ".recipe-btn"
+          );
+
+        if(first){
+          first.click();
+        }
+      }
+
+    }
+  );
+
+
+/* =========================
+   숫자 입력
+========================= */
+
+document.addEventListener(
+  "focusin",
+  e=>{
+
+    if(
+      e.target.matches(
+        'input[type="number"]'
+      )
+    ){
+
+      setTimeout(()=>{
+
+        if(
+          Number(e.target.value)===0
+        ){
+          e.target.select();
+        }
+
+      },0);
+    }
+
+  }
+);
+
+
+document.addEventListener(
+  "focusout",
+  e=>{
+
+    if(
+      e.target.matches(
+        'input[type="number"]'
+      )
+    ){
+
+      if(e.target.value===""){
+        e.target.value="0";
+      }
+
+      if(
+        e.target.matches(
+          ".set-input,.piece-input"
+        )
+      ){
+        updateCalculation();
+      }
+
+    }
+
+  }
+);
+
+
+/* =========================
+   단체주문 에디터
+========================= */
+
+function renderGroupOrderEditor(){
+
+  const grid=
+    document.getElementById(
+      "groupOrderGrid"
+    );
+
+  grid.innerHTML=
+    Array.from(
+      {length:5},
+      (_,i)=>`
+
+        <div class="group-food">
+
+          <label>
+            음식 ${i+1}
+          </label>
+
+          <input
+            class="group-food-name"
+            data-index="${i}"
+            placeholder="음식 이름">
+
+          <input
+            class="group-food-amount"
+            data-index="${i}"
+            type="number"
+            min="0"
+            value="0"
+            placeholder="주문 금액 (원)">
+
+        </div>
+
+      `
+    ).join("");
 
   fillGroupOrderEditor();
 }
 
+
+/* =========================
+   단체주문 표시
+========================= */
+
 function renderGroupOrderView(){
-  const view=document.getElementById("groupOrderView");
-  const valid=groupOrderData.filter(food=>food.name&&food.name.trim()!=="");
+
+  const view=
+    document.getElementById(
+      "groupOrderView"
+    );
+
+  const valid=
+    groupOrderData.filter(
+      food=>
+        food.name &&
+        food.name.trim()!==""
+    );
 
   if(!valid.length){
-    view.innerHTML=`<div class="note">아직 등록된 단체주문이 없습니다.</div>`;
+
+    view.innerHTML=`
+      <div class="note">
+        아직 등록된 단체주문이 없습니다.
+      </div>
+    `;
+
     return;
   }
 
-  view.innerHTML=valid.map(food=>{
-    const price=Math.max(0,Number(food.amount)||0);
-    const adjusted=groupOrderPercentEnabled?Math.round(price*1.15):price;
+  view.innerHTML=
+    valid.map(food=>{
 
-    return `<div class="group-order-item">
-      <strong>🍳 ${escapeHtml(food.name)}</strong>
-      <div class="order-price">주문 금액: <b>${formatWon(price)}</b></div>
-      ${groupOrderPercentEnabled?`<div class="order-price-final">15% 적용 금액: ${formatWon(adjusted)}</div>`:""}
-    </div>`;
-  }).join("");
+      const price=
+        Math.max(
+          0,
+          Number(food.amount)||0
+        );
+
+      const adjusted=
+        groupOrderPercentEnabled
+          ? Math.round(
+              price*1.15
+            )
+          : price;
+
+      return `
+
+        <div class="group-order-item">
+
+          <strong>
+            🍳 ${escapeHtml(food.name)}
+          </strong>
+
+          <div class="order-price">
+            주문 금액:
+            <b>
+              ${formatWon(price)}
+            </b>
+          </div>
+
+          ${
+            groupOrderPercentEnabled
+              ? `
+                <div class="order-price-final">
+                  15% 적용 금액:
+                  ${formatWon(adjusted)}
+                </div>
+              `
+              : ""
+          }
+
+        </div>
+
+      `;
+
+    }).join("");
 }
 
+
+/* =========================
+   HTML escape
+========================= */
+
 function escapeHtml(text){
-  const div=document.createElement("div");
+
+  const div=
+    document.createElement(
+      "div"
+    );
+
   div.textContent=text;
+
   return div.innerHTML;
 }
 
+
+/* =========================
+   관리자 입력값 채우기
+========================= */
+
 function fillGroupOrderEditor(){
-  const percent=document.getElementById("groupOrderPercent");
 
-  if(percent)percent.checked=groupOrderPercentEnabled;
+  const percent=
+    document.getElementById(
+      "groupOrderPercent"
+    );
 
-  document.querySelectorAll(".group-food-name").forEach(input=>{
-    const i=Number(input.dataset.index);
-    input.value=groupOrderData[i]?.name||"";
-  });
+  if(percent){
+    percent.checked=
+      groupOrderPercentEnabled;
+  }
 
-  document.querySelectorAll(".group-food-amount").forEach(input=>{
-    const i=Number(input.dataset.index);
-    input.value=groupOrderData[i]?.amount??0;
-  });
+  document
+    .querySelectorAll(
+      ".group-food-name"
+    )
+    .forEach(input=>{
+
+      const i=
+        Number(
+          input.dataset.index
+        );
+
+      input.value=
+        groupOrderData[i]?.name ||
+        "";
+
+    });
+
+
+  document
+    .querySelectorAll(
+      ".group-food-amount"
+    )
+    .forEach(input=>{
+
+      const i=
+        Number(
+          input.dataset.index
+        );
+
+      input.value=
+        groupOrderData[i]?.amount ??
+        0;
+
+    });
 }
+
+
+/* =========================
+   Firebase 연결 후
+   단체주문 감시
+========================= */
 
 function setupGroupOrderFirebase(){
-  if(!db||!doc||!onSnapshot)return;
 
-  groupOrderRef=doc(db,"cookingOrder","main");
+  if(
+    !db ||
+    !doc ||
+    !onSnapshot
+  ){
+    return;
+  }
 
-  onSnapshot(groupOrderRef,snapshot=>{
-    if(snapshot.exists()){
-      const data=snapshot.data();
+  groupOrderRef=
+    doc(
+      db,
+      "cookingOrder",
+      "main"
+    );
 
-      if(Array.isArray(data.foods)){
-        groupOrderData=Array.from({length:5},(_,i)=>({
-          name:data.foods[i]?.name||"",
-          amount:Number(data.foods[i]?.amount)||0
-        }));
 
-        groupOrderPercentEnabled=Boolean(data.percent15);
+  onSnapshot(
+    groupOrderRef,
+    snapshot=>{
+
+      if(snapshot.exists()){
+
+        const data=
+          snapshot.data();
+
+
+        if(
+          Array.isArray(
+            data.foods
+          )
+        ){
+
+          groupOrderData=
+            Array.from(
+              {length:5},
+              (_,i)=>({
+
+                name:
+                  data.foods[i]?.name ||
+                  "",
+
+                amount:
+                  Number(
+                    data.foods[i]?.amount
+                  ) || 0
+
+              })
+            );
+
+          groupOrderPercentEnabled=
+            Boolean(
+              data.percent15
+            );
+        }
       }
+
+
+      renderGroupOrderView();
+
+
+      if(isAdmin){
+        fillGroupOrderEditor();
+      }
+
+
+      if(!isAdmin){
+
+        document.getElementById(
+          "groupOrderStatus"
+        ).textContent=
+          "👀 단체주문 내용을 확인할 수 있습니다.";
+
+      }
+
+
+      if(selected){
+        updateCalculation();
+      }
+
+    },
+    error=>{
+
+      console.error(error);
+
+      document.getElementById(
+        "groupOrderStatus"
+      ).textContent=
+        "⚠️ 단체주문을 불러오지 못했습니다.";
+
+      renderGroupOrderView();
+
     }
-
-    renderGroupOrderView();
-
-    if(isAdmin)fillGroupOrderEditor();
-
-    if(!isAdmin)
-      document.getElementById("groupOrderStatus").textContent="👀 단체주문 내용을 확인할 수 있습니다.";
-
-  },error=>{
-    console.error(error);
-    document.getElementById("groupOrderStatus").textContent="⚠️ 단체주문을 불러오지 못했습니다.";
-    renderGroupOrderView();
-  });
+  );
 }
 
-document.getElementById("loginBtn").addEventListener("click",()=>{
-  const box=document.getElementById("loginBox");
-  box.style.display=(box.style.display==="none"||box.style.display==="")?"grid":"none";
-});
 
-document.getElementById("loginSubmit").addEventListener("click",async()=>{
-  const email=document.getElementById("adminEmail").value.trim();
-  const password=document.getElementById("adminPassword").value;
+/* =========================
+   관리자 로그인 버튼
+========================= */
 
-  if(!email||!password){
-    alert("이메일과 비밀번호를 입력해주세요.");
-    return;
-  }
+document
+  .getElementById("loginBtn")
+  .addEventListener(
+    "click",
+    ()=>{
 
-  if(!auth||!signInWithEmailAndPassword){
-    alert("Firebase 연결을 기다리는 중입니다. 잠시 후 다시 시도해주세요.");
-    return;
-  }
+      const box=
+        document.getElementById(
+          "loginBox"
+        );
 
-  try{
-    await signInWithEmailAndPassword(auth,email,password);
-  }catch(error){
-    console.error(error);
-    alert("로그인에 실패했습니다.\n이메일 또는 비밀번호를 확인해주세요.");
-  }
-});
+      box.style.display=
+        (
+          box.style.display==="none" ||
+          box.style.display===""
+        )
+          ? "grid"
+          : "none";
 
-document.getElementById("logoutBtn").addEventListener("click",async()=>{
-  if(auth&&signOut)await signOut(auth);
-});
+    }
+  );
 
-document.getElementById("groupOrderPercent").addEventListener("change",e=>{
-  groupOrderPercentEnabled=e.target.checked;
-  renderGroupOrderView();
 
-  if(selected)updateCalculation();
-});
+/* =========================
+   관리자 로그인
+========================= */
 
-document.getElementById("saveGroupOrder").addEventListener("click",async()=>{
-  if(!isAdmin){
-    alert("관리자만 수정할 수 있습니다.");
-    return;
-  }
+document
+  .getElementById("loginSubmit")
+  .addEventListener(
+    "click",
+    async()=>{
 
-  if(!groupOrderRef||!setDoc){
-    alert("Firebase 연결을 기다리는 중입니다. 잠시 후 다시 시도해주세요.");
-    return;
-  }
+      const email=
+        document.getElementById(
+          "adminEmail"
+        )
+        .value
+        .trim();
 
-  const foods=[];
+      const password=
+        document.getElementById(
+          "adminPassword"
+        )
+        .value;
 
-  for(let i=0;i<5;i++){
-    const name=document.querySelector(`.group-food-name[data-index="${i}"]`).value.trim();
 
-    const amount=Math.max(
-      0,
-      Number(document.querySelector(`.group-food-amount[data-index="${i}"]`).value)||0
-    );
+      if(!email||!password){
 
-    foods.push({name,amount});
-  }
+        alert(
+          "이메일과 비밀번호를 입력해주세요."
+        );
 
-  try{
-    groupOrderPercentEnabled=document.getElementById("groupOrderPercent").checked;
+        return;
+      }
 
-    await setDoc(
-      groupOrderRef,
-      {
-        foods,
-        percent15:groupOrderPercentEnabled,
-        updatedAt:new Date().toISOString()
-      },
-      {merge:true}
-    );
 
-    renderGroupOrderView();
-    alert("단체주문이 저장되었습니다!");
+      if(
+        !auth ||
+        !signInWithEmailAndPassword
+      ){
 
-  }catch(error){
-    console.error(error);
-    alert("저장에 실패했습니다.\nFirestore 규칙과 관리자 UID를 확인해주세요.");
-  }
-});
+        alert(
+          "Firebase 연결을 기다리는 중입니다. 잠시 후 다시 시도해주세요."
+        );
+
+        return;
+      }
+
+
+      try{
+
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+      }
+      catch(error){
+
+        console.error(error);
+
+        alert(
+          "로그인에 실패했습니다.\n이메일 또는 비밀번호를 확인해주세요."
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================
+   로그아웃
+========================= */
+
+document
+  .getElementById("logoutBtn")
+  .addEventListener(
+    "click",
+    async()=>{
+
+      if(auth && signOut){
+        await signOut(auth);
+      }
+
+    }
+  );
+
+
+/* =========================
+   15% ON/OFF
+========================= */
+
+document
+  .getElementById("groupOrderPercent")
+  .addEventListener(
+    "change",
+    e=>{
+
+      groupOrderPercentEnabled=
+        e.target.checked;
+
+      renderGroupOrderView();
+
+      if(selected){
+        updateCalculation();
+      }
+
+    }
+  );
+
+
+/* =========================
+   단체주문 저장
+========================= */
+
+document
+  .getElementById("saveGroupOrder")
+  .addEventListener(
+    "click",
+    async()=>{
+
+      if(!isAdmin){
+
+        alert(
+          "관리자만 수정할 수 있습니다."
+        );
+
+        return;
+      }
+
+
+      if(
+        !groupOrderRef ||
+        !setDoc
+      ){
+
+        alert(
+          "Firebase 연결을 기다리는 중입니다. 잠시 후 다시 시도해주세요."
+        );
+
+        return;
+      }
+
+
+      const foods=[];
+
+
+      for(let i=0;i<5;i++){
+
+        const name=
+          document.querySelector(
+            `.group-food-name[data-index="${i}"]`
+          )
+          .value
+          .trim();
+
+
+        const amount=
+          Math.max(
+            0,
+            Number(
+              document.querySelector(
+                `.group-food-amount[data-index="${i}"]`
+              ).value
+            ) || 0
+          );
+
+
+        foods.push({
+          name,
+          amount
+        });
+
+      }
+
+
+      try{
+
+        groupOrderPercentEnabled=
+          document.getElementById(
+            "groupOrderPercent"
+          ).checked;
+
+
+        await setDoc(
+          groupOrderRef,
+          {
+            foods,
+            percent15:
+              groupOrderPercentEnabled,
+            updatedAt:
+              new Date().toISOString()
+          },
+          {
+            merge:true
+          }
+        );
+
+
+        renderGroupOrderView();
+
+        if(selected){
+          updateCalculation();
+        }
+
+
+        alert(
+          "단체주문이 저장되었습니다!"
+        );
+
+      }
+      catch(error){
+
+        console.error(error);
+
+        alert(
+          "저장에 실패했습니다.\nFirestore 규칙과 관리자 UID를 확인해주세요."
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================
+   Firebase 동적 연결
+========================= */
 
 async function initFirebase(){
+
   try{
-    const appModule=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const authModule=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-    const firestoreModule=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
 
-    initializeApp=appModule.initializeApp;
-    getAuth=authModule.getAuth;
-    signInWithEmailAndPassword=authModule.signInWithEmailAndPassword;
-    signOut=authModule.signOut;
-    onAuthStateChanged=authModule.onAuthStateChanged;
+    const appModule=
+      await import(
+        "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+      );
 
-    getFirestore=firestoreModule.getFirestore;
-    doc=firestoreModule.doc;
-    setDoc=firestoreModule.setDoc;
-    onSnapshot=firestoreModule.onSnapshot;
+    const authModule=
+      await import(
+        "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+      );
 
-    const firebaseApp=initializeApp(firebaseConfig);
+    const firestoreModule=
+      await import(
+        "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+      );
 
-    auth=getAuth(firebaseApp);
-    db=getFirestore(firebaseApp);
+
+    initializeApp=
+      appModule.initializeApp;
+
+    getAuth=
+      authModule.getAuth;
+
+    signInWithEmailAndPassword=
+      authModule.signInWithEmailAndPassword;
+
+    signOut=
+      authModule.signOut;
+
+    onAuthStateChanged=
+      authModule.onAuthStateChanged;
+
+    getFirestore=
+      firestoreModule.getFirestore;
+
+    doc=
+      firestoreModule.doc;
+
+    setDoc=
+      firestoreModule.setDoc;
+
+    onSnapshot=
+      firestoreModule.onSnapshot;
+
+
+    const firebaseApp=
+      initializeApp(
+        firebaseConfig
+      );
+
+
+    auth=
+      getAuth(
+        firebaseApp
+      );
+
+
+    db=
+      getFirestore(
+        firebaseApp
+      );
+
 
     setupGroupOrderFirebase();
 
-    onAuthStateChanged(auth,user=>{
-      const editor=document.getElementById("groupOrderEditor");
-      const loginBtn=document.getElementById("loginBtn");
-      const logoutBtn=document.getElementById("logoutBtn");
-      const loginBox=document.getElementById("loginBox");
-      const status=document.getElementById("groupOrderStatus");
 
-      if(user&&user.uid===ADMIN_UID){
-        isAdmin=true;
-        editor.style.display="block";
-        loginBtn.style.display="none";
-        logoutBtn.style.display="inline-block";
-        loginBox.style.display="none";
-        status.textContent="🔓 관리자 모드 - 단체주문을 수정할 수 있습니다.";
-        fillGroupOrderEditor();
+    onAuthStateChanged(
+      auth,
+      user=>{
 
-      }else{
-        isAdmin=false;
-        editor.style.display="none";
-        loginBtn.style.display="inline-block";
-        logoutBtn.style.display="none";
-        loginBox.style.display="none";
-        status.textContent="👀 단체주문 내용을 확인할 수 있습니다.";
+        const editor=
+          document.getElementById(
+            "groupOrderEditor"
+          );
 
-        if(user)
-          alert("관리자 계정이 아닙니다.\n보기만 가능합니다.");
+        const loginBtn=
+          document.getElementById(
+            "loginBtn"
+          );
+
+        const logoutBtn=
+          document.getElementById(
+            "logoutBtn"
+          );
+
+        const loginBox=
+          document.getElementById(
+            "loginBox"
+          );
+
+        const status=
+          document.getElementById(
+            "groupOrderStatus"
+          );
+
+
+        if(
+          user &&
+          user.uid===ADMIN_UID
+        ){
+
+          isAdmin=true;
+
+          editor.style.display=
+            "block";
+
+          loginBtn.style.display=
+            "none";
+
+          logoutBtn.style.display=
+            "inline-block";
+
+          loginBox.style.display=
+            "none";
+
+          status.textContent=
+            "🔓 관리자 모드 - 단체주문을 수정할 수 있습니다.";
+
+          fillGroupOrderEditor();
+
+        }
+        else{
+
+          isAdmin=false;
+
+          editor.style.display=
+            "none";
+
+          loginBtn.style.display=
+            "inline-block";
+
+          logoutBtn.style.display=
+            "none";
+
+          loginBox.style.display=
+            "none";
+
+          status.textContent=
+            "👀 단체주문 내용을 확인할 수 있습니다.";
+
+          if(user){
+
+            alert(
+              "관리자 계정이 아닙니다.\n보기만 가능합니다."
+            );
+
+          }
+
+        }
+
       }
-    });
+    );
 
-  }catch(error){
-    console.error("Firebase 연결 오류:",error);
-    document.getElementById("groupOrderStatus").textContent="⚠️ Firebase 연결 실패 - 계산기는 계속 사용할 수 있습니다.";
-    renderGroupOrderView();
   }
+  catch(error){
+
+    console.error(
+      "Firebase 연결 오류:",
+      error
+    );
+
+    document.getElementById(
+      "groupOrderStatus"
+    ).textContent=
+      "⚠️ Firebase 연결 실패 - 계산기는 계속 사용할 수 있습니다.";
+
+    renderGroupOrderView();
+
+  }
+
 }
 
+
+/* =========================
+   초기 실행
+========================= */
+
 renderGroupOrderEditor();
+
 renderList();
+
 initFirebase();
 
 </script>
+
 </body>
 </html>
