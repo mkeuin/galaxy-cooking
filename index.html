@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -292,8 +293,18 @@ input[type="number"]{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
 }
 
+.admin-btn:disabled,
+.save-btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
 .logout-btn{
   background:rgba(255,255,255,.12);
+}
+
+.discord-btn{
+  background:linear-gradient(135deg,#5865F2,#7289DA);
 }
 
 .login-box{
@@ -337,6 +348,17 @@ input[type="number"]{
 
 .group-food input{
   margin-bottom:7px;
+}
+
+.group-order-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.group-order-actions button{
+  flex:1;
+  min-width:180px;
 }
 
 .group-order-view{
@@ -437,6 +459,15 @@ input[type="number"]{
   .login-box{
     grid-template-columns:1fr;
   }
+
+  .group-order-actions{
+    flex-direction:column;
+  }
+
+  .group-order-actions button{
+    width:100%;
+    min-width:0;
+  }
 }
 </style>
 </head>
@@ -464,6 +495,7 @@ input[type="number"]{
       </div>
 
       <div class="admin-area">
+
         <button id="loginBtn" class="admin-btn">
           🔐 관리자 로그인
         </button>
@@ -473,6 +505,7 @@ input[type="number"]{
                 style="display:none">
           로그아웃
         </button>
+
       </div>
 
     </div>
@@ -517,10 +550,20 @@ input[type="number"]{
            id="groupOrderGrid">
       </div>
 
-      <button id="saveGroupOrder"
-              class="save-btn">
-        💾 단체주문 저장
-      </button>
+      <div class="group-order-actions">
+
+        <button id="saveGroupOrder"
+                class="save-btn">
+          💾 단체주문 저장
+        </button>
+
+        <button id="sendDiscordBtn"
+                class="save-btn discord-btn"
+                style="display:none">
+          📨 디스코드 전송
+        </button>
+
+      </div>
 
     </div>
 
@@ -593,6 +636,20 @@ let getFirestore=null;
 let doc=null;
 let setDoc=null;
 let onSnapshot=null;
+
+/* =========================
+   Discord 설정
+========================= */
+
+const DISCORD_WORKER_URL =
+  "https://discord-proxy.galaxycooking.workers.dev";
+
+let currentFirebaseUser=null;
+
+
+/* =========================
+   관리자 설정
+========================= */
 
 const ADMIN_UID =
   "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
@@ -907,6 +964,10 @@ function expandRecipe(
   amount=1,
   result={}
 ){
+
+  if(!all[name]){
+    return result;
+  }
 
   for(
     const [item,need]
@@ -1433,11 +1494,6 @@ function updateCalculation(){
     possible=0;
   }
 
-  /*
-    음식 개수는 여기서 계산된 possible 값을 그대로 유지한다.
-    15%는 절대로 possible에 적용하지 않는다.
-  */
-
   document.getElementById(
     "result"
   ).textContent=
@@ -1446,9 +1502,9 @@ function updateCalculation(){
 
   /* =========================
      단체주문 금액 계산
-     
+
      음식 개수 × 음식 1개당 주문 금액
-     
+
      15%는 금액에만 적용
   ========================= */
 
@@ -1857,6 +1913,323 @@ function fillGroupOrderEditor(){
 
 
 /* =========================
+   Discord용 레시피 등급 찾기
+========================= */
+
+function getRecipeGrade(name){
+
+  for(
+    const [grade,group]
+    of Object.entries(recipes)
+  ){
+
+    if(
+      Object.prototype.hasOwnProperty.call(
+        group,
+        name
+      )
+    ){
+      return grade;
+    }
+
+  }
+
+  return null;
+}
+
+
+/* =========================
+   Discord용 실제 기본 재료
+========================= */
+
+function getRecipeIngredientsForDiscord(name){
+
+  if(!all[name]){
+    return [];
+  }
+
+  const grade=
+    getRecipeGrade(name);
+
+  const ingredients=
+    grade==="전설" ||
+    grade==="신화"
+      ? expandRecipe(name)
+      : all[name];
+
+  return Object.entries(
+    ingredients
+  ).map(
+    ([ingredientName,amount])=>({
+
+      name:ingredientName,
+
+      amount:
+        Number(amount)||0
+
+    })
+  );
+
+}
+
+
+/* =========================
+   현재 입력된 단체주문 가져오기
+========================= */
+
+function getCurrentGroupOrderForDiscord(){
+
+  const foods=[];
+
+  for(let i=0;i<5;i++){
+
+    const nameInput=
+      document.querySelector(
+        `.group-food-name[data-index="${i}"]`
+      );
+
+    const amountInput=
+      document.querySelector(
+        `.group-food-amount[data-index="${i}"]`
+      );
+
+    if(!nameInput||!amountInput){
+      continue;
+    }
+
+    const name=
+      nameInput.value
+        .trim();
+
+    const amount=
+      Math.max(
+        0,
+        Number(
+          amountInput.value
+        )||0
+      );
+
+    if(!name){
+      continue;
+    }
+
+    foods.push({
+
+      name,
+
+      amount,
+
+      ingredients:
+        getRecipeIngredientsForDiscord(
+          name
+        )
+
+    });
+
+  }
+
+  return foods;
+}
+
+
+/* =========================
+   Discord 전송
+========================= */
+
+async function sendGroupOrderToDiscord(){
+
+  if(!isAdmin){
+
+    alert(
+      "관리자만 디스코드 전송을 사용할 수 있습니다."
+    );
+
+    return;
+  }
+
+  if(
+    !auth ||
+    !currentFirebaseUser
+  ){
+
+    alert(
+      "관리자 로그인 정보를 확인할 수 없습니다.\n다시 로그인해주세요."
+    );
+
+    return;
+  }
+
+  const foods=
+    getCurrentGroupOrderForDiscord();
+
+  if(!foods.length){
+
+    alert(
+      "전송할 음식이 없습니다."
+    );
+
+    return;
+  }
+
+
+  /* =========================
+     레시피 이름 확인
+  ========================= */
+
+  const invalidFoods=
+    foods.filter(
+      food=>!all[food.name]
+    );
+
+  if(invalidFoods.length){
+
+    const names=
+      invalidFoods
+        .map(
+          food=>`• ${food.name}`
+        )
+        .join("\n");
+
+    alert(
+      "레시피를 찾을 수 없는 음식이 있습니다.\n\n"+
+      names+
+      "\n\n레시피 목록에 등록된 이름과 정확히 일치해야 합니다."
+    );
+
+    return;
+  }
+
+
+  const sendBtn=
+    document.getElementById(
+      "sendDiscordBtn"
+    );
+
+  const originalText=
+    sendBtn
+      ? sendBtn.textContent
+      : "";
+
+
+  if(sendBtn){
+
+    sendBtn.disabled=true;
+
+    sendBtn.textContent=
+      "📨 전송 중...";
+
+  }
+
+
+  try{
+
+    /* =========================
+       Firebase 로그인 토큰
+    ========================= */
+
+    const idToken=
+      await currentFirebaseUser.getIdToken();
+
+
+    /* =========================
+       Worker로 전송
+    ========================= */
+
+    const response=
+      await fetch(
+        DISCORD_WORKER_URL,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json",
+
+            "Authorization":
+              `Bearer ${idToken}`
+          },
+
+          body:
+            JSON.stringify({
+              foods
+            })
+        }
+      );
+
+
+    let result={};
+
+    try{
+
+      result=
+        await response.json();
+
+    }
+    catch(error){
+
+      result={};
+
+    }
+
+
+    if(
+      !response.ok ||
+      !result.ok
+    ){
+
+      console.error(
+        "Discord 전송 실패:",
+        response.status,
+        result
+      );
+
+      alert(
+        "디스코드 전송에 실패했습니다.\n"+
+        (
+          result.error ||
+          `HTTP ${response.status}`
+        )
+      );
+
+      return;
+    }
+
+
+    alert(
+      "디스코드 전송이 완료되었습니다!"
+    );
+
+  }
+  catch(error){
+
+    console.error(
+      "Discord 전송 오류:",
+      error
+    );
+
+    alert(
+      "디스코드 전송 중 오류가 발생했습니다.\n"+
+      "잠시 후 다시 시도해주세요."
+    );
+
+  }
+  finally{
+
+    if(sendBtn){
+
+      sendBtn.disabled=false;
+
+      sendBtn.textContent=
+        originalText;
+
+    }
+
+  }
+
+}
+
+
+/* =========================
    Firebase 연결 후
    단체주문 감시
 ========================= */
@@ -2212,6 +2585,18 @@ document
 
 
 /* =========================
+   Discord 전송 버튼
+========================= */
+
+document
+  .getElementById("sendDiscordBtn")
+  .addEventListener(
+    "click",
+    sendGroupOrderToDiscord
+  );
+
+
+/* =========================
    Firebase 동적 연결
 ========================= */
 
@@ -2288,6 +2673,14 @@ async function initFirebase(){
       auth,
       user=>{
 
+        /* =========================
+           현재 Firebase 사용자 저장
+        ========================= */
+
+        currentFirebaseUser=
+          user || null;
+
+
         const editor=
           document.getElementById(
             "groupOrderEditor"
@@ -2306,6 +2699,11 @@ async function initFirebase(){
         const loginBox=
           document.getElementById(
             "loginBox"
+          );
+
+        const sendDiscordBtn=
+          document.getElementById(
+            "sendDiscordBtn"
           );
 
         const status=
@@ -2330,6 +2728,9 @@ async function initFirebase(){
           logoutBtn.style.display=
             "inline-block";
 
+          sendDiscordBtn.style.display=
+            "inline-block";
+
           loginBox.style.display=
             "none";
 
@@ -2350,6 +2751,9 @@ async function initFirebase(){
             "inline-block";
 
           logoutBtn.style.display=
+            "none";
+
+          sendDiscordBtn.style.display=
             "none";
 
           loginBox.style.display=
@@ -2405,3 +2809,4 @@ initFirebase();
 
 </body>
 </html>
+```
