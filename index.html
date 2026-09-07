@@ -713,7 +713,10 @@ async function postToDiscord(message) {
     const res = await fetch(DISCORD_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: message })
+      body: JSON.stringify({
+        username: "단체주문 및 협동",
+        content: message
+      })
     });
     if (res.ok) {
       alert("디스코드로 성공적으로 전송되었습니다!");
