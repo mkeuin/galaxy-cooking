@@ -760,7 +760,7 @@ async function postToDiscord(message) {
 /* 개별 요리 디스코드 전송 */
 async function sendSingleRecipeToDiscord() {
   if (!selected) return;
-  const message = `🌌 **[Spidey Bot - 요리 수량 정보]**\n` +
+  const message = `🌌 **[요리 수량 정보]**\n` +
                   `🍳 **요리명:** [${selectedGrade}] ${selected}\n` +
                   `🍲 **제작 가능 수량:** ${formatStack(currentPossibleCount)}`;
   await postToDiscord(message);
@@ -776,7 +776,7 @@ async function sendGroupOrderToDiscord() {
   const applyRate = groupRateToggle.checked;
   const rate = applyRate ? 0.15 : 0;
 
-  let msg = `👥 **[Spidey Bot - 단체주문 및 협동]**\n`;
+  let msg = `👥 **[단체주문 및 협동]**\n`;
   msg += `📌 **15% 추가금 적용 여부:** ${applyRate ? '적용 (15%)' : '미적용'}\n`;
   msg += `-----------------------------------\n`;
 
