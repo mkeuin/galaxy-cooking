@@ -730,7 +730,7 @@ async function sendSingleRecipeToDiscord() {
   await postToDiscord(message);
 }
 
-/* 각각 음식별 입력된 기본 금액(크론)만 표기하는 디스코드 전송 함수 */
+/* 작성한 기본 가격만 표기하여 전송하는 함수 */
 async function sendGroupOrderToDiscord() {
   if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
     alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
@@ -743,13 +743,15 @@ async function sendGroupOrderToDiscord() {
     return;
   }
 
-  let messageLines = [];
+  let orderDate = document.getElementById("groupOrderDate").value.trim() || currentGroupDate || getTodayString();
+  let messageLines = [`📅 **[${orderDate} 요리 주문 및 재료 내역]**\n`];
 
   validOrders.forEach(food => {
     const foodName = food.name.trim();
+    // 15% 가산을 제외한 순수 기본 입력 가격
     const basePrice = Math.round(Number(food.price));
 
-    messageLines.push(`# ${foodName} ${basePrice}크론`);
+    messageLines.push(`# ${foodName} ${formatWon(basePrice)}`);
 
     if (all[foodName]) {
       const mats = expandRecipe(foodName, 1);
@@ -759,12 +761,12 @@ async function sendGroupOrderToDiscord() {
         messageLines.push(`${prefix}${matName} ${count}개`);
       }
     }
+    messageLines.push(""); 
   });
 
-  const msg = messageLines.join("\n");
+  const msg = messageLines.join("\n").trim();
   const success = await postToDiscord(msg);
   if (success) {
-    let orderDate = document.getElementById("groupOrderDate").value.trim() || getTodayString();
     document.getElementById("groupOrderDate").value = orderDate;
     await setDoc(groupOrderRef, { orders: groupOrders, date: orderDate, updatedAt: Date.now() }, { merge: true });
   }
