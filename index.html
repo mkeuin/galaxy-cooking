@@ -727,7 +727,7 @@ function cssId(name){
 }
 
 /* =====================================================
-디스코드 전송 함수 (Spidey Bot 사용)
+디스코드 전송 함수 (단체주문 및 협동 봇 사용)
 ===================================================== */
 async function postToDiscord(message) {
   if (!DISCORD_WEBHOOK_URL) {
@@ -739,7 +739,7 @@ async function postToDiscord(message) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
-        username: "Spidey Bot",
+        username: "단체주문 및 협동",
         content: message 
       })
     });
