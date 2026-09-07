@@ -2,14 +2,65 @@ import discord
 from discord import ui
 from discord.ext import commands
 
-TOKEN = "YOUR_DISCORD_BOT_TOKEN"
-CHANNEL_ID = 123456789012345678  # 메시지를 보낼 디스코드 채널 ID
+# ==========================================
+# 1. 디스코드 봇 기본 설정
+# ==========================================
+TOKEN = "YOUR_DISCORD_BOT_TOKEN"  # 디스코드 봇 토큰 입력
 
 intents = discord.Intents.default()
+intents.message_content = True  # 메시지 내용 접근 권한
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
-# 1. 협동 3배 종목 입력용 모달(팝업 창)
+# ==========================================
+# 2. 요리 계산기 로직 (총금액 제외)
+# ==========================================
+def calculate_cooking(recipe_name: str, count: int):
+    """
+    기존 요리 레시피 계산 로직
+    (총금액 항목을 제외하고 필요한 재료 수량만 계산)
+    """
+    # 예시 레시피 데이터 (실제 사용하시는 레시피 데이터로 유지하시면 됩니다)
+    recipes = {
+        "비빔밥": {"쌀": 2, "나물": 3, "고추장": 1},
+        "스테이크": {"고기": 3, "버터": 1, "마늘": 2},
+    }
+
+    if recipe_name not in recipes:
+        return None
+
+    base = recipes[recipe_name]
+    result_materials = {item: qty * count for item, qty in base.items()}
+    return result_materials
+
+
+@bot.command(name="요리")
+async def cooking_calculator(ctx, recipe_name: str, count: int = 1):
+    """!요리 [요리명] [개수] 형태로 사용"""
+    materials = calculate_cooking(recipe_name, count)
+
+    if not materials:
+        await ctx.send(f"❌ '{recipe_name}' 레시피를 찾을 수 없습니다.")
+        return
+
+    embed = discord.Embed(
+        title=f"🍳 {recipe_name} {count}개 제작 재료",
+        color=discord.Color.orange(),
+    )
+
+    # 재료 목록 구성
+    material_text = "\n".join(
+        [f"• **{item}**: {qty}개" for item, qty in materials.items()]
+    )
+    embed.add_field(name="필요 재료", value=material_text, inline=False)
+    # (총금액 항목은 완전히 제거됨)
+
+    await ctx.send(embed=embed)
+
+
+# ==========================================
+# 3. 추가 기능: 협동 3배 입력 모달 (팝업창)
+# ==========================================
 class CoopModal(ui.Modal, title="협동 3배 종목 입력"):
     category = ui.TextInput(
         label="종목 선택 (광질, 농사, 벌목, 낚시 중 입력)",
@@ -30,7 +81,6 @@ class CoopModal(ui.Modal, title="협동 3배 종목 입력"):
             )
             return
 
-        # 협동 3배 알림 임베드 전송
         embed = discord.Embed(
             title="🔥 협동 3배 이벤트 알림",
             description=f"오늘의 3배 협동 종목: **{input_val}**",
@@ -42,12 +92,15 @@ class CoopModal(ui.Modal, title="협동 3배 종목 입력"):
         )
 
 
-# 2. 전송 버튼 View (단체 주문 전송 / 협동 3배 전송)
+# ==========================================
+# 4. 추가 기능: 단체 주문 & 협동 3배 전송 버튼
+# ==========================================
 class OrderButtons(ui.View):
 
     def __init__(self):
-        super().__init__(timeout=None)  # 버튼 지속 유지
+        super().__init__(timeout=None)
 
+    # 단체 주문 버튼
     @ui.button(
         label="📦 단체 주문 전송",
         style=discord.ButtonStyle.primary,
@@ -56,7 +109,6 @@ class OrderButtons(ui.View):
     async def group_order_button(
         self, interaction: discord.Interaction, button: ui.Button
     ):
-        # 단체 주문 알림 임베드 전송
         embed = discord.Embed(
             title="📦 단체 주문 알림",
             description="단체 주문이 들어왔습니다! 확인해 주세요.",
@@ -67,6 +119,7 @@ class OrderButtons(ui.View):
             "✅ 단체 주문 알림을 전송했습니다.", ephemeral=True
         )
 
+    # 협동 3배 버튼
     @ui.button(
         label="⚡ 협동 3배 전송",
         style=discord.ButtonStyle.success,
@@ -75,16 +128,18 @@ class OrderButtons(ui.View):
     async def coop_button(
         self, interaction: discord.Interaction, button: ui.Button
     ):
-        # 종목 입력 팝업창 띄우기
         await interaction.response.send_modal(CoopModal())
 
 
-# 3. 버튼 패널 생성 명령어 (!버튼)
+# ==========================================
+# 5. 버튼 패널 출력 명령어 및 봇 실행
+# ==========================================
 @bot.command()
 async def 버튼(ctx):
+    """!버튼 입력 시 디스코드 채널에 알림 전송 패널 생성"""
     embed = discord.Embed(
         title="📢 알림 전송 패널",
-        description="아래 버튼을 눌러 원하는 알림을 디스코드 채널에 전송하세요.",
+        description="아래 버튼을 눌러 원하는 알림을 채널에 전송하세요.",
         color=discord.Color.dark_grey(),
     )
     await ctx.send(embed=embed, view=OrderButtons())
