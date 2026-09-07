@@ -30,7 +30,7 @@ body{
     linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
 body:before{
-  content:"✦ · ✧        ·        ✦        · ✧      ·        ✦        · ✧";
+  content:"✦ · ✧        ·        ✦        · ✧     ·        ✦        · ✧";
   position:fixed;
   left:0;
   top:0;
@@ -769,7 +769,7 @@ async function sendGroupOrderToDiscord() {
   validOrders.forEach(food => {
     const foodName = food.name.trim();
     const basePrice = Math.round(Number(food.price));
-    const multiplierText = food.multiplier ? ` (${food.multiplier.trim()})` : "";
+    const multiplierText = food.multiplier ? ` (${food.multiplier.trim()})` : " (x 배수)";
 
     let ingredientsList = [];
     if (all[foodName]) {
