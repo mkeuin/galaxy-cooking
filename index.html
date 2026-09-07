@@ -30,7 +30,7 @@ body{
     linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
 body:before{
-  content:"✦ · ✧     ·       ✦       · ✧      ·       ✦       · ✧";
+  content:"✦ · ✧      ·        ✦        · ✧      ·        ✦        · ✧";
   position:fixed;
   left:0;
   top:0;
@@ -45,7 +45,7 @@ body:before{
   z-index:0;
 }
 body:after{
-  content:"✧ · ✦     ·       ✧       · ✦       · ✧      ·       ✦";
+  content:"✧ · ✦      ·        ✧        · ✦        · ✧      ·        ✦";
   position:fixed;
   right:0;
   top:0;
@@ -730,7 +730,6 @@ async function sendSingleRecipeToDiscord() {
   await postToDiscord(message);
 }
 
-/* 요청하신 날짜 / 단체주문 및 협동 / 요리 / 요리재료 형식으로 변경된 디스코드 전송 함수 */
 async function sendGroupOrderToDiscord() {
   if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
     alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
@@ -1150,70 +1149,47 @@ const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const loginSection = document.getElementById("loginSection");
 const doLoginBtn = document.getElementById("doLoginBtn");
-const emailInput = document.getElementById("emailInput");
-const passwordInput = document.getElementById("passwordInput");
 const loginStatus = document.getElementById("loginStatus");
-const groupViewer = document.getElementById("groupViewer");
 const groupAdmin = document.getElementById("groupAdmin");
 const sendGroupDiscordBtn = document.getElementById("sendGroupDiscordBtn");
 
 loginBtn.addEventListener("click", ()=>{
   loginSection.classList.toggle("hidden");
-  if(!loginSection.classList.contains("hidden")){
-    loginSection.scrollIntoView({ behavior:"smooth", block:"center" });
-  }
-});
-
-doLoginBtn.addEventListener("click", async ()=>{
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
-  if(!email || !password){
-    loginStatus.textContent = "이메일과 비밀번호를 입력해주세요.";
-    return;
-  }
-  try{
-    loginStatus.textContent = "로그인 중...";
-    await signInWithEmailAndPassword(auth, email, password);
-    passwordInput.value = "";
-  }catch(error){
-    console.error(error);
-    loginStatus.textContent = "❌ 로그인 실패: " + (error.message || error);
-  }
-});
-
-onAuthStateChanged(auth, async user=>{
-  if(user){
-    if(user.uid === ADMIN_UID){
-      loginBtn.classList.add("hidden");
-      logoutBtn.classList.remove("hidden");
-      loginSection.classList.add("hidden");
-      groupViewer.classList.add("hidden");
-      groupAdmin.classList.remove("hidden");
-      sendGroupDiscordBtn.classList.remove("hidden");
-      adminStatus.textContent = "✅ 관리자로 로그인되었습니다.";
-      renderGroupOrderEditor();
-      if(selected) renderRecipe();
-    }else{
-      await signOut(auth);
-      loginStatus.textContent = "관리자 계정만 로그인할 수 있습니다.";
-    }
-  }else{
-    loginBtn.classList.remove("hidden");
-    logoutBtn.classList.add("hidden");
-    groupViewer.classList.remove("hidden");
-    groupAdmin.classList.add("hidden");
-    sendGroupDiscordBtn.classList.add("hidden");
-    if(selected) renderRecipe();
-  }
 });
 
 logoutBtn.addEventListener("click", async ()=>{
-  try{ await signOut(auth); }catch(error){ console.error(error); }
+  await signOut(auth);
+});
+
+doLoginBtn.addEventListener("click", async ()=>{
+  const email = document.getElementById("emailInput").value.trim();
+  const password = document.getElementById("passwordInput").value.trim();
+  loginStatus.textContent = "로그인 중...";
+  try{
+    await signInWithEmailAndPassword(auth, email, password);
+    loginStatus.textContent = "";
+    loginSection.classList.add("hidden");
+  }catch(err){
+    loginStatus.textContent = "❌ 로그인 실패: " + (err.message || err);
+  }
+});
+
+onAuthStateChanged(auth, user=>{
+  if(user && user.uid === ADMIN_UID){
+    loginBtn.classList.add("hidden");
+    logoutBtn.classList.remove("hidden");
+    groupAdmin.classList.remove("hidden");
+    sendGroupDiscordBtn.classList.remove("hidden");
+  }else{
+    loginBtn.classList.remove("hidden");
+    logoutBtn.classList.add("hidden");
+    groupAdmin.classList.add("hidden");
+    sendGroupDiscordBtn.classList.add("hidden");
+  }
+  if(selected) renderRecipe();
 });
 
 renderList();
-renderGroupOrderEditor();
-renderGroupViewer();
 </script>
 </body>
 </html>
