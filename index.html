@@ -399,7 +399,7 @@ input[type="number"]{
   font-size:12px;
   margin-bottom:5px;
 }
-.field input{
+.field input, .field select{
   width:100%;
   padding:10px;
   background:#090b23;
@@ -521,9 +521,20 @@ input[type="number"]{
     </div>
 
     <div id="groupAdmin" class="hidden">
-      <div class="field" style="max-width:300px; margin-top:15px;">
-        <label>📅 날짜 (비워두면 전송 시 오늘 날짜로 자동 입력)</label>
-        <input type="text" id="groupOrderDate" placeholder="미입력 시 오늘 날짜 지정">
+      <div style="display:flex; gap:15px; flex-wrap:wrap; margin-top:15px;">
+        <div class="field" style="flex:1; min-width:200px;">
+          <label>📅 날짜 (예: 9월 7일)</label>
+          <input type="text" id="groupOrderDate" placeholder="예: 9월 7일">
+        </div>
+        <div class="field" style="flex:1; min-width:200px;">
+          <label>⚡ 부스트 종목 (협동)</label>
+          <select id="boostCategory">
+            <option value="채광">채광</option>
+            <option value="벌목">벌목</option>
+            <option value="농사">농사</option>
+            <option value="낚시" selected>낚시</option>
+          </select>
+        </div>
       </div>
       <div class="admin-grid-wrap">
         <div id="groupOrderGrid" class="admin-grid"></div>
@@ -579,9 +590,9 @@ const STACK = 64;
 const OWNED_STORAGE_KEY = "galaxyCookingOwnedMaterials";
 const RATE_STORAGE_KEY = "galaxyCookingGroupRate15";
 
-function getTodayString() {
+function getFormattedToday() {
   const today = new Date();
-  return `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+  return `${today.getMonth() + 1}월 ${today.getDate()}일`;
 }
 
 const recipes = {
@@ -742,8 +753,15 @@ async function sendGroupOrderToDiscord() {
     return;
   }
 
-  let orderDate = document.getElementById("groupOrderDate").value.trim() || currentGroupDate || getTodayString();
-  let messageLines = [`📋 **[단체주문 및 협동 내역]**`];
+  let dateVal = document.getElementById("groupOrderDate").value.trim() || currentGroupDate || getFormattedToday();
+  let boostVal = document.getElementById("boostCategory").value || currentBoostCategory || "낚시";
+
+  let messageLines = [
+    `${dateVal}`,
+    `부스트 종목은`,
+    `${boostVal}!!(납품 점수 3배 적용!)`,
+    `--------------------------------------------------`
+  ];
 
   validOrders.forEach(food => {
     const foodName = food.name.trim();
@@ -760,19 +778,15 @@ async function sendGroupOrderToDiscord() {
     const matText = ingredientsList.length > 0 ? ingredientsList.join(", ") : "재료 정보 없음";
 
     messageLines.push(
-      `-----------------------------------\n` +
-      `📅 **날짜:** ${orderDate}\n` +
-      `🤝 **단체주문 및 협동:** ${formatWon(basePrice)}\n` +
-      `🍳 **요리:** ${foodName}\n` +
-      `🛒 **요리재료:** ${matText}`
+      `${foodName} : ${formatWon(basePrice)}\n${matText}\n`
     );
   });
 
   const msg = messageLines.join("\n").trim();
   const success = await postToDiscord(msg);
   if (success) {
-    document.getElementById("groupOrderDate").value = orderDate;
-    await setDoc(groupOrderRef, { orders: groupOrders, date: orderDate, updatedAt: Date.now() }, { merge: true });
+    document.getElementById("groupOrderDate").value = dateVal;
+    await setDoc(groupOrderRef, { orders: groupOrders, date: dateVal, boost: boostVal, updatedAt: Date.now() }, { merge: true });
   }
 }
 
@@ -983,6 +997,7 @@ function createEmptyOrders(){
 }
 let groupOrders = createEmptyOrders();
 let currentGroupDate = "";
+let currentBoostCategory = "낚시";
 
 const groupRateToggle = document.getElementById("groupRateToggle");
 const savedRate = localStorage.getItem(RATE_STORAGE_KEY);
@@ -1045,11 +1060,10 @@ function renderGroupViewer(){
   const rate = applyRate ? 0.15 : 0;
 
   const groupDateDisplay = document.getElementById("groupDateDisplay");
-  if (currentGroupDate) {
-    groupDateDisplay.textContent = `📅 날짜: ${currentGroupDate}`;
-  } else {
-    groupDateDisplay.textContent = "";
-  }
+  let displayInfo = [];
+  if (currentGroupDate) displayInfo.push(`📅 날짜: ${currentGroupDate}`);
+  if (currentBoostCategory) displayInfo.push(`⚡ 부스트: ${currentBoostCategory}`);
+  groupDateDisplay.textContent = displayInfo.join(" | ");
 
   const validOrders = groupOrders.filter(food => String(food.name || "").trim() && Number(food.price || 0) > 0);
   if(!validOrders.length){
@@ -1084,10 +1098,12 @@ saveGroupOrderBtn.addEventListener("click", async ()=>{
     adminStatus.textContent = "저장 중...";
     let dateValue = document.getElementById("groupOrderDate").value.trim();
     if (!dateValue) {
-      dateValue = getTodayString();
+      dateValue = getFormattedToday();
       document.getElementById("groupOrderDate").value = dateValue;
     }
-    await setDoc(groupOrderRef, { orders:groupOrders, date:dateValue, updatedAt:Date.now() });
+    let boostValue = document.getElementById("boostCategory").value;
+
+    await setDoc(groupOrderRef, { orders:groupOrders, date:dateValue, boost:boostValue, updatedAt:Date.now() });
     adminStatus.textContent = "✅ 정보가 저장되었습니다.";
   }catch(error){
     console.error(error);
@@ -1105,7 +1121,9 @@ clearGroupOrderBtn.addEventListener("click", async ()=>{
     await deleteDoc(groupOrderRef);
     groupOrders = createEmptyOrders();
     currentGroupDate = "";
+    currentBoostCategory = "낚시";
     document.getElementById("groupOrderDate").value = "";
+    document.getElementById("boostCategory").value = "낚시";
     renderGroupOrderEditor();
     renderGroupViewer();
     updateCalculation();
@@ -1128,11 +1146,15 @@ onSnapshot(groupOrderRef, snapshot=>{
       }));
     }
     currentGroupDate = data.date || "";
+    currentBoostCategory = data.boost || "낚시";
     document.getElementById("groupOrderDate").value = currentGroupDate;
+    document.getElementById("boostCategory").value = currentBoostCategory;
   }else{
     groupOrders = createEmptyOrders();
     currentGroupDate = "";
+    currentBoostCategory = "낚시";
     document.getElementById("groupOrderDate").value = "";
+    document.getElementById("boostCategory").value = "낚시";
   }
   while(groupOrders.length < 5){
     groupOrders.push({name:"", price:0});
