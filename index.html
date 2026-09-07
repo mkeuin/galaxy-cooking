@@ -650,12 +650,17 @@ const recipes = {
 };
 
 /* =====================================================
-모든 요리 합치기
+모든 요리 합치기 및 등급 매핑
 ===================================================== */
 const all = {};
-Object.values(recipes).forEach(group=>{
-  Object.assign(all,group);
+const recipeGrades = {};
+Object.entries(recipes).forEach(([grade, group])=>{
+  Object.assign(all, group);
+  Object.keys(group).forEach(name => {
+    recipeGrades[name] = grade;
+  });
 });
+
 let selected = null;
 let selectedGrade = null;
 let currentPossibleCount = 0;
@@ -788,7 +793,7 @@ async function sendSingleRecipeToDiscord() {
   await postToDiscord(message);
 }
 
-/* 요리 목록 및 디스코드 전송 */
+/* 요리 목록 및 디스코드 전송 (각 요리별 필요 재료 개별 표시) */
 async function sendGroupOrderToDiscord() {
   if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
     alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
@@ -813,43 +818,25 @@ async function sendGroupOrderToDiscord() {
   msg += `📌 **15% 추가금 적용 여부:** ${applyRate ? '적용 (15%)' : '미적용'}\n`;
   msg += `-----------------------------------\n`;
 
-  // 총재료 집계용 객체
-  const totalMaterials = {};
-
   validOrders.forEach(food => {
     const foodName = food.name.trim();
     const base = Number(food.price);
     const finalAmount = Math.round(base * (1 + rate));
     msg += `• **${foodName}** x1 : ${formatWon(finalAmount)} (기본: ${formatWon(base)})\n`;
 
-    // 요리 재료 자동 계산 (1개 기준)
+    // 각 요리별 기본 재료 추출 (전설/신화는 확장 재료)
     if (all[foodName]) {
-      const mats = expandRecipe(foodName, 1);
-      for (const [matName, count] of Object.entries(mats)) {
-        totalMaterials[matName] = (totalMaterials[matName] || 0) + count;
-      }
+      const grade = recipeGrades[foodName] || "";
+      const isHigh = grade === "전설" || grade === "신화";
+      const mats = isHigh ? expandRecipe(foodName, 1) : all[foodName];
+
+      msg += `  ↳ **필요 재료:** `;
+      const matEntries = Object.entries(mats);
+      const matStrArr = matEntries.map(([matName, count]) => `${matName} ${count}개`);
+      msg += matStrArr.join(", ") + `\n`;
     }
+    msg += `\n`;
   });
-
-  // 필요 재료 목록 추가
-  if (Object.keys(totalMaterials).length > 0) {
-    msg += `\n📦 **[총 필요 재료 목록]**\n`;
-    
-    const grouped = { 1: [], 2: [], 3: [] };
-    for (const [matName, count] of Object.entries(totalMaterials)) {
-      const cat = getIngredientCategory(matName);
-      grouped[cat].push({ name: matName, count: count });
-    }
-
-    for (let cat = 1; cat <= 3; cat++) {
-      if (grouped[cat].length === 0) continue;
-      msg += `\n**${getCategoryName(cat)}**\n`;
-      grouped[cat].sort((a, b) => a.name.localeCompare(b.name, "ko"));
-      grouped[cat].forEach(item => {
-        msg += ` - ${item.name}: ${formatStack(item.count)}\n`;
-      });
-    }
-  }
 
   msg += `-----------------------------------`;
 
