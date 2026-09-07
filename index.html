@@ -30,7 +30,7 @@ body{
     linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
 body:before{
-  content:"✦ · ✧       ·        ✦        · ✧      ·        ✦        · ✧";
+  content:"✦ · ✧        ·        ✦        · ✧      ·        ✦        · ✧";
   position:fixed;
   left:0;
   top:0;
@@ -45,7 +45,7 @@ body:before{
   z-index:0;
 }
 body:after{
-  content:"✧ · ✦       ·        ✧        · ✦        · ✧      ·        ✦";
+  content:"✧ · ✦        ·        ✧        · ✦        · ✧      ·        ✦";
   position:fixed;
   right:0;
   top:0;
@@ -769,6 +769,7 @@ async function sendGroupOrderToDiscord() {
   validOrders.forEach(food => {
     const foodName = food.name.trim();
     const basePrice = Math.round(Number(food.price));
+    const multiplierText = food.multiplier ? ` (${food.multiplier.trim()})` : "";
 
     let ingredientsList = [];
     if (all[foodName]) {
@@ -781,7 +782,7 @@ async function sendGroupOrderToDiscord() {
     const matText = ingredientsList.length > 0 ? ingredientsList.join("\n") : "재료 정보 없음";
 
     messageLines.push(
-      `# ${foodName} : ${formatWon(basePrice)}\n${matText}\n`
+      `# ${foodName} : ${formatWon(basePrice)}${multiplierText}\n${matText}\n`
     );
   });
 
@@ -968,7 +969,8 @@ function updateCalculation(){
       const basePrice = Number(matchedOrder.price || 0);
       const unitPrice = groupRateToggle.checked ? Math.round(basePrice * 1.15) : basePrice;
       const totalPrice = possible * unitPrice;
-      groupRecipePrice.textContent = `💰 적용 금액: ${formatWon(unitPrice)} × ${formatNumber(possible)}개 = ${formatWon(totalPrice)}`;
+      const multStr = matchedOrder.multiplier ? ` (${matchedOrder.multiplier})` : "";
+      groupRecipePrice.textContent = `💰 적용 금액: ${formatWon(unitPrice)}${multStr} × ${formatNumber(possible)}개 = ${formatWon(totalPrice)}`;
     }else{
       groupRecipePrice.textContent = "💰 등록된 가격 정보 없음";
     }
@@ -996,7 +998,7 @@ searchInput.addEventListener("keydown", e=>{
 });
 
 function createEmptyOrders(){
-  return Array.from({length:5}, () => ({name:"", price:0}));
+  return Array.from({length:5}, () => ({name:"", price:0, multiplier:""}));
 }
 let groupOrders = createEmptyOrders();
 let currentGroupDate = "";
@@ -1026,6 +1028,10 @@ function renderGroupOrderEditor(){
         <label>요리 1개 가격 (단체주문/협동)</label>
         <input type="number" class="group-food-price" data-index="${index}" min="0" value="${Number(food.price || 0)}">
       </div>
+      <div class="field">
+        <label>배수 (예: 1.5배, 2배)</label>
+        <input type="text" class="group-food-multiplier" data-index="${index}" value="${escapeHtml(food.multiplier || "")}" placeholder="예: 2배">
+      </div>
       <div class="admin-total">
         기본 금액
         <strong class="group-food-total-value" data-index="${index}">${formatWon(Number(food.price || 0))}</strong>
@@ -1045,6 +1051,13 @@ function renderGroupOrderEditor(){
       const index = Number(e.target.dataset.index);
       groupOrders[index].price = Math.max(0, Number(e.target.value || 0));
       updateGroupEditorTotals();
+    });
+  });
+
+  document.querySelectorAll(".group-food-multiplier").forEach(input=>{
+    input.addEventListener("input", e=>{
+      const index = Number(e.target.dataset.index);
+      groupOrders[index].multiplier = e.target.value;
     });
   });
 }
@@ -1077,12 +1090,13 @@ function renderGroupViewer(){
   groupViewerList.innerHTML = validOrders.map(food=>{
     const base = Number(food.price);
     const finalAmount = Math.round(base * (1 + rate));
+    const multStr = food.multiplier ? ` (${food.multiplier})` : "";
 
     return `
       <div class="group-item">
         <div>
           <div class="group-item-name">${escapeHtml(food.name)}</div>
-          <div class="group-item-info">x1 ${formatWon(food.price)}</div>
+          <div class="group-item-info">x1 ${formatWon(food.price)}${escapeHtml(multStr)}</div>
         </div>
         <div class="group-price">
           <div class="base">기본 ${formatWon(base)}</div>
@@ -1145,7 +1159,8 @@ onSnapshot(groupOrderRef, snapshot=>{
     if(Array.isArray(data.orders)){
       groupOrders = data.orders.slice(0, 5).map(food=>({
         name: String(food.name || ""),
-        price: Number(food.price || 0)
+        price: Number(food.price || 0),
+        multiplier: String(food.multiplier || "")
       }));
     }
     currentGroupDate = data.date || "";
@@ -1160,7 +1175,7 @@ onSnapshot(groupOrderRef, snapshot=>{
     document.getElementById("boostCategory").value = "낚시";
   }
   while(groupOrders.length < 5){
-    groupOrders.push({name:"", price:0});
+    groupOrders.push({name:"", price:0, multiplier:""});
   }
   renderGroupOrderEditor();
   renderGroupViewer();
