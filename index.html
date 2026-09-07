@@ -286,6 +286,12 @@ input[type="number"]{
   font-size:14px;
   margin-top:5px;
 }
+.group-date-display{
+  color:var(--accent2);
+  font-weight:bold;
+  font-size:16px;
+  margin-top:6px;
+}
 .group-list{
   margin-top:15px;
 }
@@ -497,8 +503,10 @@ input[type="number"]{
         <div class="group-note">
           관리자가 등록한 단체주문 및 협동 정보를 확인할 수 있습니다.
         </div>
+        <div id="groupDateDisplay" class="group-date-display"></div>
       </div>
-      <button class="btn btn-discord" id="sendGroupDiscordBtn">📢 단체주문 및 협동 디스코드 전송</button>
+      <!-- 관리자 전용 디스코드 전송 버튼 -->
+      <button class="btn btn-discord hidden" id="sendGroupDiscordBtn">📢 단체주문 및 협동 디스코드 전송</button>
     </div>
     <!-- 일반 사용자 -->
     <div id="groupViewer">
@@ -516,6 +524,11 @@ input[type="number"]{
     </div>
     <!-- 관리자 -->
     <div id="groupAdmin" class="hidden">
+      <!-- 날짜 입력 (월/일 전용) -->
+      <div class="field" style="max-width:300px; margin-top:15px;">
+        <label>📅 진행 날짜 (예: 9월 7일 또는 09/07)</label>
+        <input type="text" id="groupOrderDate" placeholder="월/일 작성 (년도 제외)">
+      </div>
       <div class="admin-grid-wrap">
         <div id="groupOrderGrid" class="admin-grid"></div>
       </div>
@@ -757,8 +770,12 @@ async function postToDiscord(message) {
   }
 }
 
-/* 개별 요리 디스코드 전송 */
+/* 개별 요리 디스코드 전송 (관리자 전용) */
 async function sendSingleRecipeToDiscord() {
+  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+    alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
+    return;
+  }
   if (!selected) return;
   const message = `🌌 **[요리 수량 정보]**\n` +
                   `🍳 **요리명:** [${selectedGrade}] ${selected}\n` +
@@ -766,8 +783,13 @@ async function sendSingleRecipeToDiscord() {
   await postToDiscord(message);
 }
 
-/* 단체주문 및 협동 디스코드 전송 */
+/* 단체주문 및 협동 디스코드 전송 (관리자 전용) */
 async function sendGroupOrderToDiscord() {
+  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+    alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
+    return;
+  }
+
   const validOrders = groupOrders.filter(food => String(food.name || "").trim() && Number(food.price || 0) > 0);
   if (!validOrders.length) {
     alert("전송할 단체주문 및 협동 내역이 없습니다.");
@@ -775,8 +797,12 @@ async function sendGroupOrderToDiscord() {
   }
   const applyRate = groupRateToggle.checked;
   const rate = applyRate ? 0.15 : 0;
+  const orderDate = document.getElementById("groupOrderDate").value.trim();
 
   let msg = `👥 **[단체주문 및 협동]**\n`;
+  if (orderDate) {
+    msg += `📅 **일자:** ${orderDate}\n`;
+  }
   msg += `📌 **15% 추가금 적용 여부:** ${applyRate ? '적용 (15%)' : '미적용'}\n`;
   msg += `-----------------------------------\n`;
 
@@ -887,13 +913,14 @@ function renderRecipe(){
   }
 
   const ingredientRows = isHighGrade ? createGroupedIngredientRows(ingredients) : Object.entries(ingredients).map(([name,need])=>createIngredientRow(name,need)).join("");
+  const isAdmin = auth.currentUser && auth.currentUser.uid === ADMIN_UID;
 
   content.innerHTML = `
   <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
     <div class="selected" style="margin:0;">
       [${escapeHtml(selectedGrade)}] ${escapeHtml(selected)}
     </div>
-    <button class="btn btn-discord" id="sendRecipeDiscordBtn">📢 디스코드로 이 요리 전송</button>
+    ${isAdmin ? `<button class="btn btn-discord" id="sendRecipeDiscordBtn">📢 디스코드로 이 요리 전송</button>` : ''}
   </div>
 
   <div class="result">
@@ -927,7 +954,10 @@ function renderRecipe(){
     el.addEventListener("keydown", handleTab);
   });
 
-  document.getElementById("sendRecipeDiscordBtn").addEventListener("click", sendSingleRecipeToDiscord);
+  const sendBtn = document.getElementById("sendRecipeDiscordBtn");
+  if (sendBtn) {
+    sendBtn.addEventListener("click", sendSingleRecipeToDiscord);
+  }
 
   updateCalculation();
 }
@@ -1008,6 +1038,7 @@ function createEmptyOrders(){
   return Array.from({length:5}, () => ({name:"", price:0}));
 }
 let groupOrders = createEmptyOrders();
+let currentGroupDate = "";
 
 const groupRateToggle = document.getElementById("groupRateToggle");
 const savedRate = localStorage.getItem(RATE_STORAGE_KEY);
@@ -1075,6 +1106,13 @@ function renderGroupViewer(){
   const applyRate = groupRateToggle.checked;
   const rate = applyRate ? 0.15 : 0;
 
+  const groupDateDisplay = document.getElementById("groupDateDisplay");
+  if (currentGroupDate) {
+    groupDateDisplay.textContent = `📅 진행 날짜: ${currentGroupDate}`;
+  } else {
+    groupDateDisplay.textContent = "";
+  }
+
   const validOrders = groupOrders.filter(food => String(food.name || "").trim() && Number(food.price || 0) > 0);
   if(!validOrders.length){
     groupViewerList.innerHTML = `<div class="empty">현재 등록된 단체주문 및 협동이 없습니다.</div>`;
@@ -1109,7 +1147,8 @@ saveGroupOrderBtn.addEventListener("click", async ()=>{
   try{
     saveGroupOrderBtn.disabled = true;
     adminStatus.textContent = "저장 중...";
-    await setDoc(groupOrderRef, { orders:groupOrders, updatedAt:Date.now() });
+    const dateValue = document.getElementById("groupOrderDate").value.trim();
+    await setDoc(groupOrderRef, { orders:groupOrders, date:dateValue, updatedAt:Date.now() });
     adminStatus.textContent = "✅ 단체주문 및 협동 정보가 저장되었습니다.";
   }catch(error){
     console.error(error);
@@ -1126,6 +1165,8 @@ clearGroupOrderBtn.addEventListener("click", async ()=>{
     clearGroupOrderBtn.disabled = true;
     await deleteDoc(groupOrderRef);
     groupOrders = createEmptyOrders();
+    currentGroupDate = "";
+    document.getElementById("groupOrderDate").value = "";
     renderGroupOrderEditor();
     renderGroupViewer();
     updateCalculation();
@@ -1150,8 +1191,12 @@ onSnapshot(groupOrderRef, snapshot=>{
         price: Number(food.price || 0)
       }));
     }
+    currentGroupDate = data.date || "";
+    document.getElementById("groupOrderDate").value = currentGroupDate;
   }else{
     groupOrders = createEmptyOrders();
+    currentGroupDate = "";
+    document.getElementById("groupOrderDate").value = "";
   }
   while(groupOrders.length < 5){
     groupOrders.push({name:"", price:0});
@@ -1176,6 +1221,7 @@ const passwordInput = document.getElementById("passwordInput");
 const loginStatus = document.getElementById("loginStatus");
 const groupViewer = document.getElementById("groupViewer");
 const groupAdmin = document.getElementById("groupAdmin");
+const sendGroupDiscordBtn = document.getElementById("sendGroupDiscordBtn");
 
 loginBtn.addEventListener("click", ()=>{
   loginSection.classList.toggle("hidden");
@@ -1209,8 +1255,10 @@ onAuthStateChanged(auth, async user=>{
       loginSection.classList.add("hidden");
       groupViewer.classList.add("hidden");
       groupAdmin.classList.remove("hidden");
+      sendGroupDiscordBtn.classList.remove("hidden"); // 관리자만 전송 버튼 보이기
       adminStatus.textContent = "✅ 관리자로 로그인되었습니다.";
       renderGroupOrderEditor();
+      if(selected) renderRecipe();
     }else{
       await signOut(auth);
       loginStatus.textContent = "관리자 계정만 로그인할 수 있습니다.";
@@ -1220,6 +1268,8 @@ onAuthStateChanged(auth, async user=>{
     logoutBtn.classList.add("hidden");
     groupViewer.classList.remove("hidden");
     groupAdmin.classList.add("hidden");
+    sendGroupDiscordBtn.classList.add("hidden"); // 일반 사용자는 전송 버튼 숨김
+    if(selected) renderRecipe();
   }
 });
 
