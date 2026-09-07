@@ -1,20 +1,23 @@
-```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>은하 요리 계산기</title>
-
 <style>
 :root{
-  --bg:#080a1f; --panel:rgba(16,19,48,.88); --panel2:rgba(28,32,75,.82);
-  --text:#f4f5ff; --muted:#b9bddb; --line:rgba(255,255,255,.13);
-  --accent:#9b8cff; --accent2:#61d6ff;
+  --bg:#080a1f;
+  --panel:rgba(16,19,48,.88);
+  --panel2:rgba(28,32,75,.82);
+  --text:#f4f5ff;
+  --muted:#b9bddb;
+  --line:rgba(255,255,255,.13);
+  --accent:#9b8cff;
+  --accent2:#61d6ff;
+  --success:#68e0a0;
+  --danger:#ff647c;
 }
-
 *{box-sizing:border-box}
-
 body{
   margin:0;
   min-height:100vh;
@@ -26,10 +29,10 @@ body{
     radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),
     linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
-
-body:before,
-body:after{
+body:before{
+  content:"✦ · ✧     ·       ✦       · ✧      ·       ✦       · ✧";
   position:fixed;
+  left:0;
   top:0;
   width:50%;
   height:100%;
@@ -41,18 +44,22 @@ body:after{
   overflow:hidden;
   z-index:0;
 }
-
-body:before{
-  content:"✦  ·  ✧     ·       ✦       ·  ✧      ·       ✦       ·    ✧";
-  left:0;
-}
-
 body:after{
-  content:"✧  ·  ✦     ·       ✧       ·  ✦       ·  ✧      ·       ✦";
+  content:"✧ · ✦     ·       ✧       · ✦       · ✧      ·       ✦";
+  position:fixed;
   right:0;
+  top:0;
+  width:50%;
+  height:100%;
+  pointer-events:none;
+  opacity:.45;
+  font-size:32px;
+  letter-spacing:24px;
+  line-height:140px;
+  overflow:hidden;
   text-align:right;
+  z-index:0;
 }
-
 .app{
   position:relative;
   z-index:1;
@@ -60,24 +67,20 @@ body:after{
   margin:auto;
   padding:25px 16px 45px;
 }
-
 .hero{
   text-align:center;
   margin-bottom:18px;
 }
-
 .hero h1{
   margin:0;
   font-size:clamp(28px,5vw,48px);
   text-shadow:0 0 24px rgba(150,120,255,.7);
 }
-
 .hero p{
   color:var(--muted);
   margin:8px 0 0;
   font-size:17px;
 }
-
 .card{
   background:var(--panel);
   border:1px solid var(--line);
@@ -85,12 +88,10 @@ body:after{
   backdrop-filter:blur(14px);
   box-shadow:0 20px 60px rgba(0,0,0,.35);
 }
-
 .controls{
   padding:18px;
   margin-bottom:16px;
 }
-
 .search{
   width:100%;
   padding:16px 18px;
@@ -101,7 +102,6 @@ body:after{
   font-size:19px;
   outline:none;
 }
-
 .recipe-list{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
@@ -110,7 +110,6 @@ body:after{
   max-height:300px;
   overflow:auto;
 }
-
 .recipe-btn{
   padding:15px;
   border:1px solid var(--line);
@@ -122,30 +121,23 @@ body:after{
   font-size:19px;
   font-weight:bold;
 }
-
 .recipe-btn:hover,
 .recipe-btn.active{
   border-color:var(--accent2);
   box-shadow:0 0 16px rgba(97,214,255,.22);
 }
-
 .grade{
   font-size:14px;
   opacity:.75;
   display:block;
   margin-bottom:5px;
 }
-
-.content{
-  padding:20px;
-}
-
+.content{padding:20px}
 .selected{
   font-size:26px;
   font-weight:bold;
   margin:0 0 16px;
 }
-
 .result{
   padding:18px;
   border-radius:16px;
@@ -154,19 +146,16 @@ body:after{
   margin-bottom:18px;
   font-size:18px;
 }
-
 .result strong{
   font-size:clamp(28px,4vw,42px);
   display:block;
   margin-top:6px;
 }
-
 .section-title{
   font-size:21px;
   font-weight:bold;
   margin:22px 0 10px;
 }
-
 .table{
   width:100%;
   border-collapse:collapse;
@@ -174,25 +163,19 @@ body:after{
   border-radius:14px;
   font-size:16px;
 }
-
-th,
-td{
+th,td{
   padding:13px 10px;
   border-bottom:1px solid var(--line);
   text-align:center;
 }
-
 th{
   color:#d9d7ff;
   background:rgba(255,255,255,.05);
-  font-size:16px;
 }
-
 td:first-child{
   text-align:left;
   font-weight:bold;
 }
-
 input.num{
   width:90px;
   padding:11px;
@@ -203,28 +186,21 @@ input.num{
   text-align:center;
   font-size:17px;
 }
-
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button{
   -webkit-appearance:none;
   margin:0;
 }
-
 input[type="number"]{
   -moz-appearance:textfield;
   appearance:textfield;
 }
-
-.owned{
-  white-space:nowrap;
-}
-
+.owned{white-space:nowrap}
 .subrecipes{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
   gap:8px;
 }
-
 .sub{
   padding:13px 14px;
   border-radius:10px;
@@ -232,387 +208,369 @@ input[type="number"]{
   border:1px solid var(--line);
   font-size:16px;
 }
-
 .note{
   color:var(--muted);
   font-size:14px;
 }
-
 .empty{
   text-align:center;
   color:var(--muted);
   padding:30px;
   font-size:18px;
 }
-
 .category-row td{
   text-align:left!important;
   font-size:18px!important;
   font-weight:bold!important;
   padding:14px 12px!important;
   background:rgba(255,255,255,.08);
-  border-top:1px solid var(--line);
 }
-
-/* =========================
-   단체주문
-========================= */
-
-.group-order-card{
+/* 상단 관리자 */
+.top-actions{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin-top:15px;
+  flex-wrap:wrap;
+}
+.btn{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.07);
+  color:white;
+  padding:11px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:15px;
+}
+.btn:hover{filter:brightness(1.15)}
+.btn-primary{
+  background:rgba(155,140,255,.25);
+  border-color:rgba(155,140,255,.6);
+}
+.btn-success{
+  background:rgba(104,224,160,.14);
+  border-color:rgba(104,224,160,.4);
+}
+.btn-danger{
+  background:rgba(255,100,124,.14);
+  border-color:rgba(255,100,124,.4);
+}
+.btn-discord{
+  background:rgba(88,101,242,.3);
+  border-color:rgba(88,101,242,.7);
+  color:#fff;
+  font-weight:bold;
+}
+.btn:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+/* 단체 주문 */
+.group-card{
   padding:20px;
-  margin-bottom:16px;
+  margin-top:16px;
 }
-
-.group-order-header{
+.group-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.group-title{
+  font-size:23px;
+  font-weight:bold;
+}
+.group-note{
+  color:var(--muted);
+  font-size:14px;
+  margin-top:5px;
+}
+.group-list{
+  margin-top:15px;
+}
+.group-item{
+  padding:15px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.04);
+  border-radius:13px;
+  margin-bottom:9px;
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:15px;
-  margin-bottom:18px;
 }
-
-.group-order-header h2{
-  margin:0 0 5px;
-  font-size:24px;
-}
-
-.group-order-header p{
-  margin:0;
-  color:var(--muted);
-}
-
-.admin-btn,
-.save-btn{
-  border:none;
-  border-radius:10px;
-  padding:12px 18px;
-  cursor:pointer;
-  color:white;
-  font-size:16px;
-  font-weight:bold;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-}
-
-.admin-btn:disabled,
-.save-btn:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-.logout-btn{
-  background:rgba(255,255,255,.12);
-}
-
-.discord-btn{
-  background:linear-gradient(135deg,#5865F2,#7289DA);
-}
-
-.login-box{
-  display:grid;
-  grid-template-columns:1fr 1fr auto;
-  gap:8px;
-  margin-bottom:15px;
-}
-
-.login-box input,
-.group-food input{
-  width:100%;
-  padding:12px;
-  border-radius:9px;
-  border:1px solid var(--line);
-  background:#090b23;
-  color:white;
-  font-size:16px;
-}
-
-.group-order-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:10px;
-  margin-bottom:14px;
-}
-
-.group-food{
-  padding:14px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:rgba(255,255,255,.04);
-}
-
-.group-food label{
-  display:block;
-  margin-bottom:8px;
-  color:#d9d7ff;
-  font-weight:bold;
-}
-
-.group-food input{
-  margin-bottom:7px;
-}
-
-.group-order-actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.group-order-actions button{
-  flex:1;
-  min-width:180px;
-}
-
-.group-order-view{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:10px;
-}
-
-.group-order-item{
-  padding:15px;
-  border-radius:12px;
-  background:rgba(110,85,255,.14);
-  border:1px solid rgba(150,150,255,.22);
-}
-
-.group-order-item strong{
-  display:block;
+.group-item-name{
   font-size:18px;
-  margin-bottom:7px;
-}
-
-.order-price{
-  margin-top:6px;
-  color:#d9d7ff;
-}
-
-.order-price-final{
-  margin-top:5px;
   font-weight:bold;
-  font-size:16px;
 }
-
-.percent-toggle{
+.group-item-info{
+  color:var(--muted);
+  font-size:14px;
+  margin-top:5px;
+}
+.group-price{
+  text-align:right;
+  white-space:nowrap;
+}
+.group-price .base{
+  color:var(--muted);
+  font-size:12px;
+}
+.group-price strong{
+  display:block;
+  margin-top:4px;
+  font-size:19px;
+}
+.group-total{
+  margin-top:15px;
+  padding:18px;
+  border-radius:15px;
+  background:linear-gradient(135deg,rgba(110,85,255,.24),rgba(55,180,255,.13));
+  border:1px solid rgba(150,150,255,.3);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+.group-total strong{font-size:27px}
+.rate-toggle{
   display:flex;
   align-items:center;
   gap:10px;
-  margin:12px 0 14px;
-  padding:12px 14px;
-  border:1px solid var(--line);
-  border-radius:10px;
+  margin-top:15px;
+  padding:13px;
   background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:12px;
 }
-
-.percent-toggle input{
+.switch{
+  position:relative;
+  width:52px;
+  height:28px;
+}
+.switch input{
+  opacity:0;
+  width:0;
+  height:0;
+}
+.slider{
+  position:absolute;
+  inset:0;
+  background:#303555;
+  border-radius:30px;
+  cursor:pointer;
+  transition:.2s;
+}
+.slider:before{
+  content:"";
+  position:absolute;
   width:20px;
   height:20px;
-  accent-color:#9b8cff;
+  left:4px;
+  top:4px;
+  background:white;
+  border-radius:50%;
+  transition:.2s;
 }
-
-.percent-badge{
-  display:inline-block;
-  padding:3px 8px;
-  border-radius:20px;
-  background:rgba(155,140,255,.18);
-  font-size:13px;
-  margin-left:6px;
+.switch input:checked + .slider{
+  background:#8b7cff;
 }
-
+.switch input:checked + .slider:before{
+  transform:translateX(24px);
+}
+.admin-grid-wrap{
+  overflow-x:auto;
+  margin-top:15px;
+}
+.admin-grid{
+  display:grid;
+  grid-template-columns:repeat(5,200px);
+  gap:10px;
+  min-width:1040px;
+}
+.admin-food{
+  padding:14px;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+}
+.admin-food-title{
+  font-size:16px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+.field{margin-bottom:10px}
+.field label{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:5px;
+}
+.field input{
+  width:100%;
+  padding:10px;
+  background:#090b23;
+  border:1px solid var(--line);
+  border-radius:9px;
+  color:white;
+}
+.admin-total{
+  padding-top:10px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;
+}
+.admin-total strong{
+  display:block;
+  color:white;
+  font-size:16px;
+  margin-top:5px;
+}
+.admin-buttons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+.status{
+  min-height:20px;
+  color:var(--muted);
+  margin-top:10px;
+  font-size:14px;
+}
+.login-box{
+  margin-top:15px;
+  padding:16px;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+}
+.login-row{
+  display:grid;
+  grid-template-columns:1fr 1fr auto;
+  gap:10px;
+}
+.login-row input{
+  width:100%;
+  padding:12px;
+  background:#090b23;
+  border:1px solid var(--line);
+  border-radius:9px;
+  color:white;
+}
+.hidden{display:none!important}
 @media(max-width:700px){
-  .app{
-    padding:14px 8px 30px;
-  }
-
-  .content,
-  .controls{
-    padding:13px;
-  }
-
+  .app{padding:14px 8px 30px}
+  .content,.controls,.group-card{padding:13px}
   th:nth-child(2),
-  td:nth-child(2){
-    display:none;
-  }
-
-  .table{
-    font-size:13px;
-  }
-
-  input.num{
-    width:60px;
-  }
-
-  .recipe-btn{
-    font-size:18px;
-  }
-
+  td:nth-child(2){display:none}
+  .table{font-size:13px}
+  input.num{width:60px}
+  .recipe-btn{font-size:18px}
   body:before,
   body:after{
     font-size:24px;
     letter-spacing:14px;
     line-height:110px;
   }
-
-  .group-order-header{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-
-  .login-box{
-    grid-template-columns:1fr;
-  }
-
-  .group-order-actions{
-    flex-direction:column;
-  }
-
-  .group-order-actions button{
-    width:100%;
-    min-width:0;
-  }
+  .login-row{grid-template-columns:1fr}
+  .group-item{align-items:flex-start;flex-direction:column}
+  .group-price{text-align:left}
+  .group-total{align-items:flex-start;flex-direction:column}
 }
 </style>
 </head>
-
 <body>
-
 <div class="app">
-
   <div class="hero">
     <h1>🌌 은하 요리 계산기 🍳</h1>
     <p>64개 = 1세트 · 보유 재료를 세트 + 낱개로 입력하세요</p>
+    <div class="top-actions">
+      <button class="btn btn-primary" id="loginBtn">🔐 관리자 로그인</button>
+      <button class="btn btn-danger hidden" id="logoutBtn">로그아웃</button>
+    </div>
   </div>
-
-  <!-- =========================
-       단체주문
-  ========================= -->
-
-  <div class="card group-order-card">
-
-    <div class="group-order-header">
-
-      <div>
-        <h2>📦 단체주문</h2>
-        <p id="groupOrderStatus">단체주문 내용을 불러오는 중...</p>
-      </div>
-
-      <div class="admin-area">
-
-        <button id="loginBtn" class="admin-btn">
-          🔐 관리자 로그인
-        </button>
-
-        <button id="logoutBtn"
-                class="admin-btn logout-btn"
-                style="display:none">
-          로그아웃
-        </button>
-
-      </div>
-
-    </div>
-
-    <div id="loginBox"
-         class="login-box"
-         style="display:none">
-
-      <input id="adminEmail"
-             type="email"
-             placeholder="관리자 이메일">
-
-      <input id="adminPassword"
-             type="password"
-             placeholder="비밀번호">
-
-      <button id="loginSubmit"
-              class="save-btn">
-        로그인
-      </button>
-
-    </div>
-
-    <div id="groupOrderEditor"
-         style="display:none">
-
-      <div class="percent-toggle">
-
-        <input id="groupOrderPercent"
-               type="checkbox">
-
-        <label for="groupOrderPercent">
-          <b>15% 적용</b>
-          <span class="percent-badge">
-            금액에만 적용
-          </span>
-        </label>
-
-      </div>
-
-      <div class="group-order-grid"
-           id="groupOrderGrid">
-      </div>
-
-      <div class="group-order-actions">
-
-        <button id="saveGroupOrder"
-                class="save-btn">
-          💾 단체주문 저장
-        </button>
-
-        <button id="sendDiscordBtn"
-                class="save-btn discord-btn"
-                style="display:none">
-          📨 디스코드 전송
-        </button>
-
-      </div>
-
-    </div>
-
-    <div id="groupOrderView"
-         class="group-order-view">
-      불러오는 중...
-    </div>
-
-  </div>
-
-
-  <!-- =========================
-       검색 및 요리 목록
-  ========================= -->
-
+  <!-- 검색 -->
   <div class="card controls">
-
-    <input id="search"
-           class="search"
-           placeholder="🔎 요리 이름을 검색하세요">
-
-    <div id="recipeList"
-         class="recipe-list">
-    </div>
-
+    <input id="search" class="search" placeholder="🔎 요리 이름을 검색하세요">
+    <div id="recipeList" class="recipe-list"></div>
   </div>
-
-
-  <!-- =========================
-       계산 화면
-  ========================= -->
-
+  <!-- 계산기 -->
   <div class="card content">
-
-    <div id="appContent"
-         class="empty">
+    <div id="appContent" class="empty">
       위에서 요리를 선택해주세요.
     </div>
-
   </div>
-
+  <!-- 단체 주문 -->
+  <div class="card group-card">
+    <div class="group-header">
+      <div>
+        <div class="group-title">👥 단체 주문</div>
+        <div class="group-note">
+          관리자가 등록한 단체 주문 정보를 확인할 수 있습니다.
+        </div>
+      </div>
+      <button class="btn btn-discord" id="sendGroupDiscordBtn">📢 단체 주문 디스코드 전송</button>
+    </div>
+    <!-- 일반 사용자 -->
+    <div id="groupViewer">
+      <div class="rate-toggle">
+        <label class="switch">
+          <input type="checkbox" id="groupRateToggle">
+          <span class="slider"></span>
+        </label>
+        <div>
+          <strong>15% 추가금 적용</strong>
+          <div class="note">켜기 / 끄기는 사용자별로 따로 적용됩니다.</div>
+        </div>
+      </div>
+      <div id="groupViewerList" class="group-list"></div>
+      <div class="group-total">
+        <div>
+          <div class="note">총 주문 금액</div>
+          <div id="groupRateText" class="note">15% 미적용</div>
+        </div>
+        <strong id="groupViewerTotal">0원</strong>
+      </div>
+    </div>
+    <!-- 관리자 -->
+    <div id="groupAdmin" class="hidden">
+      <div class="admin-grid-wrap">
+        <div id="groupOrderGrid" class="admin-grid"></div>
+      </div>
+      <div class="admin-buttons">
+        <button class="btn btn-success" id="saveGroupOrderBtn">
+          💾 단체주문 저장
+        </button>
+        <button class="btn btn-danger" id="clearGroupOrderBtn">
+          🗑️ 전체 삭제
+        </button>
+      </div>
+      <div id="adminStatus" class="status"></div>
+    </div>
+  </div>
+  <!-- 로그인 -->
+  <div id="loginSection" class="card group-card hidden">
+    <div class="section-title">🔐 관리자 인증</div>
+    <div class="login-box">
+      <div class="login-row">
+        <input type="email" id="emailInput" placeholder="관리자 이메일">
+        <input type="password" id="passwordInput" placeholder="관리자 비밀번호">
+        <button class="btn btn-primary" id="doLoginBtn">로그인</button>
+      </div>
+      <div id="loginStatus" class="status"></div>
+    </div>
+  </div>
 </div>
 
-
-<script>
-
-/* =========================
-   Firebase 설정
-========================= */
+<script type="module">
+/* =====================================================
+Firebase & Discord Setting
+===================================================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, onSnapshot, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBi3CTzTaWPwDJ9CgwuRgpROac45Ag-54Y",
@@ -623,2190 +581,686 @@ const firebaseConfig = {
   appId: "1:885308286326:web:ceeec8b4491cd9385a0657"
 };
 
-let auth=null;
-let db=null;
-let groupOrderRef=null;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-let initializeApp=null;
-let getAuth=null;
-let signInWithEmailAndPassword=null;
-let signOut=null;
-let onAuthStateChanged=null;
-let getFirestore=null;
-let doc=null;
-let setDoc=null;
-let onSnapshot=null;
+/* 지정해주신 디스코드 웹훅 URL 적용 완료 */
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1545326131798872094/UP4tY7F6tmLzwK6UtprLSUNTost3g-KvBxdm1X5hfrqnDaXosDA7ukD223PRfEJClv9y";
 
-/* =========================
-   Discord 설정
-========================= */
+/* 기존 관리자 UID */
+const ADMIN_UID = "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
+const groupOrderRef = doc(db, "cookingOrder", "main");
 
-const DISCORD_WORKER_URL =
-  "https://discord-proxy.galaxycooking.workers.dev";
+/* =====================================================
+기본 설정
+===================================================== */
+const STACK = 64;
+const OWNED_STORAGE_KEY = "galaxyCookingOwnedMaterials";
+const RATE_STORAGE_KEY = "galaxyCookingGroupRate15";
 
-let currentFirebaseUser=null;
-
-
-/* =========================
-   관리자 설정
-========================= */
-
-const ADMIN_UID =
-  "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
-
-const STACK=64;
-
-let isAdmin=false;
-
-let groupOrderData=
-  Array.from(
-    {length:5},
-    ()=>({
-      name:"",
-      amount:0
-    })
-  );
-
-let groupOrderPercentEnabled=false;
-
-
-/* =========================
-   요리 데이터
-========================= */
-
-const recipes={
-
-"일반":{
-
-"요정 피쉬 꽃튀김":{
-  "요정 피쉬":1,
-  "마나블라썸":4,
-  "밀가루":4,
-  "빵가루":4
-},
-
-"호박 마나푸딩":{
-  "마나블라썸":4,
-  "호박 퓌레":4,
-  "우유":4,
-  "각설탕":4
-},
-
-"젤리 버섯 크림수프":{
-  "젤리버섯":6,
-  "우유":4,
-  "밀가루":4
-},
-
-"피치 가지 디저트구이":{
-  "피치가지":4,
-  "수박시럽":4,
-  "각설탕":4,
-  "우유":4
-},
-
-"피치가지 크림닭구이":{
-  "피치가지":4,
-  "익힌 닭고기":4,
-  "우유":4,
-  "수박시럽":4
-},
-
-"마나블라썸 밀크":{
-  "마나블라썸":6,
-  "우유":4,
-  "각설탕":4
-},
-
-"피치 가지 수박파르페":{
-  "피치가지":4,
-  "수박시럽":4,
-  "베리소스":4,
-  "우유":4
-},
-
-"홀로그램 피쉬 바삭튀김":{
-  "홀로그램 피쉬":1,
-  "슬라임 콜라비":4,
-  "밀가루":4,
-  "빵가루":4,
-  "수박시럽":4
-},
-
-"레드펄 양파 스튜":{
-  "레드펄 양파":6,
-  "감자 전분":4,
-  "고기 육수":4
-},
-
-"마나블라썸 차":{
-  "마나블라썸":4,
-  "각설탕":4,
-  "우유":4
-},
-
-"슬라임 콜라비 튀김":{
-  "슬라임 콜라비":6,
-  "밀가루":4,
-  "빵가루":4
-},
-
-"엔더 콩 스튜":{
-  "엔더 콩":6,
-  "치킨스톡":4,
-  "감자 전분":4
-},
-
-"초승달 무 샐러드":{
-  "초승달 무":4,
-  "비트소스":4,
-  "베리소스":4
-},
-
-"슬라임 콜라비 돼지찜":{
-  "슬라임 콜라비":4,
-  "익힌 돼지고기":4,
-  "고기 육수":4,
-  "감자 전분":4
-},
-
-"젤리 버섯 닭볶음":{
-  "젤리버섯":4,
-  "익힌 닭고기":4,
-  "베리소스":4,
-  "치킨스톡":4
-},
-
-"팬텀 양배추 소고기스튜":{
-  "팬텀 양배추":4,
-  "익힌 소고기":4,
-  "고기 육수":4,
-  "우유":4
-},
-
-"팬텀 양배추 고기말이":{
-  "팬텀 양배추":4,
-  "익힌 소고기":4,
-  "익힌 돼지고기":4,
-  "고기 육수":4
-},
-
-"레드펄 소고기볶음":{
-  "레드펄 양파":4,
-  "익힌 소고기":4,
-  "비트소스":4
-}
-
-},
-
-"영웅":{
-
-"마나 해산물 스튜":{
-  "요정 피쉬":1,
-  "엔젤 피쉬":1,
-  "마나블라썸":8,
-  "치킨스톡":4,
-  "우유":4
-},
-
-"엔젤피쉬 황금호박스튜":{
-  "엔젤 피쉬":1,
-  "마나블라썸":8,
-  "호박 퓌레":4,
-  "당근즙":4,
-  "우유":4
-},
-
-"그림자 생선조림":{
-  "다크 피쉬":1,
-  "고스트 피쉬":1,
-  "엔더 콩":8,
-  "비트소스":4,
-  "고기 육수":4
-},
-
-"환영 생선 샐러드":{
-  "홀로그램 피쉬":1,
-  "초승달 무":8,
-  "슬라임 콜라비":6,
-  "베리소스":4,
-  "수박시럽":4
-},
-
-"천상의 크림스튜":{
-  "엔젤 피쉬":1,
-  "피치가지":8,
-  "호박 퓌레":4,
-  "우유":4,
-  "각설탕":4
-},
-
-"마녀의 심해탕":{
-  "다크 피쉬":1,
-  "젤리버섯":8,
-  "팬텀 양배추":6,
-  "비트소스":4,
-  "치킨스톡":4
-},
-
-"고스트 피쉬 크림탕":{
-  "고스트 피쉬":1,
-  "팬텀 양배추":8,
-  "우유":4,
-  "치킨스톡":4
-},
-
-"고스트 피쉬 양배추말이":{
-  "고스트 피쉬":1,
-  "팬텀 양배추":8,
-  "초승달 무":4,
-  "치킨스톡":4
-},
-
-"요정 피쉬 마나찜":{
-  "요정 피쉬":1,
-  "마나블라썸":8,
-  "당근즙":4,
-  "우유":4
-},
-
-"홀로그램 피쉬 베리글레이즈":{
-  "홀로그램 피쉬":1,
-  "슬라임 콜라비":8,
-  "베리소스":4,
-  "수박시럽":4
-},
-
-"다크 피쉬 비트조림":{
-  "다크 피쉬":1,
-  "레드펄 양파":8,
-  "비트소스":4,
-  "고기 육수":4
-},
-
-"다크 피쉬 매운구이":{
-  "다크 피쉬":1,
-  "엔더 콩":8,
-  "비트소스":4,
-  "빵가루":4
-},
-
-"엔젤피쉬 크림구이":{
-  "엔젤 피쉬":1,
-  "마나블라썸":6,
-  "우유":4,
-  "호박 퓌레":4,
-  "빵가루":4
-},
-
-"젤리 버섯 푸딩":{
-  "젤리버섯":8,
-  "우유":4,
-  "각설탕":4,
-  "수박시럽":4
-}
-
-},
-
-"전설":{
-
-"아스텔라 A급 생선 정식":{
-  "요정 피쉬 마나찜":1,
-  "홀로그램 피쉬 베리글레이즈":1,
-  "다크 피쉬 비트조림":1,
-  "고스트 피쉬 크림탕":1,
-  "엔젤피쉬 황금호박스튜":1
-},
-
-"아스텔라 축제 도시락":{
-  "레드펄 양파 스튜":1,
-  "슬라임 콜라비 튀김":1,
-  "팬텀 양배추 고기말이":1,
-  "피치 가지 수박파르페":1
-}
-
-},
-
-"신화":{
-
-"왕실 해산물 만찬":{
-  "마나 해산물 스튜":1,
-  "그림자 생선조림":1,
-  "환영 생선 샐러드":1,
-  "천상의 크림스튜":1,
-  "마나블라썸 밀크":1
-}
-
-}
-
+/* =====================================================
+요리 데이터
+===================================================== */
+const recipes = {
+  "일반":{
+    "요정 피쉬 꽃튀김":{"요정 피쉬":1,"마나블라썸":4,"밀가루":4,"빵가루":4},
+    "호박 마나푸딩":{"마나블라썸":4,"호박 퓌레":4,"우유":4,"각설탕":4},
+    "젤리 버섯 크림수프":{"젤리버섯":6,"우유":4,"밀가루":4},
+    "피치 가지 디저트구이":{"피치가지":4,"수박시럽":4,"각설탕":4,"우유":4},
+    "피치가지 크림닭구이":{"피치가지":4,"익힌 닭고기":4,"우유":4,"수박시럽":4},
+    "마나블라썸 밀크":{"마나블라썸":6,"우유":4,"각설탕":4},
+    "피치 가지 수박파르페":{"피치가지":4,"수박시럽":4,"베리소스":4,"우유":4},
+    "홀로그램 피쉬 바삭튀김":{"홀로그램 피쉬":1,"슬라임 콜라비":4,"밀가루":4,"빵가루":4,"수박시럽":4},
+    "레드펄 양파 스튜":{"레드펄 양파":6,"감자 전분":4,"고기 육수":4},
+    "마나블라썸 차":{"마나블라썸":4,"각설탕":4,"우유":4},
+    "슬라임 콜라비 튀김":{"슬라임 콜라비":6,"밀가루":4,"빵가루":4},
+    "엔더 콩 스튜":{"엔더 콩":6,"치킨스톡":4,"감자 전분":4},
+    "초승달 무 샐러드":{"초승달 무":4,"비트소스":4,"베리소스":4},
+    "슬라임 콜라비 돼지찜":{"슬라임 콜라비":4,"익힌 돼지고기":4,"고기 육수":4,"감자 전분":4},
+    "젤리 버섯 닭볶음":{"젤리버섯":4,"익힌 닭고기":4,"베리소스":4,"치킨스톡":4},
+    "팬텀 양배추 소고기스튜":{"팬텀 양배추":4,"익힌 소고기":4,"고기 육수":4,"우유":4},
+    "팬텀 양배추 고기말이":{"팬텀 양배추":4,"익힌 소고기":4,"익힌 돼지고기":4,"고기 육수":4},
+    "레드펄 소고기볶음":{"레드펄 양파":4,"익힌 소고기":4,"비트소스":4}
+  },
+  "영웅":{
+    "마나 해산물 스튜":{"요정 피쉬":1,"엔젤 피쉬":1,"마나블라썸":8,"치킨스톡":4,"우유":4},
+    "엔젤피쉬 황금호박스튜":{"엔젤 피쉬":1,"마나블라썸":8,"호박 퓌레":4,"당근즙":4,"우유":4},
+    "그림자 생선조림":{"다크 피쉬":1,"고스트 피쉬":1,"엔더 콩":8,"비트소스":4,"고기 육수":4},
+    "환영 생선 샐러드":{"홀로그램 피쉬":1,"초승달 무":8,"슬라임 콜라비":6,"베리소스":4,"수박시럽":4},
+    "천상의 크림스튜":{"엔젤 피쉬":1,"피치가지":8,"호박 퓌레":4,"우유":4,"각설탕":4},
+    "마녀의 심해탕":{"다크 피쉬":1,"젤리버섯":8,"팬텀 양배추":6,"비트소스":4,"치킨스톡":4},
+    "고스트 피쉬 크림탕":{"고스트 피쉬":1,"팬텀 양배추":8,"우유":4,"치킨스톡":4},
+    "고스트 피쉬 양배추말이":{"고스트 피쉬":1,"팬텀 양배추":8,"초승달 무":4,"치킨스톡":4},
+    "요정 피쉬 마나찜":{"요정 피쉬":1,"마나블라썸":8,"당근즙":4,"우유":4},
+    "홀로그램 피쉬 베리글레이즈":{"홀로그램 피쉬":1,"슬라임 콜라비":8,"베리소스":4,"수박시럽":4},
+    "다크 피쉬 비트조림":{"다크 피쉬":1,"레드펄 양파":8,"비트소스":4,"고기 육수":4},
+    "다크 피쉬 매운구이":{"다크 피쉬":1,"엔더 콩":8,"비트소스":4,"빵가루":4},
+    "엔젤피쉬 크림구이":{"엔젤 피쉬":1,"마나블라썸":6,"우유":4,"호박 퓌레":4,"빵가루":4},
+    "젤리 버섯 푸딩":{"젤리버섯":8,"우유":4,"각설탕":4,"수박시럽":4}
+  },
+  "전설":{
+    "아스텔라 A급 생선 정식":{"요정 피쉬 마나찜":1,"홀로그램 피쉬 베리글레이즈":1,"다크 피쉬 비트조림":1,"고스트 피쉬 크림탕":1,"엔젤피쉬 황금호박스튜":1},
+    "아스텔라 축제 도시락":{"레드펄 양파 스튜":1,"슬라임 콜라비 튀김":1,"팬텀 양배추 고기말이":1,"피치 가지 수박파르페":1}
+  },
+  "신화":{
+    "왕실 해산물 만찬":{"마나 해산물 스튜":1,"그림자 생선조림":1,"환영 생선 샐러드":1,"천상의 크림스튜":1,"마나블라썸 밀크":1}
+  }
 };
 
+/* =====================================================
+모든 요리 합치기
+===================================================== */
+const all = {};
+Object.values(recipes).forEach(group=>{
+  Object.assign(all,group);
+});
+let selected = null;
+let selectedGrade = null;
+let currentPossibleCount = 0;
 
-/* =========================
-   전체 레시피
-========================= */
+/* =====================================================
+저장된 보유 재료
+===================================================== */
+function loadOwnedMaterials(){
+  try{
+    return JSON.parse(localStorage.getItem(OWNED_STORAGE_KEY)) || {};
+  }catch{
+    return {};
+  }
+}
+let ownedMaterials = loadOwnedMaterials();
+function saveOwnedMaterials(){
+  localStorage.setItem(OWNED_STORAGE_KEY, JSON.stringify(ownedMaterials));
+}
 
-const all={};
-
-Object.values(recipes)
-  .forEach(group=>Object.assign(all,group));
-
-let selected=null;
-let selectedGrade=null;
-
-
-/* =========================
-   레시피 확장
-========================= */
-
-function expandRecipe(
-  name,
-  amount=1,
-  result={}
-){
-
+/* =====================================================
+레시피 확장
+===================================================== */
+function expandRecipe(name, amount = 1, result = {}){
   if(!all[name]){
     return result;
   }
-
-  for(
-    const [item,need]
-    of Object.entries(all[name])
-  ){
-
-    const total=need*amount;
-
+  for(const [item,need] of Object.entries(all[name])){
+    const total = need * amount;
     if(all[item]){
-      expandRecipe(
-        item,
-        total,
-        result
-      );
+      expandRecipe(item, total, result);
+    }else{
+      result[item] = (result[item] || 0) + total;
     }
-    else{
-      result[item]=
-        (result[item]||0)+total;
-    }
-
   }
-
   return result;
 }
 
-
-/* =========================
-   세트 표시
-========================= */
-
+/* =====================================================
+숫자 표시
+===================================================== */
+function formatNumber(n){
+  return Number(n || 0).toLocaleString("ko-KR");
+}
+function formatWon(n){
+  return `${formatNumber(Math.round(n || 0))}원`;
+}
 function formatStack(n){
-
-  const sets=Math.floor(n/STACK);
-  const pieces=n%STACK;
-
-  if(sets&&pieces){
-    return `${n.toLocaleString()}개 (${sets}세트 + ${pieces}개)`;
+  n = Math.floor(Number(n || 0));
+  const sets = Math.floor(n / STACK);
+  const pieces = n % STACK;
+  if(sets && pieces){
+    return `${formatNumber(n)}개 (${formatNumber(sets)}세트 + ${formatNumber(pieces)}개)`;
   }
-
   if(sets){
-    return `${n.toLocaleString()}개 (${sets}세트)`;
+    return `${formatNumber(n)}개 (${formatNumber(sets)}세트)`;
   }
-
-  return `${n.toLocaleString()}개`;
+  return `${formatNumber(n)}개`;
 }
 
-
-/* =========================
-   재료 분류
-========================= */
-
-const FISH=[
-  "요정 피쉬",
-  "엔젤 피쉬",
-  "다크 피쉬",
-  "고스트 피쉬",
-  "홀로그램 피쉬"
-];
-
-const CROPS=[
-  "마나블라썸",
-  "피치가지",
-  "젤리버섯",
-  "팬텀 양배추",
-  "레드펄 양파",
-  "슬라임 콜라비",
-  "엔더 콩",
-  "초승달 무"
-];
+/* =====================================================
+재료 카테고리
+===================================================== */
+const FISH = ["요정 피쉬","엔젤 피쉬","다크 피쉬","고스트 피쉬","홀로그램 피쉬"];
+const CROPS = ["마나블라썸","피치가지","젤리버섯","팬텀 양배추","레드펄 양파","슬라임 콜라비","엔더 콩","초승달 무"];
 
 function getIngredientCategory(name){
-
-  return FISH.includes(name)
-    ? 1
-    : CROPS.includes(name)
-      ? 2
-      : 3;
+  if(FISH.includes(name)){ return 1; }
+  if(CROPS.includes(name)){ return 2; }
+  return 3;
+}
+function getCategoryName(category){
+  if(category === 1){ return "🐟 피쉬"; }
+  if(category === 2){ return "🌱 작물"; }
+  return "🧂 가공재료";
 }
 
-function getCategoryName(c){
-
-  return c===1
-    ? "🐟 피쉬"
-    : c===2
-      ? "🌱 작물"
-      : "🧂 가공재료";
+/* =====================================================
+안전한 HTML & ID
+===================================================== */
+function escapeHtml(value){
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#39;');
 }
-
-
-/* =========================
-   CSS ID
-========================= */
-
 function cssId(name){
-
-  return btoa(
-    unescape(
-      encodeURIComponent(name)
-    )
-  ).replace(
-    /[^a-zA-Z0-9]/g,
-    ""
-  );
+  return btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, "");
 }
 
+/* =====================================================
+디스코드 전송 함수
+===================================================== */
+async function postToDiscord(message) {
+  if (!DISCORD_WEBHOOK_URL) {
+    alert("디스코드 웹훅 URL이 설정되지 않았습니다.");
+    return false;
+  }
+  try {
+    const res = await fetch(DISCORD_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: message })
+    });
+    if (res.ok) {
+      alert("디스코드로 성공적으로 전송되었습니다!");
+      return true;
+    } else {
+      alert("디스코드 전송 실패: " + res.statusText);
+      return false;
+    }
+  } catch (err) {
+    console.error(err);
+    alert("전송 중 에러가 발생했습니다.");
+    return false;
+  }
+}
 
-/* =========================
-   재료 행
-========================= */
+/* 개별 요리 디스코드 전송 */
+async function sendSingleRecipeToDiscord() {
+  if (!selected) return;
+  const message = `🌌 **[은하 요리 계산기 - 요리 수량 정보]**\n` +
+                  `🍳 **요리명:** [${selectedGrade}] ${selected}\n` +
+                  `🍲 **제작 가능 수량:** ${formatStack(currentPossibleCount)}`;
+  await postToDiscord(message);
+}
 
-function createIngredientRow(
-  name,
-  need
-){
+/* 단체 주문 디스코드 전송 */
+async function sendGroupOrderToDiscord() {
+  const validOrders = groupOrders.filter(food => String(food.name || "").trim() && Number(food.price || 0) > 0);
+  if (!validOrders.length) {
+    alert("전송할 단체 주문 내역이 없습니다.");
+    return;
+  }
+  const applyRate = groupRateToggle.checked;
+  const rate = applyRate ? 0.15 : 0;
+  let totalAll = 0;
 
-  return `<tr>
-    <td>${name}</td>
-    <td>${need}개</td>
-    <td class="owned"
-        id="owned-${cssId(name)}">
-      0개
+  let msg = `👥 **[은하 요리 단체 주문 내역]**\n`;
+  msg += `📌 **15% 추가금 적용 여부:** ${applyRate ? '적용 (15%)' : '미적용'}\n`;
+  msg += `-----------------------------------\n`;
+
+  validOrders.forEach(food => {
+    const base = Number(food.price);
+    const finalAmount = Math.round(base * (1 + rate));
+    totalAll += finalAmount;
+    msg += `• **${food.name}** x1 : ${formatWon(finalAmount)} (기본: ${formatWon(base)})\n`;
+  });
+
+  msg += `-----------------------------------\n`;
+  msg += `💰 **총 주문 금액:** **${formatWon(totalAll)}**`;
+
+  await postToDiscord(msg);
+}
+
+/* =====================================================
+재료 행
+===================================================== */
+function createIngredientRow(name,need){
+  const saved = ownedMaterials[name] || {sets:0, pieces:0};
+  return `
+  <tr>
+    <td>${escapeHtml(name)}</td>
+    <td>${formatNumber(need)}개</td>
+    <td class="owned" id="owned-${cssId(name)}">0개</td>
+    <td>
+      <input class="num set-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.sets || 0))}">
     </td>
     <td>
-      <input
-        class="num set-input"
-        data-name="${name}"
-        type="number"
-        min="0"
-        value="0">
-    </td>
-    <td>
-      <input
-        class="num piece-input"
-        data-name="${name}"
-        type="number"
-        min="0"
-        value="0">
+      <input class="num piece-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.pieces || 0))}">
     </td>
   </tr>`;
 }
 
-
-/* =========================
-   재료 그룹 행
-========================= */
-
-function createGroupedIngredientRows(
-  ingredients
-){
-
-  const groups={
-    1:[],
-    2:[],
-    3:[]
-  };
-
-  Object.entries(ingredients)
-    .forEach(([name,need])=>{
-      groups[
-        getIngredientCategory(name)
-      ].push([name,need]);
-    });
-
-  let html="";
-
-  for(let c=1;c<=3;c++){
-
-    if(!groups[c].length)continue;
-
-    groups[c].sort(
-      ([a],[b])=>
-        a.localeCompare(b,"ko")
-    );
-
-    html+=`
+function createGroupedIngredientRows(ingredients){
+  const groups = {1:[], 2:[], 3:[]};
+  Object.entries(ingredients).forEach(([name,need])=>{
+    const category = getIngredientCategory(name);
+    groups[category].push([name, need]);
+  });
+  let html = "";
+  for(let category = 1; category <= 3; category++){
+    if(!groups[category].length) continue;
+    groups[category].sort(([a],[b]) => a.localeCompare(b,"ko"));
+    html += `
       <tr class="category-row">
-        <td colspan="5">
-          ${getCategoryName(c)}
-        </td>
-      </tr>
-    `;
-
-    groups[c].forEach(
-      ([name,need])=>{
-        html+=createIngredientRow(
-          name,
-          need
-        );
-      }
-    );
+        <td colspan="5">${getCategoryName(category)}</td>
+      </tr>`;
+    groups[category].forEach(([name,need])=>{
+      html += createIngredientRow(name, need);
+    });
   }
-
   return html;
 }
 
-
-/* =========================
-   요리 목록
-========================= */
-
+/* =====================================================
+요리 목록
+===================================================== */
 function renderList(){
-
-  const q=
-    document.getElementById("search")
-      .value
-      .trim()
-      .toLowerCase();
-
-  const list=
-    document.getElementById("recipeList");
-
-  list.innerHTML="";
-
-  for(
-    const [grade,group]
-    of Object.entries(recipes)
-  ){
-
-    for(
-      const name
-      of Object.keys(group)
-    ){
-
-      if(
-        (grade+" "+name)
-          .toLowerCase()
-          .includes(q)
-      ){
-
-        const button=
-          document.createElement("button");
-
-        button.className=
-          "recipe-btn"+
-          (selected===name
-            ? " active"
-            : "");
-
-        button.innerHTML=
-          `<span class="grade">
-             ${grade}
-           </span>
-           ${name}`;
-
-        button.onclick=()=>
-          selectRecipe(
-            grade,
-            name
-          );
-
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const list = document.getElementById("recipeList");
+  list.innerHTML = "";
+  for(const [grade,group] of Object.entries(recipes)){
+    for(const name of Object.keys(group)){
+      if((grade + " " + name).toLowerCase().includes(q)){
+        const button = document.createElement("button");
+        button.className = "recipe-btn" + (selected === name ? " active" : "");
+        button.innerHTML = `
+          <span class="grade">${escapeHtml(grade)}</span>
+          ${escapeHtml(name)}
+        `;
+        button.onclick = ()=>{ selectRecipe(grade, name); };
         list.appendChild(button);
       }
     }
   }
 }
 
-
-/* =========================
-   요리 선택
-========================= */
-
-function selectRecipe(
-  grade,
-  name
-){
-
-  selected=name;
-  selectedGrade=grade;
-
+/* =====================================================
+요리 선택
+===================================================== */
+function selectRecipe(grade, name){
+  selected = name;
+  selectedGrade = grade;
   renderList();
   renderRecipe();
 }
 
-
-/* =========================
-   요리 화면
-========================= */
-
+/* =====================================================
+요리 화면
+===================================================== */
 function renderRecipe(){
+  if(!selected) return;
+  const content = document.getElementById("appContent");
+  const isHighGrade = selectedGrade === "전설" || selectedGrade === "신화";
+  const ingredients = isHighGrade ? expandRecipe(selected) : all[selected];
+  const sub = isHighGrade ? all[selected] : null;
 
-  if(!selected)return;
-
-  const content=
-    document.getElementById("appContent");
-
-  const isHighGrade=
-    selectedGrade==="전설" ||
-    selectedGrade==="신화";
-
-  const ingredients=
-    isHighGrade
-      ? expandRecipe(selected)
-      : all[selected];
-
-  const sub=
-    isHighGrade
-      ? all[selected]
-      : null;
-
-  let subHtml="";
-
+  let subHtml = "";
   if(sub){
-
-    subHtml=`
-      <div class="section-title">
-        🥘 필요한 하위 요리
-      </div>
-
+    subHtml = `
+      <div class="section-title">🥘 필요한 하위 요리</div>
       <div class="subrecipes">
-
-        ${
-          Object.entries(sub)
-            .map(
-              ([name,amount])=>
-                `<div class="sub">
-                  ${name} × ${amount}
-                </div>`
-            )
-            .join("")
-        }
-
+        ${Object.entries(sub).map(([name,amount])=>`
+          <div class="sub">${escapeHtml(name)} × ${formatNumber(amount)}</div>
+        `).join("")}
       </div>
-
-      <div class="section-title">
-        📋 실제 기본 재료
-      </div>
-    `;
+      <div class="section-title">📋 실제 기본 재료</div>`;
   }
 
-  const rows=
-    isHighGrade
-      ? createGroupedIngredientRows(
-          ingredients
-        )
-      : Object.entries(ingredients)
-          .map(
-            ([name,need])=>
-              createIngredientRow(
-                name,
-                need
-              )
-          )
-          .join("");
+  const ingredientRows = isHighGrade ? createGroupedIngredientRows(ingredients) : Object.entries(ingredients).map(([name,need])=>createIngredientRow(name,need)).join("");
 
-  content.innerHTML=`
-
-    <div class="selected">
-      [${selectedGrade}] ${selected}
+  content.innerHTML = `
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+    <div class="selected" style="margin:0;">
+      [${escapeHtml(selectedGrade)}] ${escapeHtml(selected)}
     </div>
+    <button class="btn btn-discord" id="sendRecipeDiscordBtn">📢 디스코드로 이 요리 전송</button>
+  </div>
 
-    <div class="result">
+  <div class="result">
+    <span>🍲 만들 수 있는 요리</span>
+    <strong id="result">0개</strong>
+    <div class="note">가장 부족한 재료를 기준으로 자동 계산됩니다.</div>
+    <div id="groupRecipePrice" class="note" style="margin-top:10px;"></div>
+  </div>
 
-      <span>
-        🍲 만들 수 있는 요리
-      </span>
+  ${subHtml}
 
-      <strong id="result">
-        0개
-      </strong>
+  <div style="overflow:auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>재료</th>
+          <th>요리 1개 필요량</th>
+          <th>보유량</th>
+          <th>세트</th>
+          <th>낱개</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${ingredientRows}
+      </tbody>
+    </table>
+  </div>`;
 
-      <div id="orderMoneyResult"></div>
+  document.querySelectorAll(".set-input,.piece-input").forEach(el=>{
+    el.addEventListener("input", updateCalculation);
+    el.addEventListener("keydown", handleTab);
+  });
 
-    </div>
-
-    ${subHtml}
-
-    <div style="overflow:auto">
-
-      <table class="table">
-
-        <thead>
-          <tr>
-            <th>재료</th>
-            <th>요리 1개 필요량</th>
-            <th>보유량</th>
-            <th>세트</th>
-            <th>낱개</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${rows}
-        </tbody>
-
-      </table>
-
-    </div>
-  `;
-
-  document
-    .querySelectorAll(
-      ".set-input,.piece-input"
-    )
-    .forEach(el=>{
-
-      el.addEventListener(
-        "input",
-        updateCalculation
-      );
-
-      el.addEventListener(
-        "keydown",
-        handleTab
-      );
-
-    });
+  document.getElementById("sendRecipeDiscordBtn").addEventListener("click", sendSingleRecipeToDiscord);
 
   updateCalculation();
 }
 
-
-/* =========================
-   단체주문 가격 찾기
-========================= */
-
-function getGroupOrderPrice(
-  recipeName
-){
-
-  const found=
-    groupOrderData.find(
-      food=>
-        food.name &&
-        food.name.trim()===recipeName
-    );
-
-  if(!found)return null;
-
-  const price=
-    Math.max(
-      0,
-      Number(found.amount)||0
-    );
-
-  return price;
-}
-
-
-/* =========================
-   원화 표시
-========================= */
-
-function formatWon(n){
-
-  return (
-    Math.round(n)
-      .toLocaleString()
-    + "원"
-  );
-}
-
-
-/* =========================
-   계산
-========================= */
-
+/* =====================================================
+보유 재료 저장 + 계산
+===================================================== */
 function updateCalculation(){
+  if(!selected) return;
+  const req = (selectedGrade === "전설" || selectedGrade === "신화") ? expandRecipe(selected) : all[selected];
+  let possible = Infinity;
 
-  if(!selected)return;
+  for(const [name,need] of Object.entries(req)){
+    const setInput = document.querySelector(`.set-input[data-name="${CSS.escape(name)}"]`);
+    const pieceInput = document.querySelector(`.piece-input[data-name="${CSS.escape(name)}"]`);
+    if(!setInput || !pieceInput) continue;
 
-  const req=
-    (
-      selectedGrade==="전설" ||
-      selectedGrade==="신화"
-    )
-      ? expandRecipe(selected)
-      : all[selected];
+    const sets = Math.max(0, Math.floor(Number(setInput.value) || 0));
+    const pieces = Math.max(0, Math.floor(Number(pieceInput.value) || 0));
 
-  let possible=Infinity;
+    ownedMaterials[name] = { sets:sets, pieces:pieces };
+    const owned = sets * STACK + pieces;
+    possible = Math.min(possible, Math.floor(owned / need));
 
-  for(
-    const [name,need]
-    of Object.entries(req)
-  ){
-
-    const setInput=
-      document.querySelector(
-        `.set-input[data-name="${CSS.escape(name)}"]`
-      );
-
-    const pieceInput=
-      document.querySelector(
-        `.piece-input[data-name="${CSS.escape(name)}"]`
-      );
-
-    if(!setInput||!pieceInput)continue;
-
-    const sets=
-      Math.max(
-        0,
-        Number(setInput.value)||0
-      );
-
-    const pieces=
-      Math.max(
-        0,
-        Number(pieceInput.value)||0
-      );
-
-    const owned=
-      Math.floor(sets)*STACK+
-      Math.floor(pieces);
-
-    possible=
-      Math.min(
-        possible,
-        Math.floor(
-          owned/need
-        )
-      );
-
-    const cell=
-      document.getElementById(
-        "owned-"+cssId(name)
-      );
-
-    if(cell){
-      cell.textContent=
-        formatStack(owned);
-    }
+    const cell = document.getElementById("owned-" + cssId(name));
+    if(cell){ cell.textContent = formatStack(owned); }
   }
 
-  if(possible===Infinity){
-    possible=0;
-  }
+  saveOwnedMaterials();
+  if(possible === Infinity){ possible = 0; }
+  currentPossibleCount = possible;
 
-  document.getElementById(
-    "result"
-  ).textContent=
-    formatStack(possible);
+  const result = document.getElementById("result");
+  if(result){ result.textContent = formatStack(possible); }
 
-
-  /* =========================
-     단체주문 금액 계산
-
-     음식 개수 × 음식 1개당 주문 금액
-
-     15%는 금액에만 적용
-  ========================= */
-
-  const moneyBox=
-    document.getElementById(
-      "orderMoneyResult"
-    );
-
-  if(moneyBox){
-
-    const unitPrice=
-      getGroupOrderPrice(
-        selected
-      );
-
-    if(unitPrice!==null){
-
-      const original=
-        possible*unitPrice;
-
-      const finalAmount=
-        groupOrderPercentEnabled
-          ? Math.round(
-              original*1.15
-            )
-          : original;
-
-      moneyBox.innerHTML=`
-
-        <div
-          class="section-title"
-          style="margin:14px 0 4px">
-          💰 단체주문 금액
-        </div>
-
-        <div>
-          주문 금액
-          ${formatWon(unitPrice)}
-          ×
-          ${possible.toLocaleString()}개
-          =
-          <b>
-            ${formatWon(original)}
-          </b>
-        </div>
-
-        ${
-          groupOrderPercentEnabled
-            ? `
-              <div class="order-price-final">
-                15% 적용 →
-                ${formatWon(finalAmount)}
-              </div>
-            `
-            : `
-              <div class="note">
-                15% 미적용
-              </div>
-            `
-        }
-
-      `;
-
-    }
-    else{
-
-      moneyBox.innerHTML=`
-
-        <div
-          class="note"
-          style="margin-top:12px">
-
-          📦 이 음식의 단체주문 금액이
-          등록되어 있지 않습니다.
-
-        </div>
-
-      `;
+  /* 선택한 요리의 단체주문 금액 */
+  const groupRecipePrice = document.getElementById("groupRecipePrice");
+  if(groupRecipePrice){
+    const matchedOrder = groupOrders.find(food => String(food.name || "").trim() === String(selected || "").trim() && Number(food.price || 0) > 0);
+    if(matchedOrder){
+      const basePrice = Number(matchedOrder.price || 0);
+      const unitPrice = groupRateToggle.checked ? Math.round(basePrice * 1.15) : basePrice;
+      const totalPrice = possible * unitPrice;
+      groupRecipePrice.textContent = `👥 단체주문 적용 금액: ${formatWon(unitPrice)} × ${formatNumber(possible)}개 = ${formatWon(totalPrice)}`;
+    }else{
+      groupRecipePrice.textContent = "👥 단체주문 미등록";
     }
   }
 }
 
-
-/* =========================
-   Tab 이동
-========================= */
-
+/* =====================================================
+TAB 이동 & 검색
+===================================================== */
 function handleTab(e){
-
-  if(e.key!=="Tab")return;
-
-  const inputs=[
-    ...document.querySelectorAll(
-      ".set-input,.piece-input"
-    )
-  ];
-
-  const index=
-    inputs.indexOf(e.target);
-
-  if(index<0)return;
-
+  if(e.key !== "Tab") return;
+  const inputs = [...document.querySelectorAll(".set-input,.piece-input")];
+  const index = inputs.indexOf(e.target);
+  if(index < 0) return;
   e.preventDefault();
-
-  const next=
-    e.shiftKey
-      ? inputs[
-          Math.max(
-            0,
-            index-1
-          )
-        ]
-      : inputs[
-          Math.min(
-            inputs.length-1,
-            index+1
-          )
-        ];
-
+  let next = e.shiftKey ? inputs[Math.max(0, index - 1)] : inputs[Math.min(inputs.length - 1, index + 1)];
   next.focus();
   next.select();
 }
 
-
-/* =========================
-   검색
-========================= */
-
-document
-  .getElementById("search")
-  .addEventListener(
-    "input",
-    renderList
-  );
-
-document
-  .getElementById("search")
-  .addEventListener(
-    "keydown",
-    e=>{
-
-      if(e.key==="Enter"){
-
-        const first=
-          document.querySelector(
-            ".recipe-btn"
-          );
-
-        if(first){
-          first.click();
-        }
-      }
-
-    }
-  );
-
-
-/* =========================
-   숫자 입력
-========================= */
-
-document.addEventListener(
-  "focusin",
-  e=>{
-
-    if(
-      e.target.matches(
-        'input[type="number"]'
-      )
-    ){
-
-      setTimeout(()=>{
-
-        if(
-          Number(e.target.value)===0
-        ){
-          e.target.select();
-        }
-
-      },0);
-    }
-
+const searchInput = document.getElementById("search");
+searchInput.addEventListener("input", renderList);
+searchInput.addEventListener("keydown", e=>{
+  if(e.key === "Enter"){
+    const first = document.querySelector(".recipe-btn");
+    if(first) first.click();
   }
-);
+});
 
+/* =====================================================
+단체 주문 데이터 & 15% 설정
+===================================================== */
+function createEmptyOrders(){
+  return Array.from({length:5}, () => ({name:"", price:0}));
+}
+let groupOrders = createEmptyOrders();
 
-document.addEventListener(
-  "focusout",
-  e=>{
+const groupRateToggle = document.getElementById("groupRateToggle");
+const savedRate = localStorage.getItem(RATE_STORAGE_KEY);
+groupRateToggle.checked = savedRate === "true";
+groupRateToggle.addEventListener("change", ()=>{
+  localStorage.setItem(RATE_STORAGE_KEY, String(groupRateToggle.checked));
+  renderGroupViewer();
+  updateCalculation();
+});
 
-    if(
-      e.target.matches(
-        'input[type="number"]'
-      )
-    ){
+document.getElementById("sendGroupDiscordBtn").addEventListener("click", sendGroupOrderToDiscord);
 
-      if(e.target.value===""){
-        e.target.value="0";
-      }
-
-      if(
-        e.target.matches(
-          ".set-input,.piece-input"
-        )
-      ){
-        updateCalculation();
-      }
-
-    }
-
-  }
-);
-
-
-/* =========================
-   단체주문 에디터
-========================= */
-
+/* =====================================================
+관리자 주문 편집기
+===================================================== */
+const groupOrderGrid = document.getElementById("groupOrderGrid");
 function renderGroupOrderEditor(){
-
-  const grid=
-    document.getElementById(
-      "groupOrderGrid"
-    );
-
-  grid.innerHTML=
-    Array.from(
-      {length:5},
-      (_,i)=>`
-
-        <div class="group-food">
-
-          <label>
-            음식 ${i+1}
-          </label>
-
-          <input
-            class="group-food-name"
-            data-index="${i}"
-            placeholder="음식 이름">
-
-          <input
-            class="group-food-amount"
-            data-index="${i}"
-            type="number"
-            min="0"
-            value="0"
-            placeholder="주문 금액 (원)">
-
-        </div>
-
-      `
-    ).join("");
-
-  fillGroupOrderEditor();
-}
-
-
-/* =========================
-   단체주문 표시
-========================= */
-
-function renderGroupOrderView(){
-
-  const view=
-    document.getElementById(
-      "groupOrderView"
-    );
-
-  const valid=
-    groupOrderData.filter(
-      food=>
-        food.name &&
-        food.name.trim()!==""
-    );
-
-  if(!valid.length){
-
-    view.innerHTML=`
-      <div class="note">
-        아직 등록된 단체주문이 없습니다.
+  groupOrderGrid.innerHTML = groupOrders.map((food,index)=>`
+    <div class="admin-food">
+      <div class="admin-food-title">🍳 음식 ${index + 1}</div>
+      <div class="field">
+        <label>음식 이름</label>
+        <input type="text" class="group-food-name" data-index="${index}" value="${escapeHtml(food.name || "")}" placeholder="음식 이름">
       </div>
-    `;
+      <div class="field">
+        <label>음식 1개 가격</label>
+        <input type="number" class="group-food-price" data-index="${index}" min="0" value="${Number(food.price || 0)}">
+      </div>
+      <div class="admin-total">
+        기본 금액
+        <strong class="group-food-total-value" data-index="${index}">${formatWon(Number(food.price || 0))}</strong>
+      </div>
+    </div>
+  `).join("");
 
+  document.querySelectorAll(".group-food-name").forEach(input=>{
+    input.addEventListener("input", e=>{
+      const index = Number(e.target.dataset.index);
+      groupOrders[index].name = e.target.value;
+    });
+  });
+
+  document.querySelectorAll(".group-food-price").forEach(input=>{
+    input.addEventListener("input", e=>{
+      const index = Number(e.target.dataset.index);
+      groupOrders[index].price = Math.max(0, Number(e.target.value || 0));
+      updateGroupEditorTotals();
+    });
+  });
+}
+
+function updateGroupEditorTotals(){
+  document.querySelectorAll(".group-food-total-value").forEach(element=>{
+    const index = Number(element.dataset.index);
+    element.textContent = formatWon(Number(groupOrders[index].price || 0));
+  });
+}
+
+/* =====================================================
+일반 사용자 단체 주문
+===================================================== */
+const groupViewerList = document.getElementById("groupViewerList");
+const groupViewerTotal = document.getElementById("groupViewerTotal");
+const groupRateText = document.getElementById("groupRateText");
+
+function renderGroupViewer(){
+  const applyRate = groupRateToggle.checked;
+  const rate = applyRate ? 0.15 : 0;
+  groupRateText.textContent = applyRate ? "15% 추가금 적용 중" : "15% 미적용";
+
+  const validOrders = groupOrders.filter(food => String(food.name || "").trim() && Number(food.price || 0) > 0);
+  if(!validOrders.length){
+    groupViewerList.innerHTML = `<div class="empty">현재 등록된 단체주문이 없습니다.</div>`;
+    groupViewerTotal.textContent = "0원";
     return;
   }
 
-  view.innerHTML=
-    valid.map(food=>{
+  let totalAll = 0;
+  groupViewerList.innerHTML = validOrders.map(food=>{
+    const base = Number(food.price);
+    const finalAmount = Math.round(base * (1 + rate));
+    totalAll += finalAmount;
 
-      const price=
-        Math.max(
-          0,
-          Number(food.amount)||0
-        );
-
-      const adjusted=
-        groupOrderPercentEnabled
-          ? Math.round(
-              price*1.15
-            )
-          : price;
-
-      return `
-
-        <div class="group-order-item">
-
-          <strong>
-            🍳 ${escapeHtml(food.name)}
-          </strong>
-
-          <div class="order-price">
-            주문 금액:
-            <b>
-              ${formatWon(price)}
-            </b>
-          </div>
-
-          ${
-            groupOrderPercentEnabled
-              ? `
-                <div class="order-price-final">
-                  15% 적용 금액:
-                  ${formatWon(adjusted)}
-                </div>
-              `
-              : ""
-          }
-
+    return `
+      <div class="group-item">
+        <div>
+          <div class="group-item-name">${escapeHtml(food.name)}</div>
+          <div class="group-item-info">x1 ${formatWon(food.price)}</div>
         </div>
+        <div class="group-price">
+          <div class="base">기본 ${formatWon(base)}</div>
+          <strong>${formatWon(finalAmount)}</strong>
+        </div>
+      </div>`;
+  }).join("");
 
-      `;
-
-    }).join("");
+  groupViewerTotal.textContent = formatWon(totalAll);
 }
 
-
-/* =========================
-   HTML escape
-========================= */
-
-function escapeHtml(text){
-
-  const div=
-    document.createElement(
-      "div"
-    );
-
-  div.textContent=text;
-
-  return div.innerHTML;
-}
-
-
-/* =========================
-   관리자 입력값 채우기
-========================= */
-
-function fillGroupOrderEditor(){
-
-  const percent=
-    document.getElementById(
-      "groupOrderPercent"
-    );
-
-  if(percent){
-    percent.checked=
-      groupOrderPercentEnabled;
-  }
-
-  document
-    .querySelectorAll(
-      ".group-food-name"
-    )
-    .forEach(input=>{
-
-      const i=
-        Number(
-          input.dataset.index
-        );
-
-      input.value=
-        groupOrderData[i]?.name ||
-        "";
-
-    });
-
-
-  document
-    .querySelectorAll(
-      ".group-food-amount"
-    )
-    .forEach(input=>{
-
-      const i=
-        Number(
-          input.dataset.index
-        );
-
-      input.value=
-        groupOrderData[i]?.amount ??
-        0;
-
-    });
-}
-
-
-/* =========================
-   Discord용 레시피 등급 찾기
-========================= */
-
-function getRecipeGrade(name){
-
-  for(
-    const [grade,group]
-    of Object.entries(recipes)
-  ){
-
-    if(
-      Object.prototype.hasOwnProperty.call(
-        group,
-        name
-      )
-    ){
-      return grade;
-    }
-
-  }
-
-  return null;
-}
-
-
-/* =========================
-   Discord용 실제 기본 재료
-========================= */
-
-function getRecipeIngredientsForDiscord(name){
-
-  if(!all[name]){
-    return [];
-  }
-
-  const grade=
-    getRecipeGrade(name);
-
-  const ingredients=
-    grade==="전설" ||
-    grade==="신화"
-      ? expandRecipe(name)
-      : all[name];
-
-  return Object.entries(
-    ingredients
-  ).map(
-    ([ingredientName,amount])=>({
-
-      name:ingredientName,
-
-      amount:
-        Number(amount)||0
-
-    })
-  );
-
-}
-
-
-/* =========================
-   현재 입력된 단체주문 가져오기
-========================= */
-
-function getCurrentGroupOrderForDiscord(){
-
-  const foods=[];
-
-  for(let i=0;i<5;i++){
-
-    const nameInput=
-      document.querySelector(
-        `.group-food-name[data-index="${i}"]`
-      );
-
-    const amountInput=
-      document.querySelector(
-        `.group-food-amount[data-index="${i}"]`
-      );
-
-    if(!nameInput||!amountInput){
-      continue;
-    }
-
-    const name=
-      nameInput.value
-        .trim();
-
-    const amount=
-      Math.max(
-        0,
-        Number(
-          amountInput.value
-        )||0
-      );
-
-    if(!name){
-      continue;
-    }
-
-    foods.push({
-
-      name,
-
-      amount,
-
-      ingredients:
-        getRecipeIngredientsForDiscord(
-          name
-        )
-
-    });
-
-  }
-
-  return foods;
-}
-
-
-/* =========================
-   Discord 전송
-========================= */
-
-async function sendGroupOrderToDiscord(){
-
-  if(!isAdmin){
-
-    alert(
-      "관리자만 디스코드 전송을 사용할 수 있습니다."
-    );
-
-    return;
-  }
-
-  if(
-    !auth ||
-    !currentFirebaseUser
-  ){
-
-    alert(
-      "관리자 로그인 정보를 확인할 수 없습니다.\n다시 로그인해주세요."
-    );
-
-    return;
-  }
-
-  const foods=
-    getCurrentGroupOrderForDiscord();
-
-  if(!foods.length){
-
-    alert(
-      "전송할 음식이 없습니다."
-    );
-
-    return;
-  }
-
-
-  /* =========================
-     레시피 이름 확인
-  ========================= */
-
-  const invalidFoods=
-    foods.filter(
-      food=>!all[food.name]
-    );
-
-  if(invalidFoods.length){
-
-    const names=
-      invalidFoods
-        .map(
-          food=>`• ${food.name}`
-        )
-        .join("\n");
-
-    alert(
-      "레시피를 찾을 수 없는 음식이 있습니다.\n\n"+
-      names+
-      "\n\n레시피 목록에 등록된 이름과 정확히 일치해야 합니다."
-    );
-
-    return;
-  }
-
-
-  const sendBtn=
-    document.getElementById(
-      "sendDiscordBtn"
-    );
-
-  const originalText=
-    sendBtn
-      ? sendBtn.textContent
-      : "";
-
-
-  if(sendBtn){
-
-    sendBtn.disabled=true;
-
-    sendBtn.textContent=
-      "📨 전송 중...";
-
-  }
-
-
+/* =====================================================
+Firestore 저장 및 삭제
+===================================================== */
+const saveGroupOrderBtn = document.getElementById("saveGroupOrderBtn");
+const adminStatus = document.getElementById("adminStatus");
+
+saveGroupOrderBtn.addEventListener("click", async ()=>{
   try{
-
-    /* =========================
-       Firebase 로그인 토큰
-    ========================= */
-
-    const idToken=
-      await currentFirebaseUser.getIdToken();
-
-
-    /* =========================
-       Worker로 전송
-    ========================= */
-
-    const response=
-      await fetch(
-        DISCORD_WORKER_URL,
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json",
-
-            "Authorization":
-              `Bearer ${idToken}`
-          },
-
-          body:
-            JSON.stringify({
-              foods
-            })
-        }
-      );
-
-
-    let result={};
-
-    try{
-
-      result=
-        await response.json();
-
-    }
-    catch(error){
-
-      result={};
-
-    }
-
-
-    if(
-      !response.ok ||
-      !result.ok
-    ){
-
-      console.error(
-        "Discord 전송 실패:",
-        response.status,
-        result
-      );
-
-      alert(
-        "디스코드 전송에 실패했습니다.\n"+
-        (
-          result.error ||
-          `HTTP ${response.status}`
-        )
-      );
-
-      return;
-    }
-
-
-    alert(
-      "디스코드 전송이 완료되었습니다!"
-    );
-
+    saveGroupOrderBtn.disabled = true;
+    adminStatus.textContent = "저장 중...";
+    await setDoc(groupOrderRef, { orders:groupOrders, updatedAt:Date.now() });
+    adminStatus.textContent = "✅ 단체주문 정보가 저장되었습니다.";
+  }catch(error){
+    console.error(error);
+    adminStatus.textContent = "❌ 저장 실패: " + (error.message || error);
+  }finally{
+    saveGroupOrderBtn.disabled = false;
   }
-  catch(error){
+});
 
-    console.error(
-      "Discord 전송 오류:",
-      error
-    );
-
-    alert(
-      "디스코드 전송 중 오류가 발생했습니다.\n"+
-      "잠시 후 다시 시도해주세요."
-    );
-
+const clearGroupOrderBtn = document.getElementById("clearGroupOrderBtn");
+clearGroupOrderBtn.addEventListener("click", async ()=>{
+  if(!confirm("단체주문 정보를 모두 삭제할까요?")) return;
+  try{
+    clearGroupOrderBtn.disabled = true;
+    await deleteDoc(groupOrderRef);
+    groupOrders = createEmptyOrders();
+    renderGroupOrderEditor();
+    renderGroupViewer();
+    updateCalculation();
+    adminStatus.textContent = "✅ 전체 단체주문 정보가 삭제되었습니다.";
+  }catch(error){
+    console.error(error);
+    adminStatus.textContent = "❌ 삭제 실패: " + (error.message || error);
+  }finally{
+    clearGroupOrderBtn.disabled = false;
   }
-  finally{
+});
 
-    if(sendBtn){
-
-      sendBtn.disabled=false;
-
-      sendBtn.textContent=
-        originalText;
-
+/* =====================================================
+Firestore 실시간 동기화
+===================================================== */
+onSnapshot(groupOrderRef, snapshot=>{
+  if(snapshot.exists()){
+    const data = snapshot.data();
+    if(Array.isArray(data.orders)){
+      groupOrders = data.orders.slice(0,5).map(food=>({
+        name: String(food.name || ""),
+        price: Number(food.price || 0)
+      }));
     }
-
+  }else{
+    groupOrders = createEmptyOrders();
   }
+  while(groupOrders.length < 5){
+    groupOrders.push({name:"", price:0});
+  }
+  renderGroupOrderEditor();
+  renderGroupViewer();
+  updateCalculation();
+}, error=>{
+  console.error("Firestore 오류:", error);
+  adminStatus.textContent = "⚠️ 단체주문 정보를 불러오지 못했습니다.";
+});
 
-}
+/* =====================================================
+관리자 인증 및 로그인
+===================================================== */
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const loginSection = document.getElementById("loginSection");
+const doLoginBtn = document.getElementById("doLoginBtn");
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
+const loginStatus = document.getElementById("loginStatus");
+const groupViewer = document.getElementById("groupViewer");
+const groupAdmin = document.getElementById("groupAdmin");
 
+loginBtn.addEventListener("click", ()=>{
+  loginSection.classList.toggle("hidden");
+  if(!loginSection.classList.contains("hidden")){
+    loginSection.scrollIntoView({ behavior:"smooth", block:"center" });
+  }
+});
 
-/* =========================
-   Firebase 연결 후
-   단체주문 감시
-========================= */
-
-function setupGroupOrderFirebase(){
-
-  if(
-    !db ||
-    !doc ||
-    !onSnapshot
-  ){
+doLoginBtn.addEventListener("click", async ()=>{
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+  if(!email || !password){
+    loginStatus.textContent = "이메일과 비밀번호를 입력해주세요.";
     return;
   }
-
-  groupOrderRef=
-    doc(
-      db,
-      "cookingOrder",
-      "main"
-    );
-
-
-  onSnapshot(
-    groupOrderRef,
-    snapshot=>{
-
-      if(snapshot.exists()){
-
-        const data=
-          snapshot.data();
-
-
-        if(
-          Array.isArray(
-            data.foods
-          )
-        ){
-
-          groupOrderData=
-            Array.from(
-              {length:5},
-              (_,i)=>({
-
-                name:
-                  data.foods[i]?.name ||
-                  "",
-
-                amount:
-                  Number(
-                    data.foods[i]?.amount
-                  ) || 0
-
-              })
-            );
-
-          groupOrderPercentEnabled=
-            Boolean(
-              data.percent15
-            );
-        }
-      }
-
-
-      renderGroupOrderView();
-
-
-      if(isAdmin){
-        fillGroupOrderEditor();
-      }
-
-
-      if(!isAdmin){
-
-        document.getElementById(
-          "groupOrderStatus"
-        ).textContent=
-          "👀 단체주문 내용을 확인할 수 있습니다.";
-
-      }
-
-
-      if(selected){
-        updateCalculation();
-      }
-
-    },
-    error=>{
-
-      console.error(error);
-
-      document.getElementById(
-        "groupOrderStatus"
-      ).textContent=
-        "⚠️ 단체주문을 불러오지 못했습니다.";
-
-      renderGroupOrderView();
-
-    }
-  );
-}
-
-
-/* =========================
-   관리자 로그인 버튼
-========================= */
-
-document
-  .getElementById("loginBtn")
-  .addEventListener(
-    "click",
-    ()=>{
-
-      const box=
-        document.getElementById(
-          "loginBox"
-        );
-
-      box.style.display=
-        (
-          box.style.display==="none" ||
-          box.style.display===""
-        )
-          ? "grid"
-          : "none";
-
-    }
-  );
-
-
-/* =========================
-   관리자 로그인
-========================= */
-
-document
-  .getElementById("loginSubmit")
-  .addEventListener(
-    "click",
-    async()=>{
-
-      const email=
-        document.getElementById(
-          "adminEmail"
-        )
-        .value
-        .trim();
-
-      const password=
-        document.getElementById(
-          "adminPassword"
-        )
-        .value;
-
-
-      if(!email||!password){
-
-        alert(
-          "이메일과 비밀번호를 입력해주세요."
-        );
-
-        return;
-      }
-
-
-      if(
-        !auth ||
-        !signInWithEmailAndPassword
-      ){
-
-        alert(
-          "Firebase 연결을 기다리는 중입니다. 잠시 후 다시 시도해주세요."
-        );
-
-        return;
-      }
-
-
-      try{
-
-        await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-      }
-      catch(error){
-
-        console.error(error);
-
-        alert(
-          "로그인에 실패했습니다.\n이메일 또는 비밀번호를 확인해주세요."
-        );
-
-      }
-
-    }
-  );
-
-
-/* =========================
-   로그아웃
-========================= */
-
-document
-  .getElementById("logoutBtn")
-  .addEventListener(
-    "click",
-    async()=>{
-
-      if(auth && signOut){
-        await signOut(auth);
-      }
-
-    }
-  );
-
-
-/* =========================
-   15% ON/OFF
-========================= */
-
-document
-  .getElementById("groupOrderPercent")
-  .addEventListener(
-    "change",
-    e=>{
-
-      groupOrderPercentEnabled=
-        e.target.checked;
-
-      renderGroupOrderView();
-
-      if(selected){
-        updateCalculation();
-      }
-
-    }
-  );
-
-
-/* =========================
-   단체주문 저장
-========================= */
-
-document
-  .getElementById("saveGroupOrder")
-  .addEventListener(
-    "click",
-    async()=>{
-
-      if(!isAdmin){
-
-        alert(
-          "관리자만 수정할 수 있습니다."
-        );
-
-        return;
-      }
-
-
-      if(
-        !groupOrderRef ||
-        !setDoc
-      ){
-
-        alert(
-          "Firebase 연결을 기다리는 중입니다. 잠시 후 다시 시도해주세요."
-        );
-
-        return;
-      }
-
-
-      const foods=[];
-
-
-      for(let i=0;i<5;i++){
-
-        const name=
-          document.querySelector(
-            `.group-food-name[data-index="${i}"]`
-          )
-          .value
-          .trim();
-
-
-        const amount=
-          Math.max(
-            0,
-            Number(
-              document.querySelector(
-                `.group-food-amount[data-index="${i}"]`
-              ).value
-            ) || 0
-          );
-
-
-        foods.push({
-          name,
-          amount
-        });
-
-      }
-
-
-      try{
-
-        groupOrderPercentEnabled=
-          document.getElementById(
-            "groupOrderPercent"
-          ).checked;
-
-
-        await setDoc(
-          groupOrderRef,
-          {
-            foods,
-            percent15:
-              groupOrderPercentEnabled,
-            updatedAt:
-              new Date().toISOString()
-          },
-          {
-            merge:true
-          }
-        );
-
-
-        renderGroupOrderView();
-
-        if(selected){
-          updateCalculation();
-        }
-
-
-        alert(
-          "단체주문이 저장되었습니다!"
-        );
-
-      }
-      catch(error){
-
-        console.error(error);
-
-        alert(
-          "저장에 실패했습니다.\nFirestore 규칙과 관리자 UID를 확인해주세요."
-        );
-
-      }
-
-    }
-  );
-
-
-/* =========================
-   Discord 전송 버튼
-========================= */
-
-document
-  .getElementById("sendDiscordBtn")
-  .addEventListener(
-    "click",
-    sendGroupOrderToDiscord
-  );
-
-
-/* =========================
-   Firebase 동적 연결
-========================= */
-
-async function initFirebase(){
-
   try{
-
-    const appModule=
-      await import(
-        "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-      );
-
-    const authModule=
-      await import(
-        "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
-      );
-
-    const firestoreModule=
-      await import(
-        "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
-      );
-
-
-    initializeApp=
-      appModule.initializeApp;
-
-    getAuth=
-      authModule.getAuth;
-
-    signInWithEmailAndPassword=
-      authModule.signInWithEmailAndPassword;
-
-    signOut=
-      authModule.signOut;
-
-    onAuthStateChanged=
-      authModule.onAuthStateChanged;
-
-    getFirestore=
-      firestoreModule.getFirestore;
-
-    doc=
-      firestoreModule.doc;
-
-    setDoc=
-      firestoreModule.setDoc;
-
-    onSnapshot=
-      firestoreModule.onSnapshot;
-
-
-    const firebaseApp=
-      initializeApp(
-        firebaseConfig
-      );
-
-
-    auth=
-      getAuth(
-        firebaseApp
-      );
-
-
-    db=
-      getFirestore(
-        firebaseApp
-      );
-
-
-    setupGroupOrderFirebase();
-
-
-    onAuthStateChanged(
-      auth,
-      user=>{
-
-        /* =========================
-           현재 Firebase 사용자 저장
-        ========================= */
-
-        currentFirebaseUser=
-          user || null;
-
-
-        const editor=
-          document.getElementById(
-            "groupOrderEditor"
-          );
-
-        const loginBtn=
-          document.getElementById(
-            "loginBtn"
-          );
-
-        const logoutBtn=
-          document.getElementById(
-            "logoutBtn"
-          );
-
-        const loginBox=
-          document.getElementById(
-            "loginBox"
-          );
-
-        const sendDiscordBtn=
-          document.getElementById(
-            "sendDiscordBtn"
-          );
-
-        const status=
-          document.getElementById(
-            "groupOrderStatus"
-          );
-
-
-        if(
-          user &&
-          user.uid===ADMIN_UID
-        ){
-
-          isAdmin=true;
-
-          editor.style.display=
-            "block";
-
-          loginBtn.style.display=
-            "none";
-
-          logoutBtn.style.display=
-            "inline-block";
-
-          sendDiscordBtn.style.display=
-            "inline-block";
-
-          loginBox.style.display=
-            "none";
-
-          status.textContent=
-            "🔓 관리자 모드 - 단체주문을 수정할 수 있습니다.";
-
-          fillGroupOrderEditor();
-
-        }
-        else{
-
-          isAdmin=false;
-
-          editor.style.display=
-            "none";
-
-          loginBtn.style.display=
-            "inline-block";
-
-          logoutBtn.style.display=
-            "none";
-
-          sendDiscordBtn.style.display=
-            "none";
-
-          loginBox.style.display=
-            "none";
-
-          status.textContent=
-            "👀 단체주문 내용을 확인할 수 있습니다.";
-
-          if(user){
-
-            alert(
-              "관리자 계정이 아닙니다.\n보기만 가능합니다."
-            );
-
-          }
-
-        }
-
-      }
-    );
-
+    loginStatus.textContent = "로그인 중...";
+    await signInWithEmailAndPassword(auth, email, password);
+    passwordInput.value = "";
+  }catch(error){
+    console.error(error);
+    loginStatus.textContent = "❌ 로그인 실패: " + (error.message || error);
   }
-  catch(error){
+});
 
-    console.error(
-      "Firebase 연결 오류:",
-      error
-    );
-
-    document.getElementById(
-      "groupOrderStatus"
-    ).textContent=
-      "⚠️ Firebase 연결 실패 - 계산기는 계속 사용할 수 있습니다.";
-
-    renderGroupOrderView();
-
+onAuthStateChanged(auth, async user=>{
+  if(user){
+    if(user.uid === ADMIN_UID){
+      loginBtn.classList.add("hidden");
+      logoutBtn.classList.remove("hidden");
+      loginSection.classList.add("hidden");
+      groupViewer.classList.add("hidden");
+      groupAdmin.classList.remove("hidden");
+      adminStatus.textContent = "✅ 관리자로 로그인되었습니다.";
+      renderGroupOrderEditor();
+    }else{
+      await signOut(auth);
+      loginStatus.textContent = "관리자 계정만 로그인할 수 있습니다.";
+    }
+  }else{
+    loginBtn.classList.remove("hidden");
+    logoutBtn.classList.add("hidden");
+    groupViewer.classList.remove("hidden");
+    groupAdmin.classList.add("hidden");
   }
+});
 
-}
+logoutBtn.addEventListener("click", async ()=>{
+  try{ await signOut(auth); }catch(error){ console.error(error); }
+});
 
-
-/* =========================
-   초기 실행
-========================= */
-
-renderGroupOrderEditor();
-
+/* =====================================================
+시작
+===================================================== */
 renderList();
-
-initFirebase();
-
+renderGroupOrderEditor();
+renderGroupViewer();
 </script>
-
 </body>
 </html>
-```
