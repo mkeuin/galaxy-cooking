@@ -265,7 +265,7 @@ input[type="number"]{
   opacity:.5;
   cursor:not-allowed;
 }
-/* 단체 주문 */
+/* 단체주문 및 협동 */
 .group-card{
   padding:20px;
   margin-top:16px;
@@ -322,18 +322,6 @@ input[type="number"]{
   margin-top:4px;
   font-size:19px;
 }
-.group-total{
-  margin-top:15px;
-  padding:18px;
-  border-radius:15px;
-  background:linear-gradient(135deg,rgba(110,85,255,.24),rgba(55,180,255,.13));
-  border:1px solid rgba(150,150,255,.3);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-}
-.group-total strong{font-size:27px}
 .rate-toggle{
   display:flex;
   align-items:center;
@@ -477,7 +465,6 @@ input[type="number"]{
   .login-row{grid-template-columns:1fr}
   .group-item{align-items:flex-start;flex-direction:column}
   .group-price{text-align:left}
-  .group-total{align-items:flex-start;flex-direction:column}
 }
 </style>
 </head>
@@ -502,16 +489,16 @@ input[type="number"]{
       위에서 요리를 선택해주세요.
     </div>
   </div>
-  <!-- 단체 주문 -->
+  <!-- 단체주문 및 협동 -->
   <div class="card group-card">
     <div class="group-header">
       <div>
-        <div class="group-title">👥 단체 주문</div>
+        <div class="group-title">👥 단체주문 및 협동</div>
         <div class="group-note">
-          관리자가 등록한 단체 주문 정보를 확인할 수 있습니다.
+          관리자가 등록한 단체주문 및 협동 정보를 확인할 수 있습니다.
         </div>
       </div>
-      <button class="btn btn-discord" id="sendGroupDiscordBtn">📢 단체 주문 디스코드 전송</button>
+      <button class="btn btn-discord" id="sendGroupDiscordBtn">📢 단체주문 및 협동 디스코드 전송</button>
     </div>
     <!-- 일반 사용자 -->
     <div id="groupViewer">
@@ -526,13 +513,6 @@ input[type="number"]{
         </div>
       </div>
       <div id="groupViewerList" class="group-list"></div>
-      <div class="group-total">
-        <div>
-          <div class="note">총 주문 금액</div>
-          <div id="groupRateText" class="note">15% 미적용</div>
-        </div>
-        <strong id="groupViewerTotal">0원</strong>
-      </div>
     </div>
     <!-- 관리자 -->
     <div id="groupAdmin" class="hidden">
@@ -541,7 +521,7 @@ input[type="number"]{
       </div>
       <div class="admin-buttons">
         <button class="btn btn-success" id="saveGroupOrderBtn">
-          💾 단체주문 저장
+          💾 단체주문 및 협동 저장
         </button>
         <button class="btn btn-danger" id="clearGroupOrderBtn">
           🗑️ 전체 삭제
@@ -585,7 +565,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* 지정해주신 디스코드 웹훅 URL 적용 완료 */
+/* 디스코드 웹훅 URL */
 const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1545326131798872094/UP4tY7F6tmLzwK6UtprLSUNTost3g-KvBxdm1X5hfrqnDaXosDA7ukD223PRfEJClv9y";
 
 /* 기존 관리자 UID */
@@ -747,7 +727,7 @@ function cssId(name){
 }
 
 /* =====================================================
-디스코드 전송 함수
+디스코드 전송 함수 (Spidey Bot 사용)
 ===================================================== */
 async function postToDiscord(message) {
   if (!DISCORD_WEBHOOK_URL) {
@@ -758,7 +738,10 @@ async function postToDiscord(message) {
     const res = await fetch(DISCORD_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: message })
+      body: JSON.stringify({ 
+        username: "Spidey Bot",
+        content: message 
+      })
     });
     if (res.ok) {
       alert("디스코드로 성공적으로 전송되었습니다!");
@@ -777,36 +760,33 @@ async function postToDiscord(message) {
 /* 개별 요리 디스코드 전송 */
 async function sendSingleRecipeToDiscord() {
   if (!selected) return;
-  const message = `🌌 **[은하 요리 계산기 - 요리 수량 정보]**\n` +
+  const message = `🌌 **[Spidey Bot - 요리 수량 정보]**\n` +
                   `🍳 **요리명:** [${selectedGrade}] ${selected}\n` +
                   `🍲 **제작 가능 수량:** ${formatStack(currentPossibleCount)}`;
   await postToDiscord(message);
 }
 
-/* 단체 주문 디스코드 전송 */
+/* 단체주문 및 협동 디스코드 전송 */
 async function sendGroupOrderToDiscord() {
   const validOrders = groupOrders.filter(food => String(food.name || "").trim() && Number(food.price || 0) > 0);
   if (!validOrders.length) {
-    alert("전송할 단체 주문 내역이 없습니다.");
+    alert("전송할 단체주문 및 협동 내역이 없습니다.");
     return;
   }
   const applyRate = groupRateToggle.checked;
   const rate = applyRate ? 0.15 : 0;
-  let totalAll = 0;
 
-  let msg = `👥 **[은하 요리 단체 주문 내역]**\n`;
+  let msg = `👥 **[Spidey Bot - 단체주문 및 협동]**\n`;
   msg += `📌 **15% 추가금 적용 여부:** ${applyRate ? '적용 (15%)' : '미적용'}\n`;
   msg += `-----------------------------------\n`;
 
   validOrders.forEach(food => {
     const base = Number(food.price);
     const finalAmount = Math.round(base * (1 + rate));
-    totalAll += finalAmount;
     msg += `• **${food.name}** x1 : ${formatWon(finalAmount)} (기본: ${formatWon(base)})\n`;
   });
 
-  msg += `-----------------------------------\n`;
-  msg += `💰 **총 주문 금액:** **${formatWon(totalAll)}**`;
+  msg += `-----------------------------------`;
 
   await postToDiscord(msg);
 }
@@ -983,7 +963,7 @@ function updateCalculation(){
   const result = document.getElementById("result");
   if(result){ result.textContent = formatStack(possible); }
 
-  /* 선택한 요리의 단체주문 금액 */
+  /* 선택한 요리의 단체주문 및 협동 금액 */
   const groupRecipePrice = document.getElementById("groupRecipePrice");
   if(groupRecipePrice){
     const matchedOrder = groupOrders.find(food => String(food.name || "").trim() === String(selected || "").trim() && Number(food.price || 0) > 0);
@@ -991,9 +971,9 @@ function updateCalculation(){
       const basePrice = Number(matchedOrder.price || 0);
       const unitPrice = groupRateToggle.checked ? Math.round(basePrice * 1.15) : basePrice;
       const totalPrice = possible * unitPrice;
-      groupRecipePrice.textContent = `👥 단체주문 적용 금액: ${formatWon(unitPrice)} × ${formatNumber(possible)}개 = ${formatWon(totalPrice)}`;
+      groupRecipePrice.textContent = `👥 단체주문 및 협동 적용 금액: ${formatWon(unitPrice)} × ${formatNumber(possible)}개 = ${formatWon(totalPrice)}`;
     }else{
-      groupRecipePrice.textContent = "👥 단체주문 미등록";
+      groupRecipePrice.textContent = "👥 단체주문 및 협동 미등록";
     }
   }
 }
@@ -1022,7 +1002,7 @@ searchInput.addEventListener("keydown", e=>{
 });
 
 /* =====================================================
-단체 주문 데이터 & 15% 설정
+단체주문 및 협동 데이터 & 15% 설정
 ===================================================== */
 function createEmptyOrders(){
   return Array.from({length:5}, () => ({name:"", price:0}));
@@ -1087,29 +1067,23 @@ function updateGroupEditorTotals(){
 }
 
 /* =====================================================
-일반 사용자 단체 주문
+일반 사용자 단체주문 및 협동
 ===================================================== */
 const groupViewerList = document.getElementById("groupViewerList");
-const groupViewerTotal = document.getElementById("groupViewerTotal");
-const groupRateText = document.getElementById("groupRateText");
 
 function renderGroupViewer(){
   const applyRate = groupRateToggle.checked;
   const rate = applyRate ? 0.15 : 0;
-  groupRateText.textContent = applyRate ? "15% 추가금 적용 중" : "15% 미적용";
 
   const validOrders = groupOrders.filter(food => String(food.name || "").trim() && Number(food.price || 0) > 0);
   if(!validOrders.length){
-    groupViewerList.innerHTML = `<div class="empty">현재 등록된 단체주문이 없습니다.</div>`;
-    groupViewerTotal.textContent = "0원";
+    groupViewerList.innerHTML = `<div class="empty">현재 등록된 단체주문 및 협동이 없습니다.</div>`;
     return;
   }
 
-  let totalAll = 0;
   groupViewerList.innerHTML = validOrders.map(food=>{
     const base = Number(food.price);
     const finalAmount = Math.round(base * (1 + rate));
-    totalAll += finalAmount;
 
     return `
       <div class="group-item">
@@ -1123,8 +1097,6 @@ function renderGroupViewer(){
         </div>
       </div>`;
   }).join("");
-
-  groupViewerTotal.textContent = formatWon(totalAll);
 }
 
 /* =====================================================
@@ -1138,7 +1110,7 @@ saveGroupOrderBtn.addEventListener("click", async ()=>{
     saveGroupOrderBtn.disabled = true;
     adminStatus.textContent = "저장 중...";
     await setDoc(groupOrderRef, { orders:groupOrders, updatedAt:Date.now() });
-    adminStatus.textContent = "✅ 단체주문 정보가 저장되었습니다.";
+    adminStatus.textContent = "✅ 단체주문 및 협동 정보가 저장되었습니다.";
   }catch(error){
     console.error(error);
     adminStatus.textContent = "❌ 저장 실패: " + (error.message || error);
@@ -1149,7 +1121,7 @@ saveGroupOrderBtn.addEventListener("click", async ()=>{
 
 const clearGroupOrderBtn = document.getElementById("clearGroupOrderBtn");
 clearGroupOrderBtn.addEventListener("click", async ()=>{
-  if(!confirm("단체주문 정보를 모두 삭제할까요?")) return;
+  if(!confirm("단체주문 및 협동 정보를 모두 삭제할까요?")) return;
   try{
     clearGroupOrderBtn.disabled = true;
     await deleteDoc(groupOrderRef);
@@ -1157,7 +1129,7 @@ clearGroupOrderBtn.addEventListener("click", async ()=>{
     renderGroupOrderEditor();
     renderGroupViewer();
     updateCalculation();
-    adminStatus.textContent = "✅ 전체 단체주문 정보가 삭제되었습니다.";
+    adminStatus.textContent = "✅ 전체 단체주문 및 협동 정보가 삭제되었습니다.";
   }catch(error){
     console.error(error);
     adminStatus.textContent = "❌ 삭제 실패: " + (error.message || error);
@@ -1189,7 +1161,7 @@ onSnapshot(groupOrderRef, snapshot=>{
   updateCalculation();
 }, error=>{
   console.error("Firestore 오류:", error);
-  adminStatus.textContent = "⚠️ 단체주문 정보를 불러오지 못했습니다.";
+  adminStatus.textContent = "⚠️ 단체주문 및 협동 정보를 불러오지 못했습니다.";
 });
 
 /* =====================================================
