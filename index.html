@@ -9,7 +9,82 @@
   </style>
 </head>
 <body>
+rders)){
+      groupOrders = data.orders.slice(0, 5).map(food=>({
+        name: String(food.name || ""),
+        price: Number(food.price || 0)
+      }));
+    }
+    currentGroupDate = data.date || "";
+    currentBoostCategory = data.boost || "낚시";
+    document.getElementById("groupOrderDate").value = currentGroupDate;
+    document.getElementById("boostCategory").value = currentBoostCategory;
+  }else{
+    groupOrders = createEmptyOrders();
+    currentGroupDate = "";
+    currentBoostCategory = "낚시";
+    document.getElementById("groupOrderDate").value = "";
+    document.getElementById("boostCategory").value = "낚시";
+  }
+  while(groupOrders.length < 5){
+    groupOrders.push({name:"", price:0});
+  }
+  renderGroupOrderEditor();
+  renderGroupViewer();
+  updateCalculation();
+}, error=>{
+  console.error("Firestore 오류:", error);
+  adminStatus.textContent = "⚠️ 정보를 불러오지 못했습니다.";
+});
 
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const loginSection = document.getElementById("loginSection");
+const doLoginBtn = document.getElementById("doLoginBtn");
+const loginStatus = document.getElementById("loginStatus");
+const groupAdmin = document.getElementById("groupAdmin");
+const sendGroupDiscordBtn = document.getElementById("sendGroupDiscordBtn");
+
+loginBtn.addEventListener("click", ()=>{
+  loginSection.classList.toggle("hidden");
+});
+
+logoutBtn.addEventListener("click", async ()=>{
+  await signOut(auth);
+});
+
+doLoginBtn.addEventListener("click", async ()=>{
+  const email = document.getElementById("emailInput").value.trim();
+  const password = document.getElementById("passwordInput").value.trim();
+  loginStatus.textContent = "로그인 중...";
+  try{
+    await signInWithEmailAndPassword(auth, email, password);
+    loginStatus.textContent = "";
+    loginSection.classList.add("hidden");
+  }catch(err){
+    loginStatus.textContent = "❌ 로그인 실패: " + (err.message || err);
+  }
+});
+
+onAuthStateChanged(auth, user=>{
+  if(user && user.uid === ADMIN_UID){
+    loginBtn.classList.add("hidden");
+    logoutBtn.classList.remove("hidden");
+    groupAdmin.classList.remove("hidden");
+    sendGroupDiscordBtn.classList.remove("hidden");
+  }else{
+    loginBtn.classList.remove("hidden");
+    logoutBtn.classList.add("hidden");
+    groupAdmin.classList.add("hidden");
+    sendGroupDiscordBtn.classList.add("hidden");
+  }
+  if(selected) renderRecipe();
+});
+
+renderList();
+</script>
+</body>
+</html>
 <!-- UI 버튼 및 입력 영역 -->
 <button id="loginBtn">로그인</button>
 <button id="logoutBtn" class="hidden">로그아웃</button>
