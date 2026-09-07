@@ -30,7 +30,7 @@ body{
     linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
 body:before{
-  content:"✦ · ✧      ·        ✦        · ✧      ·        ✦        · ✧";
+  content:"✦ · ✧       ·        ✦        · ✧      ·        ✦        · ✧";
   position:fixed;
   left:0;
   top:0;
@@ -45,7 +45,7 @@ body:before{
   z-index:0;
 }
 body:after{
-  content:"✧ · ✦      ·        ✧        · ✦        · ✧      ·        ✦";
+  content:"✧ · ✦       ·        ✧        · ✦        · ✧      ·        ✦";
   position:fixed;
   right:0;
   top:0;
@@ -775,10 +775,10 @@ async function sendGroupOrderToDiscord() {
       }
     }
 
-    const matText = ingredientsList.length > 0 ? ingredientsList.join(", ") : "재료 정보 없음";
+    const matText = ingredientsList.length > 0 ? ingredientsList.join("\n") : "재료 정보 없음";
 
     messageLines.push(
-      `${foodName} : ${formatWon(basePrice)}\n${matText}\n`
+      `# ${foodName} : ${formatWon(basePrice)}\n${matText}\n`
     );
   });
 
@@ -1140,7 +1140,7 @@ onSnapshot(groupOrderRef, snapshot=>{
   if(snapshot.exists()){
     const data = snapshot.data();
     if(Array.isArray(data.orders)){
-      groupOrders = data.orders.slice(0,5).map(food=>({
+      groupOrders = data.orders.slice(0, 5).map(food=>({
         name: String(food.name || ""),
         price: Number(food.price || 0)
       }));
