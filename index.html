@@ -769,7 +769,12 @@ async function sendGroupOrderToDiscord() {
   validOrders.forEach(food => {
     const foodName = food.name.trim();
     const basePrice = Math.round(Number(food.price));
-    const multiplierText = food.multiplier ? ` (${food.multiplier.trim()})` : " (x 배수)";
+    
+    let rawMultiplier = food.multiplier ? food.multiplier.trim() : "";
+    if (rawMultiplier && !rawMultiplier.startsWith("(")) {
+      rawMultiplier = `(${rawMultiplier})`;
+    }
+    const multiplierText = rawMultiplier ? ` ${rawMultiplier}` : "";
 
     let ingredientsList = [];
     if (all[foodName]) {
