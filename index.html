@@ -769,7 +769,7 @@ async function sendGroupOrderToDiscord() {
   validOrders.forEach(food => {
     const foodName = food.name.trim();
     const basePrice = Math.round(Number(food.price));
-    const multiplierText = food.multiplier ? ` (${food.multiplier.trim()})` : "";
+    const multiplierText = food.multiplier ? ` (x${food.multiplier.trim()})` : "";
 
     let ingredientsList = [];
     if (all[foodName]) {
@@ -969,7 +969,7 @@ function updateCalculation(){
       const basePrice = Number(matchedOrder.price || 0);
       const unitPrice = groupRateToggle.checked ? Math.round(basePrice * 1.15) : basePrice;
       const totalPrice = possible * unitPrice;
-      const multStr = matchedOrder.multiplier ? ` (${matchedOrder.multiplier})` : "";
+      const multStr = matchedOrder.multiplier ? ` (x${matchedOrder.multiplier})` : "";
       groupRecipePrice.textContent = `💰 적용 금액: ${formatWon(unitPrice)}${multStr} × ${formatNumber(possible)}개 = ${formatWon(totalPrice)}`;
     }else{
       groupRecipePrice.textContent = "💰 등록된 가격 정보 없음";
@@ -1090,7 +1090,7 @@ function renderGroupViewer(){
   groupViewerList.innerHTML = validOrders.map(food=>{
     const base = Number(food.price);
     const finalAmount = Math.round(base * (1 + rate));
-    const multStr = food.multiplier ? ` (${food.multiplier})` : "";
+    const multStr = food.multiplier ? ` (x${food.multiplier})` : "";
 
     return `
       <div class="group-item">
