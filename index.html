@@ -771,8 +771,11 @@ async function sendGroupOrderToDiscord() {
     const basePrice = Math.round(Number(food.price));
     
     let rawMultiplier = food.multiplier ? food.multiplier.trim() : "";
-    if (rawMultiplier && !rawMultiplier.startsWith("(")) {
-      rawMultiplier = `(${rawMultiplier})`;
+    if (rawMultiplier && !rawMultiplier.startsWith("(x")) {
+      const cleanNum = rawMultiplier.replace(/[^0-9.]/g, "");
+      rawMultiplier = cleanNum ? `(x ${cleanNum})` : "";
+    } else if (rawMultiplier.startsWith("(x") && !rawMultiplier.startsWith("(x ")) {
+      rawMultiplier = rawMultiplier.replace("(x", "(x ");
     }
     const multiplierText = rawMultiplier ? ` ${rawMultiplier}` : "";
 
@@ -1034,8 +1037,8 @@ function renderGroupOrderEditor(){
         <input type="number" class="group-food-price" data-index="${index}" min="0" value="${Number(food.price || 0)}">
       </div>
       <div class="field">
-        <label>배수 (예: 1.5배, 2배)</label>
-        <input type="text" class="group-food-multiplier" data-index="${index}" value="${escapeHtml(food.multiplier || "")}" placeholder="예: 2배">
+        <label>배수 (예: 2.96)</label>
+        <input type="text" class="group-food-multiplier" data-index="${index}" value="${escapeHtml(food.multiplier || "")}" placeholder="예: 2.96">
       </div>
       <div class="admin-total">
         기본 금액
@@ -1226,8 +1229,8 @@ onAuthStateChanged(auth, user=>{
     groupAdmin.classList.remove("hidden");
     sendGroupDiscordBtn.classList.remove("hidden");
   }else{
-    loginBtn.classList.remove("hidden");
-    logoutBtn.classList.add("hidden");
+    loginBtn.classList.add("hidden");
+    logoutBtn.classList.remove("hidden");
     groupAdmin.classList.add("hidden");
     sendGroupDiscordBtn.classList.add("hidden");
   }
