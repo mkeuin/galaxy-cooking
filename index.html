@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -224,6 +225,65 @@ input[type="number"]{
   font-weight:bold!important;
   padding:14px 12px!important;
   background:rgba(255,255,255,.08);
+}
+.high-grade-section{
+  margin-top:20px;
+}
+.high-grade-box{
+  padding:16px;
+  border-radius:15px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+}
+.high-grade-recipe-name{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:14px;
+}
+.high-grade-subrecipe{
+  padding:13px 15px;
+  margin-bottom:8px;
+  border-radius:11px;
+  background:rgba(155,140,255,.10);
+  border:1px solid rgba(155,140,255,.22);
+  font-size:17px;
+  font-weight:bold;
+}
+.high-grade-total{
+  margin-top:20px;
+  padding:16px;
+  border-radius:15px;
+  background:linear-gradient(135deg,rgba(110,85,255,.16),rgba(55,180,255,.10));
+  border:1px solid rgba(150,150,255,.25);
+}
+.high-grade-material-category{
+  margin-top:18px;
+}
+.high-grade-material-title{
+  font-size:19px;
+  font-weight:bold;
+  margin-bottom:9px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:rgba(255,255,255,.06);
+}
+.high-grade-material{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-bottom:1px solid var(--line);
+}
+.high-grade-material:last-child{
+  border-bottom:none;
+}
+.high-grade-material-name{
+  font-weight:bold;
+}
+.high-grade-material-amount{
+  color:var(--accent2);
+  white-space:nowrap;
 }
 .top-actions{
   display:flex;
@@ -469,6 +529,10 @@ input[type="number"]{
   .login-row{grid-template-columns:1fr}
   .group-item{align-items:flex-start;flex-direction:column}
   .group-price{text-align:left}
+  .high-grade-material{
+    align-items:flex-start;
+    flex-direction:column;
+  }
 }
 </style>
 </head>
@@ -536,9 +600,11 @@ input[type="number"]{
           </select>
         </div>
       </div>
+
       <div class="admin-grid-wrap">
         <div id="groupOrderGrid" class="admin-grid"></div>
       </div>
+
       <div class="admin-buttons">
         <button class="btn btn-success" id="saveGroupOrderBtn">
           💾 정보 저장
@@ -547,6 +613,7 @@ input[type="number"]{
           🗑️ 전체 삭제
         </button>
       </div>
+
       <div id="adminStatus" class="status"></div>
     </div>
   </div>
@@ -633,11 +700,28 @@ const recipes = {
     "젤리 버섯 푸딩":{"젤리버섯":8,"우유":4,"각설탕":4,"수박시럽":4}
   },
   "전설":{
-    "아스텔라 A급 생선 정식":{"요정 피쉬 마나찜":1,"홀로그램 피쉬 베리글레이즈":1,"다크 피쉬 비트조림":1,"고스트 피쉬 크림탕":1,"엔젤피쉬 황금호박스튜":1},
-    "아스텔라 축제 도시락":{"레드펄 양파 스튜":1,"슬라임 콜라비 튀김":1,"팬텀 양배추 고기말이":1,"피치 가지 수박파르페":1}
+    "아스텔라 A급 생선 정식":{
+      "요정 피쉬 마나찜":1,
+      "홀로그램 피쉬 베리글레이즈":1,
+      "다크 피쉬 비트조림":1,
+      "고스트 피쉬 크림탕":1,
+      "엔젤피쉬 황금호박스튜":1
+    },
+    "아스텔라 축제 도시락":{
+      "레드펄 양파 스튜":1,
+      "슬라임 콜라비 튀김":1,
+      "팬텀 양배추 고기말이":1,
+      "피치 가지 수박파르페":1
+    }
   },
   "신화":{
-    "왕실 해산물 만찬":{"마나 해산물 스튜":1,"그림자 생선조림":1,"환영 생선 샐러드":1,"천상의 크림스튜":1,"마나블라썸 밀크":1}
+    "왕실 해산물 만찬":{
+      "마나 해산물 스튜":1,
+      "그림자 생선조림":1,
+      "환영 생선 샐러드":1,
+      "천상의 크림스튜":1,
+      "마나블라썸 밀크":1
+    }
   }
 };
 
@@ -645,50 +729,94 @@ const all = {};
 Object.values(recipes).forEach(group=>{
   Object.assign(all,group);
 });
+
 let selected = null;
 let selectedGrade = null;
 let currentPossibleCount = 0;
 
 function loadOwnedMaterials(){
-  try{ return JSON.parse(localStorage.getItem(OWNED_STORAGE_KEY)) || {}; }catch{ return {}; }
+  try{
+    return JSON.parse(localStorage.getItem(OWNED_STORAGE_KEY)) || {};
+  }catch{
+    return {};
+  }
 }
+
 let ownedMaterials = loadOwnedMaterials();
+
 function saveOwnedMaterials(){
-  localStorage.setItem(OWNED_STORAGE_KEY, JSON.stringify(ownedMaterials));
+  localStorage.setItem(
+    OWNED_STORAGE_KEY,
+    JSON.stringify(ownedMaterials)
+  );
 }
 
 function expandRecipe(name, amount = 1, result = {}){
   if(!all[name]) return result;
+
   for(const [item,need] of Object.entries(all[name])){
     const total = need * amount;
+
     if(all[item]){
       expandRecipe(item, total, result);
     }else{
       result[item] = (result[item] || 0) + total;
     }
   }
+
   return result;
 }
 
-function formatNumber(n){ return Number(n || 0).toLocaleString("ko-KR"); }
-function formatWon(n){ return `${formatNumber(Math.round(n || 0))}크론`; }
+function formatNumber(n){
+  return Number(n || 0).toLocaleString("ko-KR");
+}
+
+function formatWon(n){
+  return `${formatNumber(Math.round(n || 0))}크론`;
+}
+
 function formatStack(n){
   n = Math.floor(Number(n || 0));
+
   const sets = Math.floor(n / STACK);
   const pieces = n % STACK;
-  if(sets && pieces) return `${formatNumber(n)}개 (${formatNumber(sets)}세트 + ${formatNumber(pieces)}개)`;
-  if(sets) return `${formatNumber(n)}개 (${formatNumber(sets)}세트)`;
+
+  if(sets && pieces){
+    return `${formatNumber(n)}개 (${formatNumber(sets)}세트 + ${formatNumber(pieces)}개)`;
+  }
+
+  if(sets){
+    return `${formatNumber(n)}개 (${formatNumber(sets)}세트)`;
+  }
+
   return `${formatNumber(n)}개`;
 }
 
-const FISH = ["요정 피쉬","엔젤 피쉬","다크 피쉬","고스트 피쉬","홀로그램 피쉬"];
-const CROPS = ["마나블라썸","피치가지","젤리버섯","팬텀 양배추","레드펄 양파","슬라임 콜라비","엔더 콩","초승달 무"];
+const FISH = [
+  "요정 피쉬",
+  "엔젤 피쉬",
+  "다크 피쉬",
+  "고스트 피쉬",
+  "홀로그램 피쉬"
+];
+
+const CROPS = [
+  "마나블라썸",
+  "피치가지",
+  "젤리버섯",
+  "팬텀 양배추",
+  "레드펄 양파",
+  "슬라임 콜라비",
+  "엔더 콩",
+  "초승달 무"
+];
 
 function getIngredientCategory(name){
   if(FISH.includes(name)) return 1;
   if(CROPS.includes(name)) return 2;
   return 3;
 }
+
 function getCategoryName(category){
   if(category === 1) return "🐟 피쉬";
   if(category === 2) return "🌱 작물";
@@ -697,67 +825,95 @@ function getCategoryName(category){
 
 function escapeHtml(value){
   return String(value)
-    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    .replaceAll('"','&quot;').replaceAll("'",'&#39;');
-}
-function cssId(name){
-  return btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, "");
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
 }
 
-async function postToDiscord(message) {
-  if (!DISCORD_WEBHOOK_URL) {
+function cssId(name){
+  return btoa(
+    unescape(
+      encodeURIComponent(name)
+    )
+  ).replace(/[^a-zA-Z0-9]/g,"");
+}
+
+async function postToDiscord(message){
+  if(!DISCORD_WEBHOOK_URL){
     alert("디스코드 웹훅 URL이 설정되지 않았습니다.");
     return false;
   }
-  try {
-    const res = await fetch(DISCORD_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: "단체주문 및 협동",
-        content: message
+
+  try{
+    const res = await fetch(DISCORD_WEBHOOK_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        username:"단체주문 및 협동",
+        content:message
       })
     });
-    if (res.ok) {
+
+    if(res.ok){
       alert("디스코드로 성공적으로 전송되었습니다!");
       return true;
-    } else {
+    }else{
       alert("디스코드 전송 실패: " + res.statusText);
       return false;
     }
-  } catch (err) {
+  }catch(err){
     console.error(err);
     alert("전송 중 에러가 발생했습니다.");
     return false;
   }
 }
 
-async function sendSingleRecipeToDiscord() {
-  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+async function sendSingleRecipeToDiscord(){
+  if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){
     alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
     return;
   }
-  if (!selected) return;
-  const message = `🌌 **[요리 수량 정보]**\n` +
-                  `🍳 **요리명:** [${selectedGrade}] ${selected}\n` +
-                  `🍲 **제작 가능 수량:** ${formatStack(currentPossibleCount)}`;
+
+  if(!selected) return;
+
+  const message =
+    `🌌 **[요리 수량 정보]**\n` +
+    `🍳 **요리명:** [${selectedGrade}] ${selected}\n` +
+    `🍲 **제작 가능 수량:** ${formatStack(currentPossibleCount)}`;
+
   await postToDiscord(message);
 }
 
-async function sendGroupOrderToDiscord() {
-  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+async function sendGroupOrderToDiscord(){
+  if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){
     alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
     return;
   }
 
-  const validOrders = groupOrders.filter(food => String(food.name || "").trim() && Number(food.price || 0) > 0);
-  if (!validOrders.length) {
+  const validOrders = groupOrders.filter(
+    food =>
+      String(food.name || "").trim() &&
+      Number(food.price || 0) > 0
+  );
+
+  if(!validOrders.length){
     alert("전송할 내역이 없습니다.");
     return;
   }
 
-  let dateVal = document.getElementById("groupOrderDate").value.trim() || currentGroupDate || getFormattedToday();
-  let boostVal = document.getElementById("boostCategory").value || currentBoostCategory || "낚시";
+  let dateVal =
+    document.getElementById("groupOrderDate").value.trim() ||
+    currentGroupDate ||
+    getFormattedToday();
+
+  let boostVal =
+    document.getElementById("boostCategory").value ||
+    currentBoostCategory ||
+    "낚시";
 
   let messageLines = [
     `${dateVal}`,
@@ -766,20 +922,31 @@ async function sendGroupOrderToDiscord() {
     `--------------------------------------------------`
   ];
 
-  validOrders.forEach(food => {
+  validOrders.forEach(food=>{
     const foodName = food.name.trim();
     const basePrice = Math.round(Number(food.price));
-    const multiplierText = food.multiplier ? ` (x${food.multiplier.trim()})` : "";
+
+    const multiplierText =
+      food.multiplier
+        ? ` (x${food.multiplier.trim()})`
+        : "";
 
     let ingredientsList = [];
-    if (all[foodName]) {
-      const mats = expandRecipe(foodName, 1);
-      for (const [matName, count] of Object.entries(mats)) {
-        ingredientsList.push(`${matName} ${count}개`);
+
+    if(all[foodName]){
+      const mats = expandRecipe(foodName,1);
+
+      for(const [matName,count] of Object.entries(mats)){
+        ingredientsList.push(
+          `${matName} ${count}개`
+        );
       }
     }
 
-    const matText = ingredientsList.length > 0 ? ingredientsList.join("\n") : "재료 정보 없음";
+    const matText =
+      ingredientsList.length > 0
+        ? ingredientsList.join("\n")
+        : "재료 정보 없음";
 
     messageLines.push(
       `# ${foodName} : ${formatWon(basePrice)}${multiplierText}\n${matText}\n`
@@ -787,115 +954,474 @@ async function sendGroupOrderToDiscord() {
   });
 
   const msg = messageLines.join("\n").trim();
+
   const success = await postToDiscord(msg);
-  if (success) {
+
+  if(success){
     document.getElementById("groupOrderDate").value = dateVal;
-    await setDoc(groupOrderRef, { orders: groupOrders, date: dateVal, boost: boostVal, updatedAt: Date.now() }, { merge: true });
+
+    await setDoc(
+      groupOrderRef,
+      {
+        orders:groupOrders,
+        date:dateVal,
+        boost:boostVal,
+        updatedAt:Date.now()
+      },
+      {
+        merge:true
+      }
+    );
   }
 }
 
 function createIngredientRow(name,need){
-  const saved = ownedMaterials[name] || {sets:0, pieces:0};
+  const saved =
+    ownedMaterials[name] ||
+    {
+      sets:0,
+      pieces:0
+    };
+
   return `
   <tr>
     <td>${escapeHtml(name)}</td>
     <td>${formatNumber(need)}개</td>
     <td class="owned" id="owned-${cssId(name)}">0개</td>
     <td>
-      <input class="num set-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.sets || 0))}">
+      <input
+        class="num set-input"
+        data-name="${escapeHtml(name)}"
+        type="number"
+        min="0"
+        value="${Math.max(0,Number(saved.sets || 0))}"
+      >
     </td>
     <td>
-      <input class="num piece-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.pieces || 0))}">
+      <input
+        class="num piece-input"
+        data-name="${escapeHtml(name)}"
+        type="number"
+        min="0"
+        value="${Math.max(0,Number(saved.pieces || 0))}"
+      >
     </td>
   </tr>`;
 }
 
 function createGroupedIngredientRows(ingredients){
-  const groups = {1:[], 2:[], 3:[]};
-  Object.entries(ingredients).forEach(([name,need])=>{
-    const category = getIngredientCategory(name);
-    groups[category].push([name, need]);
-  });
+  const groups = {
+    1:[],
+    2:[],
+    3:[]
+  };
+
+  Object.entries(ingredients).forEach(
+    ([name,need])=>{
+      const category = getIngredientCategory(name);
+      groups[category].push([name,need]);
+    }
+  );
+
   let html = "";
-  for(let category = 1; category <= 3; category++){
+
+  for(let category = 1;category <= 3;category++){
     if(!groups[category].length) continue;
-    groups[category].sort(([a],[b]) => a.localeCompare(b,"ko"));
+
+    groups[category].sort(
+      ([a],[b]) => a.localeCompare(b,"ko")
+    );
+
     html += `
       <tr class="category-row">
-        <td colspan="5">${getCategoryName(category)}</td>
+        <td colspan="5">
+          ${getCategoryName(category)}
+        </td>
       </tr>`;
-    groups[category].forEach(([name,need])=>{
-      html += createIngredientRow(name, need);
-    });
+
+    groups[category].forEach(
+      ([name,need])=>{
+        html += createIngredientRow(name,need);
+      }
+    );
   }
+
+  return html;
+}
+
+/* 전설 / 신화 전용 표시 */
+function createHighGradeDisplay(){
+  const subRecipes = all[selected] || {};
+  const totalMaterials = expandRecipe(selected);
+
+  const groups = {
+    1:[],
+    2:[],
+    3:[]
+  };
+
+  Object.entries(totalMaterials).forEach(
+    ([name,amount])=>{
+      const category = getIngredientCategory(name);
+      groups[category].push([name,amount]);
+    }
+  );
+
+  for(let category = 1;category <= 3;category++){
+    groups[category].sort(
+      ([a],[b]) => a.localeCompare(b,"ko")
+    );
+  }
+
+  let html = `
+    <div class="high-grade-section">
+      <div class="section-title">🍳 요리</div>
+
+      <div class="high-grade-box">
+        <div class="high-grade-recipe-name">
+          [${escapeHtml(selectedGrade)}] ${escapeHtml(selected)}
+        </div>
+
+        <div class="note">
+          아래는 이 요리를 만들기 위해 필요한 하위 요리입니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="high-grade-section">
+      <div class="section-title">🥘 하위요리</div>
+
+      <div class="high-grade-box">
+  `;
+
+  const subEntries = Object.entries(subRecipes);
+
+  if(subEntries.length){
+    subEntries.forEach(
+      ([name,amount])=>{
+        html += `
+          <div class="high-grade-subrecipe">
+            🍲 ${escapeHtml(name)}
+            × ${formatNumber(amount)}
+          </div>`;
+      }
+    );
+  }else{
+    html += `
+      <div class="note">
+        필요한 하위요리가 없습니다.
+      </div>`;
+  }
+
+  html += `
+      </div>
+    </div>
+
+    <div class="high-grade-section">
+      <div class="section-title">📦 총 재료양</div>
+
+      <div class="high-grade-total">
+  `;
+
+  if(groups[1].length){
+    html += `
+      <div class="high-grade-material-category">
+        <div class="high-grade-material-title">
+          🐟 피쉬
+        </div>
+    `;
+
+    groups[1].forEach(
+      ([name,amount])=>{
+        html += `
+          <div class="high-grade-material">
+            <div class="high-grade-material-name">
+              ${escapeHtml(name)}
+            </div>
+            <div class="high-grade-material-amount">
+              ${formatStack(amount)}
+            </div>
+          </div>`;
+      }
+    );
+
+    html += `</div>`;
+  }
+
+  if(groups[2].length){
+    html += `
+      <div class="high-grade-material-category">
+        <div class="high-grade-material-title">
+          🌱 작물
+        </div>
+    `;
+
+    groups[2].forEach(
+      ([name,amount])=>{
+        html += `
+          <div class="high-grade-material">
+            <div class="high-grade-material-name">
+              ${escapeHtml(name)}
+            </div>
+            <div class="high-grade-material-amount">
+              ${formatStack(amount)}
+            </div>
+          </div>`;
+      }
+    );
+
+    html += `</div>`;
+  }
+
+  if(groups[3].length){
+    html += `
+      <div class="high-grade-material-category">
+        <div class="high-grade-material-title">
+          🧂 가공재료
+        </div>
+    `;
+
+    groups[3].forEach(
+      ([name,amount])=>{
+        html += `
+          <div class="high-grade-material">
+            <div class="high-grade-material-name">
+              ${escapeHtml(name)}
+            </div>
+            <div class="high-grade-material-amount">
+              ${formatStack(amount)}
+            </div>
+          </div>`;
+      }
+    );
+
+    html += `</div>`;
+  }
+
+  html += `
+      </div>
+    </div>
+
+    <div class="high-grade-section">
+      <div class="section-title">📊 보유 재료 입력 및 제작 가능 수량</div>
+
+      <div style="overflow:auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>재료</th>
+              <th>요리 1개 필요량</th>
+              <th>보유량</th>
+              <th>세트</th>
+              <th>낱개</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${createGroupedIngredientRows(totalMaterials)}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
   return html;
 }
 
 function renderList(){
-  const q = document.getElementById("search").value.trim().toLowerCase();
-  const list = document.getElementById("recipeList");
+  const q =
+    document.getElementById("search")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const list =
+    document.getElementById("recipeList");
+
   list.innerHTML = "";
+
   for(const [grade,group] of Object.entries(recipes)){
     for(const name of Object.keys(group)){
-      if((grade + " " + name).toLowerCase().includes(q)){
-        const button = document.createElement("button");
-        button.className = "recipe-btn" + (selected === name ? " active" : "");
+      if(
+        (grade + " " + name)
+          .toLowerCase()
+          .includes(q)
+      ){
+        const button =
+          document.createElement("button");
+
+        button.className =
+          "recipe-btn" +
+          (selected === name ? " active" : "");
+
         button.innerHTML = `
-          <span class="grade">${escapeHtml(grade)}</span>
+          <span class="grade">
+            ${escapeHtml(grade)}
+          </span>
           ${escapeHtml(name)}
         `;
-        button.onclick = ()=>{ selectRecipe(grade, name); };
+
+        button.onclick = ()=>{
+          selectRecipe(grade,name);
+        };
+
         list.appendChild(button);
       }
     }
   }
 }
 
-function selectRecipe(grade, name){
+function selectRecipe(grade,name){
   selected = name;
   selectedGrade = grade;
+
   renderList();
   renderRecipe();
 }
 
 function renderRecipe(){
   if(!selected) return;
-  const content = document.getElementById("appContent");
-  const isHighGrade = selectedGrade === "전설" || selectedGrade === "신화";
-  const ingredients = isHighGrade ? expandRecipe(selected) : all[selected];
-  const sub = isHighGrade ? all[selected] : null;
 
-  let subHtml = "";
-  if(sub){
-    subHtml = `
-      <div class="section-title">🥘 필요한 하위 요리</div>
-      <div class="subrecipes">
-        ${Object.entries(sub).map(([name,amount])=>`
-          <div class="sub">${escapeHtml(name)} × ${formatNumber(amount)}</div>
-        `).join("")}
+  const content =
+    document.getElementById("appContent");
+
+  const isHighGrade =
+    selectedGrade === "전설" ||
+    selectedGrade === "신화";
+
+  const ingredients =
+    isHighGrade
+      ? expandRecipe(selected)
+      : all[selected];
+
+  const isAdmin =
+    auth.currentUser &&
+    auth.currentUser.uid === ADMIN_UID;
+
+  /* 전설 / 신화는 전용 화면 */
+  if(isHighGrade){
+    content.innerHTML = `
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-bottom:16px;
+      ">
+        <div class="selected" style="margin:0;">
+          [${escapeHtml(selectedGrade)}]
+          ${escapeHtml(selected)}
+        </div>
+
+        ${
+          isAdmin
+            ? `<button
+                 class="btn btn-discord"
+                 id="sendRecipeDiscordBtn"
+               >
+                 📢 디스코드로 이 요리 전송
+               </button>`
+            : ""
+        }
       </div>
-      <div class="section-title">📋 실제 기본 재료</div>`;
+
+      <div class="result">
+        <span>🍲 만들 수 있는 요리</span>
+        <strong id="result">0개</strong>
+        <div class="note">
+          가장 부족한 기본 재료를 기준으로 자동 계산됩니다.
+        </div>
+        <div
+          id="groupRecipePrice"
+          class="note"
+          style="margin-top:10px;"
+        ></div>
+      </div>
+
+      ${createHighGradeDisplay()}
+    `;
+
+    document
+      .querySelectorAll(".set-input,.piece-input")
+      .forEach(el=>{
+        el.addEventListener(
+          "input",
+          updateCalculation
+        );
+
+        el.addEventListener(
+          "keydown",
+          handleTab
+        );
+      });
+
+    const sendBtn =
+      document.getElementById(
+        "sendRecipeDiscordBtn"
+      );
+
+    if(sendBtn){
+      sendBtn.addEventListener(
+        "click",
+        sendSingleRecipeToDiscord
+      );
+    }
+
+    updateCalculation();
+    return;
   }
 
-  const ingredientRows = isHighGrade ? createGroupedIngredientRows(ingredients) : Object.entries(ingredients).map(([name,need])=>createIngredientRow(name,need)).join("");
-  const isAdmin = auth.currentUser && auth.currentUser.uid === ADMIN_UID;
+  /* 일반 / 영웅은 기존 방식 */
+  const sub = null;
+
+  const ingredientRows =
+    Object.entries(ingredients)
+      .map(
+        ([name,need]) =>
+          createIngredientRow(name,need)
+      )
+      .join("");
 
   content.innerHTML = `
-  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+  <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:16px;
+  ">
     <div class="selected" style="margin:0;">
-      [${escapeHtml(selectedGrade)}] ${escapeHtml(selected)}
+      [${escapeHtml(selectedGrade)}]
+      ${escapeHtml(selected)}
     </div>
-    ${isAdmin ? `<button class="btn btn-discord" id="sendRecipeDiscordBtn">📢 디스코드로 이 요리 전송</button>` : ''}
+
+    ${
+      isAdmin
+        ? `<button
+             class="btn btn-discord"
+             id="sendRecipeDiscordBtn"
+           >
+             📢 디스코드로 이 요리 전송
+           </button>`
+        : ""
+    }
   </div>
 
   <div class="result">
     <span>🍲 만들 수 있는 요리</span>
     <strong id="result">0개</strong>
-    <div class="note">가장 부족한 재료를 기준으로 자동 계산됩니다.</div>
-    <div id="groupRecipePrice" class="note" style="margin-top:10px;"></div>
-  </div>
 
-  ${subHtml}
+    <div class="note">
+      가장 부족한 재료를 기준으로 자동 계산됩니다.
+    </div>
+
+    <div
+      id="groupRecipePrice"
+      class="note"
+      style="margin-top:10px;"
+    ></div>
+  </div>
 
   <div style="overflow:auto">
     <table class="table">
@@ -908,20 +1434,37 @@ function renderRecipe(){
           <th>낱개</th>
         </tr>
       </thead>
+
       <tbody>
         ${ingredientRows}
       </tbody>
     </table>
   </div>`;
 
-  document.querySelectorAll(".set-input,.piece-input").forEach(el=>{
-    el.addEventListener("input", updateCalculation);
-    el.addEventListener("keydown", handleTab);
-  });
+  document
+    .querySelectorAll(".set-input,.piece-input")
+    .forEach(el=>{
+      el.addEventListener(
+        "input",
+        updateCalculation
+      );
 
-  const sendBtn = document.getElementById("sendRecipeDiscordBtn");
-  if (sendBtn) {
-    sendBtn.addEventListener("click", sendSingleRecipeToDiscord);
+      el.addEventListener(
+        "keydown",
+        handleTab
+      );
+    });
+
+  const sendBtn =
+    document.getElementById(
+      "sendRecipeDiscordBtn"
+    );
+
+  if(sendBtn){
+    sendBtn.addEventListener(
+      "click",
+      sendSingleRecipeToDiscord
+    );
   }
 
   updateCalculation();
@@ -929,307 +1472,845 @@ function renderRecipe(){
 
 function updateCalculation(){
   if(!selected) return;
-  const req = (selectedGrade === "전설" || selectedGrade === "신화") ? expandRecipe(selected) : all[selected];
+
+  const req =
+    (
+      selectedGrade === "전설" ||
+      selectedGrade === "신화"
+    )
+      ? expandRecipe(selected)
+      : all[selected];
+
   let possible = Infinity;
 
-  const setInputs = document.querySelectorAll(".set-input");
-  const pieceInputs = document.querySelectorAll(".piece-input");
+  const setInputs =
+    document.querySelectorAll(".set-input");
+
+  const pieceInputs =
+    document.querySelectorAll(".piece-input");
 
   for(const [name,need] of Object.entries(req)){
     let setInput = null;
     let pieceInput = null;
 
-    setInputs.forEach(input => { if(input.dataset.name === name) setInput = input; });
-    pieceInputs.forEach(input => { if(input.dataset.name === name) pieceInput = input; });
+    setInputs.forEach(input=>{
+      if(input.dataset.name === name){
+        setInput = input;
+      }
+    });
+
+    pieceInputs.forEach(input=>{
+      if(input.dataset.name === name){
+        pieceInput = input;
+      }
+    });
 
     if(!setInput || !pieceInput) continue;
 
-    const sets = Math.max(0, Math.floor(Number(setInput.value) || 0));
-    const pieces = Math.max(0, Math.floor(Number(pieceInput.value) || 0));
+    const sets =
+      Math.max(
+        0,
+        Math.floor(
+          Number(setInput.value) || 0
+        )
+      );
 
-    ownedMaterials[name] = { sets:sets, pieces:pieces };
-    const owned = sets * STACK + pieces;
-    possible = Math.min(possible, Math.floor(owned / need));
+    const pieces =
+      Math.max(
+        0,
+        Math.floor(
+          Number(pieceInput.value) || 0
+        )
+      );
 
-    const cell = document.getElementById("owned-" + cssId(name));
-    if(cell){ cell.textContent = formatStack(owned); }
+    ownedMaterials[name] = {
+      sets:sets,
+      pieces:pieces
+    };
+
+    const owned =
+      sets * STACK + pieces;
+
+    possible =
+      Math.min(
+        possible,
+        Math.floor(owned / need)
+      );
+
+    const cell =
+      document.getElementById(
+        "owned-" + cssId(name)
+      );
+
+    if(cell){
+      cell.textContent =
+        formatStack(owned);
+    }
   }
 
   saveOwnedMaterials();
-  if(possible === Infinity){ possible = 0; }
+
+  if(possible === Infinity){
+    possible = 0;
+  }
+
   currentPossibleCount = possible;
 
-  const result = document.getElementById("result");
-  if(result){ result.textContent = formatStack(possible); }
+  const result =
+    document.getElementById("result");
 
-  const groupRecipePrice = document.getElementById("groupRecipePrice");
+  if(result){
+    result.textContent =
+      formatStack(possible);
+  }
+
+  const groupRecipePrice =
+    document.getElementById(
+      "groupRecipePrice"
+    );
+
   if(groupRecipePrice){
-    const matchedOrder = groupOrders.find(food => String(food.name || "").trim() === String(selected || "").trim() && Number(food.price || 0) > 0);
+    const matchedOrder =
+      groupOrders.find(
+        food =>
+          String(food.name || "").trim() ===
+          String(selected || "").trim() &&
+          Number(food.price || 0) > 0
+      );
+
     if(matchedOrder){
-      const basePrice = Number(matchedOrder.price || 0);
-      const unitPrice = groupRateToggle.checked ? Math.round(basePrice * 1.15) : basePrice;
-      const totalPrice = possible * unitPrice;
-      const multStr = matchedOrder.multiplier ? ` (x${matchedOrder.multiplier})` : "";
-      groupRecipePrice.textContent = `💰 적용 금액: ${formatWon(unitPrice)}${multStr} × ${formatNumber(possible)}개 = ${formatWon(totalPrice)}`;
+      const basePrice =
+        Number(matchedOrder.price || 0);
+
+      const unitPrice =
+        groupRateToggle.checked
+          ? Math.round(basePrice * 1.15)
+          : basePrice;
+
+      const totalPrice =
+        possible * unitPrice;
+
+      const multStr =
+        matchedOrder.multiplier
+          ? ` (x${matchedOrder.multiplier})`
+          : "";
+
+      groupRecipePrice.textContent =
+        `💰 적용 금액: ${formatWon(unitPrice)}${multStr} × ${formatNumber(possible)}개 = ${formatWon(totalPrice)}`;
     }else{
-      groupRecipePrice.textContent = "💰 등록된 가격 정보 없음";
+      groupRecipePrice.textContent =
+        "💰 등록된 가격 정보 없음";
     }
   }
 }
 
 function handleTab(e){
   if(e.key !== "Tab") return;
-  const inputs = [...document.querySelectorAll(".set-input,.piece-input")];
-  const index = inputs.indexOf(e.target);
+
+  const inputs = [
+    ...document.querySelectorAll(
+      ".set-input,.piece-input"
+    )
+  ];
+
+  const index =
+    inputs.indexOf(e.target);
+
   if(index < 0) return;
+
   e.preventDefault();
-  let next = e.shiftKey ? inputs[Math.max(0, index - 1)] : inputs[Math.min(inputs.length - 1, index + 1)];
+
+  let next =
+    e.shiftKey
+      ? inputs[
+          Math.max(0,index - 1)
+        ]
+      : inputs[
+          Math.min(
+            inputs.length - 1,
+            index + 1
+          )
+        ];
+
   next.focus();
   next.select();
 }
 
-const searchInput = document.getElementById("search");
-searchInput.addEventListener("input", renderList);
-searchInput.addEventListener("keydown", e=>{
-  if(e.key === "Enter"){
-    const first = document.querySelector(".recipe-btn");
-    if(first) first.click();
+const searchInput =
+  document.getElementById("search");
+
+searchInput.addEventListener(
+  "input",
+  renderList
+);
+
+searchInput.addEventListener(
+  "keydown",
+  e=>{
+    if(e.key === "Enter"){
+      const first =
+        document.querySelector(
+          ".recipe-btn"
+        );
+
+      if(first){
+        first.click();
+      }
+    }
   }
-});
+);
 
 function createEmptyOrders(){
-  return Array.from({length:5}, () => ({name:"", price:0, multiplier:""}));
+  return Array.from(
+    {length:5},
+    () => ({
+      name:"",
+      price:0,
+      multiplier:""
+    })
+  );
 }
-let groupOrders = createEmptyOrders();
+
+let groupOrders =
+  createEmptyOrders();
+
 let currentGroupDate = "";
 let currentBoostCategory = "낚시";
 
-const groupRateToggle = document.getElementById("groupRateToggle");
-const savedRate = localStorage.getItem(RATE_STORAGE_KEY);
-groupRateToggle.checked = savedRate === "true";
-groupRateToggle.addEventListener("change", ()=>{
-  localStorage.setItem(RATE_STORAGE_KEY, String(groupRateToggle.checked));
-  renderGroupViewer();
-  updateCalculation();
-});
+const groupRateToggle =
+  document.getElementById(
+    "groupRateToggle"
+  );
 
-document.getElementById("sendGroupDiscordBtn").addEventListener("click", sendGroupOrderToDiscord);
+const savedRate =
+  localStorage.getItem(
+    RATE_STORAGE_KEY
+  );
 
-const groupOrderGrid = document.getElementById("groupOrderGrid");
+groupRateToggle.checked =
+  savedRate === "true";
+
+groupRateToggle.addEventListener(
+  "change",
+  ()=>{
+    localStorage.setItem(
+      RATE_STORAGE_KEY,
+      String(groupRateToggle.checked)
+    );
+
+    renderGroupViewer();
+    updateCalculation();
+  }
+);
+
+document
+  .getElementById(
+    "sendGroupDiscordBtn"
+  )
+  .addEventListener(
+    "click",
+    sendGroupOrderToDiscord
+  );
+
+const groupOrderGrid =
+  document.getElementById(
+    "groupOrderGrid"
+  );
+
 function renderGroupOrderEditor(){
-  groupOrderGrid.innerHTML = groupOrders.map((food,index)=>`
-    <div class="admin-food">
-      <div class="admin-food-title">🍳 요리 ${index + 1}</div>
-      <div class="field">
-        <label>요리 이름</label>
-        <input type="text" class="group-food-name" data-index="${index}" value="${escapeHtml(food.name || "")}" placeholder="요리 이름">
-      </div>
-      <div class="field">
-        <label>요리 1개 가격 (단체주문/협동)</label>
-        <input type="number" class="group-food-price" data-index="${index}" min="0" value="${Number(food.price || 0)}">
-      </div>
-      <div class="field">
-        <label>배수 (예: 1.5배, 2배)</label>
-        <input type="text" class="group-food-multiplier" data-index="${index}" value="${escapeHtml(food.multiplier || "")}" placeholder="예: 2배">
-      </div>
-      <div class="admin-total">
-        기본 금액
-        <strong class="group-food-total-value" data-index="${index}">${formatWon(Number(food.price || 0))}</strong>
-      </div>
-    </div>
-  `).join("");
+  groupOrderGrid.innerHTML =
+    groupOrders.map(
+      (food,index)=>`
+        <div class="admin-food">
+          <div class="admin-food-title">
+            🍳 요리 ${index + 1}
+          </div>
 
-  document.querySelectorAll(".group-food-name").forEach(input=>{
-    input.addEventListener("input", e=>{
-      const index = Number(e.target.dataset.index);
-      groupOrders[index].name = e.target.value;
-    });
-  });
+          <div class="field">
+            <label>요리 이름</label>
 
-  document.querySelectorAll(".group-food-price").forEach(input=>{
-    input.addEventListener("input", e=>{
-      const index = Number(e.target.dataset.index);
-      groupOrders[index].price = Math.max(0, Number(e.target.value || 0));
-      updateGroupEditorTotals();
-    });
-  });
+            <input
+              type="text"
+              class="group-food-name"
+              data-index="${index}"
+              value="${escapeHtml(food.name || "")}"
+              placeholder="요리 이름"
+            >
+          </div>
 
-  document.querySelectorAll(".group-food-multiplier").forEach(input=>{
-    input.addEventListener("input", e=>{
-      const index = Number(e.target.dataset.index);
-      groupOrders[index].multiplier = e.target.value;
+          <div class="field">
+            <label>
+              요리 1개 가격 (단체주문/협동)
+            </label>
+
+            <input
+              type="number"
+              class="group-food-price"
+              data-index="${index}"
+              min="0"
+              value="${Number(food.price || 0)}"
+            >
+          </div>
+
+          <div class="field">
+            <label>
+              배수 (예: 1.5배, 2배)
+            </label>
+
+            <input
+              type="text"
+              class="group-food-multiplier"
+              data-index="${index}"
+              value="${escapeHtml(food.multiplier || "")}"
+              placeholder="예: 2배"
+            >
+          </div>
+
+          <div class="admin-total">
+            기본 금액
+
+            <strong
+              class="group-food-total-value"
+              data-index="${index}"
+            >
+              ${formatWon(
+                Number(food.price || 0)
+              )}
+            </strong>
+          </div>
+        </div>
+      `
+    ).join("");
+
+  document
+    .querySelectorAll(".group-food-name")
+    .forEach(input=>{
+      input.addEventListener(
+        "input",
+        e=>{
+          const index =
+            Number(
+              e.target.dataset.index
+            );
+
+          groupOrders[index].name =
+            e.target.value;
+        }
+      );
     });
-  });
+
+  document
+    .querySelectorAll(".group-food-price")
+    .forEach(input=>{
+      input.addEventListener(
+        "input",
+        e=>{
+          const index =
+            Number(
+              e.target.dataset.index
+            );
+
+          groupOrders[index].price =
+            Math.max(
+              0,
+              Number(
+                e.target.value || 0
+              )
+            );
+
+          updateGroupEditorTotals();
+        }
+      );
+    });
+
+  document
+    .querySelectorAll(
+      ".group-food-multiplier"
+    )
+    .forEach(input=>{
+      input.addEventListener(
+        "input",
+        e=>{
+          const index =
+            Number(
+              e.target.dataset.index
+            );
+
+          groupOrders[index].multiplier =
+            e.target.value;
+        }
+      );
+    });
 }
 
 function updateGroupEditorTotals(){
-  document.querySelectorAll(".group-food-total-value").forEach(element=>{
-    const index = Number(element.dataset.index);
-    element.textContent = formatWon(Number(groupOrders[index].price || 0));
-  });
+  document
+    .querySelectorAll(
+      ".group-food-total-value"
+    )
+    .forEach(element=>{
+      const index =
+        Number(
+          element.dataset.index
+        );
+
+      element.textContent =
+        formatWon(
+          Number(
+            groupOrders[index].price || 0
+          )
+        );
+    });
 }
 
-const groupViewerList = document.getElementById("groupViewerList");
+const groupViewerList =
+  document.getElementById(
+    "groupViewerList"
+  );
 
 function renderGroupViewer(){
-  const applyRate = groupRateToggle.checked;
-  const rate = applyRate ? 0.15 : 0;
+  const applyRate =
+    groupRateToggle.checked;
 
-  const groupDateDisplay = document.getElementById("groupDateDisplay");
+  const rate =
+    applyRate ? 0.15 : 0;
+
+  const groupDateDisplay =
+    document.getElementById(
+      "groupDateDisplay"
+    );
+
   let displayInfo = [];
-  if (currentGroupDate) displayInfo.push(`📅 날짜: ${currentGroupDate}`);
-  if (currentBoostCategory) displayInfo.push(`⚡ 부스트: ${currentBoostCategory}`);
-  groupDateDisplay.textContent = displayInfo.join(" | ");
 
-  const validOrders = groupOrders.filter(food => String(food.name || "").trim() && Number(food.price || 0) > 0);
+  if(currentGroupDate){
+    displayInfo.push(
+      `📅 날짜: ${currentGroupDate}`
+    );
+  }
+
+  if(currentBoostCategory){
+    displayInfo.push(
+      `⚡ 부스트: ${currentBoostCategory}`
+    );
+  }
+
+  groupDateDisplay.textContent =
+    displayInfo.join(" | ");
+
+  const validOrders =
+    groupOrders.filter(
+      food =>
+        String(food.name || "").trim() &&
+        Number(food.price || 0) > 0
+    );
+
   if(!validOrders.length){
-    groupViewerList.innerHTML = `<div class="empty">현재 등록된 요리 정보가 없습니다.</div>`;
+    groupViewerList.innerHTML =
+      `<div class="empty">
+        현재 등록된 요리 정보가 없습니다.
+      </div>`;
+
     return;
   }
 
-  groupViewerList.innerHTML = validOrders.map(food=>{
-    const base = Number(food.price);
-    const finalAmount = Math.round(base * (1 + rate));
-    const multStr = food.multiplier ? ` (x${food.multiplier})` : "";
+  groupViewerList.innerHTML =
+    validOrders.map(food=>{
+      const base =
+        Number(food.price);
 
-    return `
-      <div class="group-item">
-        <div>
-          <div class="group-item-name">${escapeHtml(food.name)}</div>
-          <div class="group-item-info">x1 ${formatWon(food.price)}${escapeHtml(multStr)}</div>
+      const finalAmount =
+        Math.round(
+          base * (1 + rate)
+        );
+
+      const multStr =
+        food.multiplier
+          ? ` (x${food.multiplier})`
+          : "";
+
+      return `
+        <div class="group-item">
+          <div>
+            <div class="group-item-name">
+              ${escapeHtml(food.name)}
+            </div>
+
+            <div class="group-item-info">
+              x1 ${formatWon(food.price)}
+              ${escapeHtml(multStr)}
+            </div>
+          </div>
+
+          <div class="group-price">
+            <div class="base">
+              기본 ${formatWon(base)}
+            </div>
+
+            <strong>
+              ${formatWon(finalAmount)}
+            </strong>
+          </div>
         </div>
-        <div class="group-price">
-          <div class="base">기본 ${formatWon(base)}</div>
-          <strong>${formatWon(finalAmount)}</strong>
-        </div>
-      </div>`;
-  }).join("");
+      `;
+    }).join("");
 }
 
-const saveGroupOrderBtn = document.getElementById("saveGroupOrderBtn");
-const adminStatus = document.getElementById("adminStatus");
+const saveGroupOrderBtn =
+  document.getElementById(
+    "saveGroupOrderBtn"
+  );
 
-saveGroupOrderBtn.addEventListener("click", async ()=>{
-  try{
-    saveGroupOrderBtn.disabled = true;
-    adminStatus.textContent = "저장 중...";
-    let dateValue = document.getElementById("groupOrderDate").value.trim();
-    if (!dateValue) {
-      dateValue = getFormattedToday();
-      document.getElementById("groupOrderDate").value = dateValue;
+const adminStatus =
+  document.getElementById(
+    "adminStatus"
+  );
+
+saveGroupOrderBtn.addEventListener(
+  "click",
+  async ()=>{
+    try{
+      saveGroupOrderBtn.disabled = true;
+
+      adminStatus.textContent =
+        "저장 중...";
+
+      let dateValue =
+        document
+          .getElementById(
+            "groupOrderDate"
+          )
+          .value
+          .trim();
+
+      if(!dateValue){
+        dateValue =
+          getFormattedToday();
+
+        document
+          .getElementById(
+            "groupOrderDate"
+          )
+          .value =
+          dateValue;
+      }
+
+      let boostValue =
+        document
+          .getElementById(
+            "boostCategory"
+          )
+          .value;
+
+      await setDoc(
+        groupOrderRef,
+        {
+          orders:groupOrders,
+          date:dateValue,
+          boost:boostValue,
+          updatedAt:Date.now()
+        }
+      );
+
+      adminStatus.textContent =
+        "✅ 정보가 저장되었습니다.";
+    }catch(error){
+      console.error(error);
+
+      adminStatus.textContent =
+        "❌ 저장 실패: " +
+        (error.message || error);
+    }finally{
+      saveGroupOrderBtn.disabled = false;
     }
-    let boostValue = document.getElementById("boostCategory").value;
-
-    await setDoc(groupOrderRef, { orders:groupOrders, date:dateValue, boost:boostValue, updatedAt:Date.now() });
-    adminStatus.textContent = "✅ 정보가 저장되었습니다.";
-  }catch(error){
-    console.error(error);
-    adminStatus.textContent = "❌ 저장 실패: " + (error.message || error);
-  }finally{
-    saveGroupOrderBtn.disabled = false;
   }
-});
+);
 
-const clearGroupOrderBtn = document.getElementById("clearGroupOrderBtn");
-clearGroupOrderBtn.addEventListener("click", async ()=>{
-  if(!confirm("등록된 정보를 모두 삭제할까요?")) return;
-  try{
-    clearGroupOrderBtn.disabled = true;
-    await deleteDoc(groupOrderRef);
-    groupOrders = createEmptyOrders();
-    currentGroupDate = "";
-    currentBoostCategory = "낚시";
-    document.getElementById("groupOrderDate").value = "";
-    document.getElementById("boostCategory").value = "낚시";
+const clearGroupOrderBtn =
+  document.getElementById(
+    "clearGroupOrderBtn"
+  );
+
+clearGroupOrderBtn.addEventListener(
+  "click",
+  async ()=>{
+    if(
+      !confirm(
+        "등록된 정보를 모두 삭제할까요?"
+      )
+    ){
+      return;
+    }
+
+    try{
+      clearGroupOrderBtn.disabled = true;
+
+      await deleteDoc(
+        groupOrderRef
+      );
+
+      groupOrders =
+        createEmptyOrders();
+
+      currentGroupDate = "";
+      currentBoostCategory = "낚시";
+
+      document
+        .getElementById(
+          "groupOrderDate"
+        )
+        .value = "";
+
+      document
+        .getElementById(
+          "boostCategory"
+        )
+        .value = "낚시";
+
+      renderGroupOrderEditor();
+      renderGroupViewer();
+      updateCalculation();
+
+      adminStatus.textContent =
+        "✅ 모든 정보가 삭제되었습니다.";
+    }catch(error){
+      console.error(error);
+
+      adminStatus.textContent =
+        "❌ 삭제 실패: " +
+        (error.message || error);
+    }finally{
+      clearGroupOrderBtn.disabled = false;
+    }
+  }
+);
+
+onSnapshot(
+  groupOrderRef,
+  snapshot=>{
+    if(snapshot.exists()){
+      const data =
+        snapshot.data();
+
+      if(Array.isArray(data.orders)){
+        groupOrders =
+          data.orders
+            .slice(0,5)
+            .map(food=>({
+              name:String(
+                food.name || ""
+              ),
+              price:Number(
+                food.price || 0
+              ),
+              multiplier:String(
+                food.multiplier || ""
+              )
+            }));
+      }
+
+      currentGroupDate =
+        data.date || "";
+
+      currentBoostCategory =
+        data.boost || "낚시";
+
+      document
+        .getElementById(
+          "groupOrderDate"
+        )
+        .value =
+        currentGroupDate;
+
+      document
+        .getElementById(
+          "boostCategory"
+        )
+        .value =
+        currentBoostCategory;
+    }else{
+      groupOrders =
+        createEmptyOrders();
+
+      currentGroupDate = "";
+      currentBoostCategory = "낚시";
+
+      document
+        .getElementById(
+          "groupOrderDate"
+        )
+        .value = "";
+
+      document
+        .getElementById(
+          "boostCategory"
+        )
+        .value = "낚시";
+    }
+
+    while(groupOrders.length < 5){
+      groupOrders.push({
+        name:"",
+        price:0,
+        multiplier:""
+      });
+    }
+
     renderGroupOrderEditor();
     renderGroupViewer();
     updateCalculation();
-    adminStatus.textContent = "✅ 모든 정보가 삭제되었습니다.";
-  }catch(error){
-    console.error(error);
-    adminStatus.textContent = "❌ 삭제 실패: " + (error.message || error);
-  }finally{
-    clearGroupOrderBtn.disabled = false;
-  }
-});
+  },
+  error=>{
+    console.error(
+      "Firestore 오류:",
+      error
+    );
 
-onSnapshot(groupOrderRef, snapshot=>{
-  if(snapshot.exists()){
-    const data = snapshot.data();
-    if(Array.isArray(data.orders)){
-      groupOrders = data.orders.slice(0, 5).map(food=>({
-        name: String(food.name || ""),
-        price: Number(food.price || 0),
-        multiplier: String(food.multiplier || "")
-      }));
+    adminStatus.textContent =
+      "⚠️ 정보를 불러오지 못했습니다.";
+  }
+);
+
+const loginBtn =
+  document.getElementById(
+    "loginBtn"
+  );
+
+const logoutBtn =
+  document.getElementById(
+    "logoutBtn"
+  );
+
+const loginSection =
+  document.getElementById(
+    "loginSection"
+  );
+
+const doLoginBtn =
+  document.getElementById(
+    "doLoginBtn"
+  );
+
+const loginStatus =
+  document.getElementById(
+    "loginStatus"
+  );
+
+const groupAdmin =
+  document.getElementById(
+    "groupAdmin"
+  );
+
+const sendGroupDiscordBtn =
+  document.getElementById(
+    "sendGroupDiscordBtn"
+  );
+
+loginBtn.addEventListener(
+  "click",
+  ()=>{
+    loginSection.classList.toggle(
+      "hidden"
+    );
+  }
+);
+
+logoutBtn.addEventListener(
+  "click",
+  async ()=>{
+    await signOut(auth);
+  }
+);
+
+doLoginBtn.addEventListener(
+  "click",
+  async ()=>{
+    const email =
+      document
+        .getElementById(
+          "emailInput"
+        )
+        .value
+        .trim();
+
+    const password =
+      document
+        .getElementById(
+          "passwordInput"
+        )
+        .value
+        .trim();
+
+    loginStatus.textContent =
+      "로그인 중...";
+
+    try{
+      await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      loginStatus.textContent = "";
+
+      loginSection.classList.add(
+        "hidden"
+      );
+    }catch(err){
+      loginStatus.textContent =
+        "❌ 로그인 실패: " +
+        (err.message || err);
     }
-    currentGroupDate = data.date || "";
-    currentBoostCategory = data.boost || "낚시";
-    document.getElementById("groupOrderDate").value = currentGroupDate;
-    document.getElementById("boostCategory").value = currentBoostCategory;
-  }else{
-    groupOrders = createEmptyOrders();
-    currentGroupDate = "";
-    currentBoostCategory = "낚시";
-    document.getElementById("groupOrderDate").value = "";
-    document.getElementById("boostCategory").value = "낚시";
   }
-  while(groupOrders.length < 5){
-    groupOrders.push({name:"", price:0, multiplier:""});
+);
+
+onAuthStateChanged(
+  auth,
+  user=>{
+    if(
+      user &&
+      user.uid === ADMIN_UID
+    ){
+      loginBtn.classList.add(
+        "hidden"
+      );
+
+      logoutBtn.classList.remove(
+        "hidden"
+      );
+
+      groupAdmin.classList.remove(
+        "hidden"
+      );
+
+      sendGroupDiscordBtn.classList.remove(
+        "hidden"
+      );
+    }else{
+      loginBtn.classList.remove(
+        "hidden"
+      );
+
+      logoutBtn.classList.add(
+        "hidden"
+      );
+
+      groupAdmin.classList.add(
+        "hidden"
+      );
+
+      sendGroupDiscordBtn.classList.add(
+        "hidden"
+      );
+    }
+
+    if(selected){
+      renderRecipe();
+    }
   }
-  renderGroupOrderEditor();
-  renderGroupViewer();
-  updateCalculation();
-}, error=>{
-  console.error("Firestore 오류:", error);
-  adminStatus.textContent = "⚠️ 정보를 불러오지 못했습니다.";
-});
-
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const loginSection = document.getElementById("loginSection");
-const doLoginBtn = document.getElementById("doLoginBtn");
-const loginStatus = document.getElementById("loginStatus");
-const groupAdmin = document.getElementById("groupAdmin");
-const sendGroupDiscordBtn = document.getElementById("sendGroupDiscordBtn");
-
-loginBtn.addEventListener("click", ()=>{
-  loginSection.classList.toggle("hidden");
-});
-
-logoutBtn.addEventListener("click", async ()=>{
-  await signOut(auth);
-});
-
-doLoginBtn.addEventListener("click", async ()=>{
-  const email = document.getElementById("emailInput").value.trim();
-  const password = document.getElementById("passwordInput").value.trim();
-  loginStatus.textContent = "로그인 중...";
-  try{
-    await signInWithEmailAndPassword(auth, email, password);
-    loginStatus.textContent = "";
-    loginSection.classList.add("hidden");
-  }catch(err){
-    loginStatus.textContent = "❌ 로그인 실패: " + (err.message || err);
-  }
-});
-
-onAuthStateChanged(auth, user=>{
-  if(user && user.uid === ADMIN_UID){
-    loginBtn.classList.add("hidden");
-    logoutBtn.classList.remove("hidden");
-    groupAdmin.classList.remove("hidden");
-    sendGroupDiscordBtn.classList.remove("hidden");
-  }else{
-    loginBtn.classList.remove("hidden");
-    logoutBtn.classList.add("hidden");
-    groupAdmin.classList.add("hidden");
-    sendGroupDiscordBtn.classList.add("hidden");
-  }
-  if(selected) renderRecipe();
-});
+);
 
 renderList();
 </script>
 </body>
 </html>
+```
