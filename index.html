@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -497,48 +496,15 @@ input[type="number"]{
   border-radius:14px;
   background:rgba(255,255,255,.035);
   border:1px solid var(--line);
-}
-
-.high-grade-sub-summary-item{
-  padding:8px 4px;
-  font-size:17px;
-  font-weight:bold;
-}
-
-/* 하위요리 각각의 재료 */
-.high-grade-sub-details{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-.high-grade-sub-card{
-  padding:16px;
-  border-radius:14px;
-  background:rgba(255,255,255,.045);
-  border:1px solid var(--line);
-}
-
-.high-grade-sub-name{
-  font-size:19px;
-  font-weight:bold;
-  margin-bottom:10px;
-  padding-bottom:9px;
-  border-bottom:1px solid var(--line);
-}
-
-.high-grade-sub-ingredients{
   display:flex;
   flex-direction:column;
   gap:6px;
 }
 
-.high-grade-sub-ingredient{
-  padding:8px 10px;
-  border-radius:8px;
-  background:rgba(255,255,255,.04);
-  color:#ececff;
-  font-size:16px;
+.high-grade-sub-summary-item{
+  padding:6px 4px;
+  font-size:17px;
+  font-weight:bold;
 }
 
 /* 총 재료 */
@@ -597,14 +563,6 @@ input[type="number"]{
 
   .high-grade-main-name{
     font-size:21px;
-  }
-
-  .high-grade-sub-card{
-    padding:13px;
-  }
-
-  .high-grade-sub-name{
-    font-size:18px;
   }
 }
 </style>
@@ -1563,75 +1521,6 @@ function createIngredientRow(name,need){
 
 
 /* ================================
-   일반 재료 그룹
-   ================================ */
-
-function createGroupedIngredientRows(ingredients){
-
-  const groups = {
-    1:[],
-    2:[],
-    3:[]
-  };
-
-  Object.entries(ingredients)
-    .forEach(([name,need])=>{
-
-      const category =
-        getIngredientCategory(name);
-
-      groups[category].push([
-        name,
-        need
-      ]);
-
-    });
-
-
-  let html = "";
-
-
-  for(
-    let category = 1;
-    category <= 3;
-    category++
-  ){
-
-    if(!groups[category].length)
-      continue;
-
-
-    groups[category].sort(
-      ([a],[b]) =>
-        a.localeCompare(b,"ko")
-    );
-
-
-    html += `
-      <tr class="category-row">
-        <td colspan="5">
-          ${getCategoryName(category)}
-        </td>
-      </tr>
-    `;
-
-
-    groups[category].forEach(
-      ([name,need])=>{
-        html += createIngredientRow(
-          name,
-          need
-        );
-      }
-    );
-  }
-
-
-  return html;
-}
-
-
-/* ================================
    레시피 목록
    ================================ */
 
@@ -1737,82 +1626,6 @@ function displayIngredientName(name){
     return "치킨 스톡";
 
   return name;
-}
-
-
-/* =====================================================
-   ★ 핵심 변경 부분 ★
-
-   전설 / 신화 하위요리
-
-   하위요리 이름 + 수량만 먼저 표시하고
-
-   각각의 하위요리 아래에
-   해당 하위요리의 재료를 표시한다.
-
-   가격은 여기서 전혀 표시하지 않는다.
-   ===================================================== */
-
-function getHighGradeSubInfo(
-  recipeName,
-  subName
-){
-
-  return {
-    ingredients:
-      all[subName] || {}
-  };
-}
-
-
-function createHighGradeSubCard(
-  mainRecipe,
-  subName,
-  amount
-){
-
-  const info =
-    getHighGradeSubInfo(
-      mainRecipe,
-      subName
-    );
-
-  const ingredients =
-    info.ingredients;
-
-
-  const ingredientHtml =
-    Object.entries(ingredients)
-      .map(
-        ([name,need])=>{
-
-          return `
-            <div class="high-grade-sub-ingredient">
-              ${escapeHtml(name)}
-              ${formatNumber(
-                need * amount
-              )}개
-            </div>
-          `;
-        }
-      )
-      .join("");
-
-
-  return `
-    <div class="high-grade-sub-card">
-
-      <div class="high-grade-sub-name">
-        ${escapeHtml(subName)}
-        ${formatNumber(amount)}개
-      </div>
-
-      <div class="high-grade-sub-ingredients">
-        ${ingredientHtml}
-      </div>
-
-    </div>
-  `;
 }
 
 
@@ -1944,9 +1757,7 @@ function createHighGradeMaterialTable(
 
                         </td>
 
-                      </tr>
-                    `;
-
+                      </tr>`;
                   })
                   .join("")
               }
@@ -1960,7 +1771,6 @@ function createHighGradeMaterialTable(
       </div>
     `;
   });
-
 
   return html;
 }
@@ -2013,34 +1823,15 @@ function renderRecipe(){
 
   if(isHighGrade){
 
-    /* 하위요리 목록 */
+    /* 하위요리 목록 (요청하신 형식) */
     const subSummary =
       Object.entries(sub)
         .map(
           ([name,amount])=>`
-
             <div class="high-grade-sub-summary-item">
-
-              ${escapeHtml(name)}
-              ${formatNumber(amount)}개
-
+              ${escapeHtml(name)} ${formatNumber(amount)}개
             </div>
-
           `
-        )
-        .join("");
-
-
-    /* 각 하위요리별 재료 */
-    const subCards =
-      Object.entries(sub)
-        .map(
-          ([name,amount])=>
-            createHighGradeSubCard(
-              selected,
-              name,
-              amount
-            )
         )
         .join("");
 
@@ -2089,21 +1880,7 @@ function renderRecipe(){
         </div>
 
 
-        <!--
-          ★ 여기에서 각 하위요리를
-          각각 따로 보여준다.
-
-          가격은 표시하지 않는다.
-        -->
-
-        <div class="high-grade-sub-details">
-
-          ${subCards}
-
-        </div>
-
-
-        <!-- 총 재료량 -->
+        <!-- 총 재료양 -->
 
         <div class="high-grade-total-section">
 
@@ -3536,4 +3313,3 @@ renderList();
 </script>
 </body>
 </html>
-```
