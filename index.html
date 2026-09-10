@@ -30,7 +30,7 @@ body{
     linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
 body:before{
-  content:"✦ · ✧        ·        ✦        · ✧      ·        ✦        · ✧";
+  content:"✦ · ✧        ·        ✦        · ✧     ·       ✦        · ✧";
   position:fixed;
   left:0;
   top:0;
@@ -45,7 +45,7 @@ body:before{
   z-index:0;
 }
 body:after{
-  content:"✧ · ✦        ·        ✧        · ✦        · ✧      ·        ✦";
+  content:"✧ · ✦        ·        ✧        · ✦        · ✧     ·       ✦";
   position:fixed;
   right:0;
   top:0;
@@ -1218,6 +1218,12 @@ async function sendSingleRecipeToDiscord(){
 
   if(!selected) return;
 
+  // 신화 또는 전설 등급일 때만 전송 허용 제어
+  if(selectedGrade !== "전설" && selectedGrade !== "신화"){
+    alert("전설 및 신화 등급 요리만 디스코드로 전송할 수 있습니다.");
+    return;
+  }
+
   const message =
     `🌌 **[요리 수량 정보]**\n` +
     `🍳 **요리명:** [${selectedGrade}] ${selected}\n` +
@@ -1272,16 +1278,13 @@ async function sendGroupOrderToDiscord(){
 
     let lines = [`${foodName}`];
 
-    // 전설/신화 요리인 경우
     if(recipes["전설"][foodName] || recipes["신화"][foodName]){
       const sub = recipes["전설"][foodName] || recipes["신화"][foodName];
       
-      // 하위 요리 목록 추가
       for(const [subName, amount] of Object.entries(sub)){
         lines.push(`${subName} ${amount}개`);
       }
 
-      // 총 재료를 카테고리별로 분류
       const rawMaterialsMap = {};
       for(const [subName, subAmount] of Object.entries(sub)){
         const subExpanded = expandRecipe(subName, subAmount);
@@ -1306,7 +1309,6 @@ async function sendGroupOrderToDiscord(){
       });
 
     } else if(all[foodName]) {
-      // 일반/영웅 요리인 경우
       const mats = expandRecipe(foodName, 1);
       const groups = { 1: [], 3: [], 2: [] };
       Object.entries(mats).forEach(([name, need])=>{
@@ -1620,7 +1622,7 @@ function renderRecipe(){
   const normalRows =
     !isHighGrade
       ? Object.entries(ingredients)
-          .map(([name, need]) => createIngredientRow(name, need))
+          .map(([name,need])=>createIngredientRow(name,need))
           .join("")
       : "";
 
@@ -1630,67 +1632,49 @@ function renderRecipe(){
         [${escapeHtml(selectedGrade)}] ${escapeHtml(selected)}
       </div>
       ${
-        isAdmin
+        isAdmin && (selectedGrade === "전설" || selectedGrade === "신화")
         ? `<button class="btn btn-discord" id="sendRecipeDiscordBtn">📢 디스코드로 이 요리 전송</button>`
         : ""
       }
     </div>
 
     <div class="result">
-      <span>🍲 만들 수 있는 요리</span>
-      <strong id="result">0개</strong>
-      <div class="note">가장 부족한 재료를 기준으로 자동 계산됩니다.</div>
-      <div id="groupRecipePrice" class="note" style="margin-top:10px;"></div>
+      제작 가능 수량
+      <strong id="possibleCount">0개</strong>
     </div>
 
-    ${highGradeHtml}
-
     ${
-      !isHighGrade
-      ? `
-        <div style="overflow:auto">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>재료</th>
-                <th>요리 1개 필요량</th>
-                <th>보유량</th>
-                <th>세트</th>
-                <th>낱개</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${normalRows}
-            </tbody>
-          </table>
-        </div>
-      `
-      : ""
+      isHighGrade
+        ? highGradeHtml
+        : `
+          <div class="section-title">📦 필요 재료</div>
+          <div style="overflow:auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>재료</th>
+                  <th>필요량</th>
+                  <th>보유량</th>
+                  <th>세트</th>
+                  <th>낱개</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${normalRows}
+              </tbody>
+            </table>
+          </div>
+        `
     }
   `;
 
-  document
-    .querySelectorAll(".set-input,.piece-input")
-    .forEach(el=>{
-      el.addEventListener("input", updateCalculation);
-      el.addEventListener("keydown", handleTab);
-
-      el.addEventListener("focus", ()=>{
-        if(el.value === "0") el.value = "";
-      });
-
-      el.addEventListener("blur", ()=>{
-        if(el.value === "") el.value = "0";
-        updateCalculation();
-      });
-    });
-
   const sendBtn = document.getElementById("sendRecipeDiscordBtn");
   if(sendBtn){
-    sendBtn.addEventListener("click", sendSingleRecipeToDiscord);
+    sendBtn.onclick = sendSingleRecipeToDiscord;
   }
 
-  updateCalculation();
+  bindInputs();
+  calculate();
 }
 
 
@@ -1698,444 +1682,241 @@ function renderRecipe(){
    계산 로직
    ================================ */
 
-function updateCalculation(){
+function calculate(){
   if(!selected) return;
 
-  const isHighGrade = selectedGrade === "전설" || selectedGrade === "신화";
-  
-  let req = {};
-  if(isHighGrade){
-    const sub = all[selected];
-    for(const [subName, subAmount] of Object.entries(sub)){
-      const subExpanded = expandRecipe(subName, subAmount);
-      for(const [matName, matNeed] of Object.entries(subExpanded)){
-        req[matName] = (req[matName] || 0) + matNeed;
+  const isHighGrade =
+    selectedGrade === "전설" ||
+    selectedGrade === "신화";
+
+  const ingredients =
+    isHighGrade
+      ? expandRecipe(selected)
+      : all[selected];
+
+  let minCount = Infinity;
+
+  for(const [name, need] of Object.entries(ingredients)){
+    const saved = ownedMaterials[name] || { sets:0, pieces:0 };
+    const totalOwned =
+      Number(saved.sets || 0) * STACK +
+      Number(saved.pieces || 0);
+
+    const possible = Math.floor(totalOwned / need);
+    if(possible < minCount){
+      minCount = possible;
+    }
+
+    const ownedEl = document.getElementById(`owned-${cssId(name)}`);
+    if(ownedEl){
+      ownedEl.innerText = formatStack(totalOwned);
+    }
+  }
+
+  if(minCount === Infinity){
+    minCount = 0;
+  }
+
+  currentPossibleCount = minCount;
+
+  const countEl = document.getElementById("possibleCount");
+  if(countEl){
+    countEl.innerText = formatStack(minCount);
+  }
+}
+
+
+function bindInputs(){
+  document.querySelectorAll(".set-input, .piece-input").forEach(input=>{
+    input.oninput = (e)=>{
+      const name = e.target.dataset.name;
+      const tr = e.target.closest("tr");
+      if(!tr) return;
+
+      const setInput = tr.querySelector(".set-input");
+      const pieceInput = tr.querySelector(".piece-input");
+
+      const sets = Math.max(0, parseInt(setInput?.value || 0));
+      const pieces = Math.max(0, parseInt(pieceInput?.value || 0));
+
+      if(!ownedMaterials[name]){
+        ownedMaterials[name] = {};
       }
-    }
-  } else {
-    req = all[selected];
-  }
 
-  let possible = Infinity;
+      ownedMaterials[name].sets = sets;
+      ownedMaterials[name].pieces = pieces;
 
-  const setInputs = document.querySelectorAll(".set-input");
-  const pieceInputs = document.querySelectorAll(".piece-input");
-
-  for(const [name, need] of Object.entries(req)){
-    let setInput = null;
-    let pieceInput = null;
-
-    setInputs.forEach(input=>{
-      if(input.dataset.name === name) setInput = input;
-    });
-
-    pieceInputs.forEach(input=>{
-      if(input.dataset.name === name) pieceInput = input;
-    });
-
-    if(!setInput || !pieceInput) continue;
-
-    const sets = Math.max(0, Math.floor(Number(setInput.value) || 0));
-    const pieces = Math.max(0, Math.floor(Number(pieceInput.value) || 0));
-
-    ownedMaterials[name] = { sets: sets, pieces: pieces };
-
-    const owned = sets * STACK + pieces;
-    possible = Math.min(possible, Math.floor(owned / need));
-
-    const cell = document.getElementById("owned-" + cssId(name));
-    if(cell){
-      cell.textContent = formatStack(owned);
-    }
-  }
-
-  saveOwnedMaterials();
-
-  if(possible === Infinity){
-    possible = 0;
-  }
-
-  currentPossibleCount = possible;
-
-  const result = document.getElementById("result");
-  if(result){
-    result.textContent = formatStack(possible);
-  }
-
-  const groupRecipePrice = document.getElementById("groupRecipePrice");
-  if(groupRecipePrice){
-    const matchedOrder = groupOrders.find(
-      food =>
-        String(food.name || "").trim() === String(selected || "").trim() &&
-        Number(food.price || 0) > 0
-    );
-
-    if(matchedOrder){
-      const basePrice = Number(matchedOrder.price || 0);
-      const unitPrice = groupRateToggle.checked ? Math.round(basePrice * 1.15) : basePrice;
-      const totalPrice = possible * unitPrice;
-      const multStr = matchedOrder.multiplier ? ` (x${matchedOrder.multiplier})` : "";
-
-      groupRecipePrice.textContent =
-        `💰 적용 금액: ${formatWon(unitPrice)}${multStr} × ${formatNumber(possible)}개 = ${formatWon(totalPrice)}`;
-    }else{
-      groupRecipePrice.textContent = "💰 등록된 가격 정보 없음";
-    }
-  }
+      saveOwnedMaterials();
+      calculate();
+    };
+  });
 }
 
 
 /* ================================
-   TAB 이동
+   단체주문 관리 (관리자 UI용 데이터 구조)
    ================================ */
 
-function handleTab(e){
-  if(e.key !== "Tab") return;
-
-  const inputs = [...document.querySelectorAll(".set-input,.piece-input")];
-  const index = inputs.indexOf(e.target);
-  if(index < 0) return;
-
-  e.preventDefault();
-
-  const next = e.shiftKey
-    ? inputs[Math.max(0, index - 1)]
-    : inputs[Math.min(inputs.length - 1, index + 1)];
-
-  next.focus();
-  next.select();
-}
-
-
-/* ================================
-   검색 입력 이벤트
-   ================================ */
-
-const searchInput = document.getElementById("search");
-
-searchInput.addEventListener("input", renderList);
-searchInput.addEventListener("keydown", e=>{
-  if(e.key === "Enter"){
-    const first = document.querySelector(".recipe-btn");
-    if(first) first.click();
-  }
-});
-
-
-/* ================================
-   단체주문 관리
-   ================================ */
-
-function createEmptyOrders(){
-  return Array.from({length:5}, ()=>({
-    name:"",
-    price:0,
-    multiplier:""
-  }));
-}
-
-let groupOrders = createEmptyOrders();
+let groupOrders = [];
 let currentGroupDate = "";
 let currentBoostCategory = "낚시";
 
-const groupRateToggle = document.getElementById("groupRateToggle");
-const savedRate = localStorage.getItem(RATE_STORAGE_KEY);
-groupRateToggle.checked = savedRate === "true";
 
-groupRateToggle.addEventListener("change", ()=>{
-  localStorage.setItem(RATE_STORAGE_KEY, String(groupRateToggle.checked));
-  renderGroupViewer();
-  updateCalculation();
-});
+function renderGroupViewer(orders){
+  const viewerList = document.getElementById("groupViewerList");
+  viewerList.innerHTML = "";
 
-document.getElementById("sendGroupDiscordBtn").addEventListener("click", sendGroupOrderToDiscord);
+  const isRateChecked =
+    document.getElementById("groupRateToggle")?.checked || false;
 
+  orders.forEach((food, index)=>{
+    const foodName = food.name || "";
+    const basePrice = Number(food.price || 0);
+    const multiplier = food.multiplier || "";
 
-/* ================================
-   관리자 주문 에디터
-   ================================ */
+    if(!foodName && basePrice === 0) return;
 
-const groupOrderGrid = document.getElementById("groupOrderGrid");
+    let finalPrice = basePrice;
+    if(isRateChecked){
+      finalPrice = basePrice * 1.15;
+    }
 
-function renderGroupOrderEditor(){
-  groupOrderGrid.innerHTML = groupOrders
-    .map((food, index)=>`
-      <div class="admin-food">
-        <div class="admin-food-title">🍳 요리 ${index + 1}</div>
-        <div class="field">
-          <label>요리 이름</label>
-          <input
-            type="text"
-            class="group-food-name"
-            data-index="${index}"
-            value="${escapeHtml(food.name || "")}"
-            placeholder="요리 이름"
-          >
-        </div>
-        <div class="field">
-          <label>요리 1개 가격 (단체주문/협동)</label>
-          <input
-            type="number"
-            class="group-food-price"
-            data-index="${index}"
-            min="0"
-            value="${Number(food.price || 0)}"
-          >
-        </div>
-        <div class="field">
-          <label>배수 (예: 1.5배, 2배)</label>
-          <input
-            type="text"
-            class="group-food-multiplier"
-            data-index="${index}"
-            value="${escapeHtml(food.multiplier || "")}"
-            placeholder="예: 2배"
-          >
-        </div>
-        <div class="admin-total">
-          기본 금액
-          <strong class="group-food-total-value" data-index="${index}">
-            ${formatWon(Number(food.price || 0))}
-          </strong>
+    const div = document.createElement("div");
+    div.className = "group-item";
+
+    div.innerHTML = `
+      <div>
+        <div class="group-item-name">${index + 1}. ${escapeHtml(foodName)}</div>
+        <div class="group-item-info">
+          ${multiplier ? `배율: ${escapeHtml(multiplier)}` : "기본 주문"}
         </div>
       </div>
-    `)
-    .join("");
+      <div class="group-price">
+        <span class="base">기본: ${formatWon(basePrice)}</span>
+        <strong>${formatWon(finalPrice)}</strong>
+      </div>
+    `;
 
-  document.querySelectorAll(".group-food-name").forEach(input=>{
-    input.addEventListener("input", e=>{
-      const index = Number(e.target.dataset.index);
-      groupOrders[index].name = e.target.value;
-    });
-  });
-
-  document.querySelectorAll(".group-food-price").forEach(input=>{
-    input.addEventListener("input", e=>{
-      const index = Number(e.target.dataset.index);
-      groupOrders[index].price = Math.max(0, Number(e.target.value || 0));
-      updateGroupEditorTotals();
-    });
-
-    input.addEventListener("focus", ()=>{
-      if(input.value === "0") input.value = "";
-    });
-
-    input.addEventListener("blur", ()=>{
-      if(input.value === "") input.value = "0";
-    });
-  });
-
-  document.querySelectorAll(".group-food-multiplier").forEach(input=>{
-    input.addEventListener("input", e=>{
-      const index = Number(e.target.dataset.index);
-      groupOrders[index].multiplier = e.target.value;
-    });
+    viewerList.appendChild(div);
   });
 }
 
-function updateGroupEditorTotals(){
-  document.querySelectorAll(".group-food-total-value").forEach(element=>{
-    const index = Number(element.dataset.index);
-    element.textContent = formatWon(Number(groupOrders[index].price || 0));
-  });
+
+function renderGroupAdminGrid(orders){
+  const grid = document.getElementById("groupOrderGrid");
+  grid.innerHTML = "";
+
+  for(let i=0; i<5; i++){
+    const food = orders[i] || { name:"", price:"", multiplier:"" };
+
+    const div = document.createElement("div");
+    div.className = "admin-food";
+
+    div.innerHTML = `
+      <div class="admin-food-title">요리 #${i + 1}</div>
+      <div class="field">
+        <label>요리 이름</label>
+        <input type="text" class="admin-name" data-index="${i}" value="${escapeHtml(food.name || "")}">
+      </div>
+      <div class="field">
+        <label>기준 가격 (크론)</label>
+        <input type="number" class="admin-price" data-index="${i}" value="${food.price !== undefined ? food.price : ""}">
+      </div>
+      <div class="field">
+        <label>배율 표시 (예: x2)</label>
+        <input type="text" class="admin-multiplier" data-index="${i}" value="${escapeHtml(food.multiplier || "")}">
+      </div>
+    `;
+
+    grid.appendChild(div);
+  }
 }
 
 
 /* ================================
-   단체주문 뷰어
+   Firebase 실시간 동기화
    ================================ */
 
-const groupViewerList = document.getElementById("groupViewerList");
+onSnapshot(groupOrderRef, (docSnap)=>{
+  if(docSnap.exists()){
+    const data = docSnap.data();
+    groupOrders = data.orders || [];
+    currentGroupDate = data.date || getFormattedToday();
+    currentBoostCategory = data.boost || "낚시";
 
-function renderGroupViewer(){
-  const applyRate = groupRateToggle.checked;
-  const rate = applyRate ? 0.15 : 0;
-  const groupDateDisplay = document.getElementById("groupDateDisplay");
+    document.getElementById("groupDateDisplay").innerText =
+      `${currentGroupDate} · 부스트: ${currentBoostCategory} (3배)`;
 
-  let displayInfo = [];
-  if(currentGroupDate) displayInfo.push(`📅 날짜: ${currentGroupDate}`);
-  if(currentBoostCategory) displayInfo.push(`⚡ 부스트: ${currentBoostCategory}`);
-  groupDateDisplay.textContent = displayInfo.join(" | ");
-
-  const validOrders = groupOrders.filter(
-    food => String(food.name || "").trim() && Number(food.price || 0) > 0
-  );
-
-  if(!validOrders.length){
-    groupViewerList.innerHTML = `<div class="empty">현재 등록된 요리 정보가 없습니다.</div>`;
-    return;
-  }
-
-  groupViewerList.innerHTML = validOrders
-    .map(food=>{
-      const base = Number(food.price);
-      const finalAmount = Math.round(base * (1 + rate));
-      const multStr = food.multiplier ? ` (x${food.multiplier})` : "";
-
-      return `
-        <div class="group-item">
-          <div>
-            <div class="group-item-name">${escapeHtml(food.name)}</div>
-            <div class="group-item-info">x1 ${formatWon(food.price)}${escapeHtml(multStr)}</div>
-          </div>
-          <div class="group-price">
-            <div class="base">기본 ${formatWon(base)}</div>
-            <strong>${formatWon(finalAmount)}</strong>
-          </div>
-        </div>
-      `;
-    })
-    .join("");
-}
-
-
-/* ================================
-   주문 저장 및 삭제
-   ================================ */
-
-const saveGroupOrderBtn = document.getElementById("saveGroupOrderBtn");
-const adminStatus = document.getElementById("adminStatus");
-
-saveGroupOrderBtn.addEventListener("click", async ()=>{
-  try{
-    saveGroupOrderBtn.disabled = true;
-    adminStatus.textContent = "저장 중...";
-
-    let dateValue = document.getElementById("groupOrderDate").value.trim();
-    if(!dateValue){
-      dateValue = getFormattedToday();
-      document.getElementById("groupOrderDate").value = dateValue;
-    }
-
-    let boostValue = document.getElementById("boostCategory").value;
-
-    await setDoc(groupOrderRef, {
-      orders: groupOrders,
-      date: dateValue,
-      boost: boostValue,
-      updatedAt: Date.now()
-    });
-
-    adminStatus.textContent = "✅ 정보가 저장되었습니다.";
-  }catch(error){
-    console.error(error);
-    adminStatus.textContent = "❌ 저장 실패: " + (error.message || error);
-  }finally{
-    saveGroupOrderBtn.disabled = false;
-  }
-});
-
-const clearGroupOrderBtn = document.getElementById("clearGroupOrderBtn");
-
-clearGroupOrderBtn.addEventListener("click", async ()=>{
-  if(!confirm("등록된 정보를 모두 삭제할까요?")) return;
-
-  try{
-    clearGroupOrderBtn.disabled = true;
-    await deleteDoc(groupOrderRef);
-
-    groupOrders = createEmptyOrders();
-    currentGroupDate = "";
+    document.getElementById("groupOrderDate").value = currentGroupDate;
+    document.getElementById("boostCategory").value = currentBoostCategory;
+  }else{
+    groupOrders = [];
+    currentGroupDate = getFormattedToday();
     currentBoostCategory = "낚시";
-
-    document.getElementById("groupOrderDate").value = "";
-    document.getElementById("boostCategory").value = "낚시";
-
-    renderGroupOrderEditor();
-    renderGroupViewer();
-    updateCalculation();
-
-    adminStatus.textContent = "✅ 모든 정보가 삭제되었습니다.";
-  }catch(error){
-    console.error(error);
-    adminStatus.textContent = "❌ 삭제 실패: " + (error.message || error);
-  }finally{
-    clearGroupOrderBtn.disabled = false;
+    document.getElementById("groupDateDisplay").innerText = "";
   }
+
+  renderGroupViewer(groupOrders);
+  renderGroupAdminGrid(groupOrders);
 });
 
 
 /* ================================
-   Firestore 실시간 동기화
+   이벤트 바인딩 및 인증 관리
    ================================ */
 
-onSnapshot(
-  groupOrderRef,
-  snapshot=>{
-    if(snapshot.exists()){
-      const data = snapshot.data();
-      if(Array.isArray(data.orders)){
-        groupOrders = data.orders.slice(0, 5).map(food=>({
-          name: String(food.name || ""),
-          price: Number(food.price || 0),
-          multiplier: String(food.multiplier || "")
-        }));
-      }
-      currentGroupDate = data.date || "";
-      currentBoostCategory = data.boost || "낚시";
+document.getElementById("search").oninput = renderList;
 
-      document.getElementById("groupOrderDate").value = currentGroupDate;
-      document.getElementById("boostCategory").value = currentBoostCategory;
-    }else{
-      groupOrders = createEmptyOrders();
-      currentGroupDate = "";
-      currentBoostCategory = "낚시";
-      document.getElementById("groupOrderDate").value = "";
-      document.getElementById("boostCategory").value = "낚시";
-    }
+document.getElementById("groupRateToggle").onchange = (e)=>{
+  localStorage.setItem(RATE_STORAGE_KEY, e.target.checked);
+  renderGroupViewer(groupOrders);
+};
 
-    while(groupOrders.length < 5){
-      groupOrders.push({ name:"", price:0, multiplier:"" });
-    }
-
-    renderGroupOrderEditor();
-    renderGroupViewer();
-    updateCalculation();
-  },
-  error=>{
-    console.error("Firestore 오류:", error);
-    adminStatus.textContent = "⚠️ 정보를 불러오지 못했습니다.";
-  }
-);
+// 저장된 15% 토글 상태 복원
+const savedRate = localStorage.getItem(RATE_STORAGE_KEY) === "true";
+document.getElementById("groupRateToggle").checked = savedRate;
 
 
-/* ================================
-   관리자 인증 처리
-   ================================ */
-
+// 관리자 로그인/로그아웃 UI 제어
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const loginSection = document.getElementById("loginSection");
-const doLoginBtn = document.getElementById("doLoginBtn");
-const loginStatus = document.getElementById("loginStatus");
 const groupAdmin = document.getElementById("groupAdmin");
 const sendGroupDiscordBtn = document.getElementById("sendGroupDiscordBtn");
 
-loginBtn.addEventListener("click", ()=>{
+loginBtn.onclick = ()=>{
   loginSection.classList.toggle("hidden");
-});
+};
 
-logoutBtn.addEventListener("click", async ()=>{
+logoutBtn.onclick = async ()=>{
   await signOut(auth);
-});
+};
 
-doLoginBtn.addEventListener("click", async ()=>{
+document.getElementById("doLoginBtn").onclick = async ()=>{
   const email = document.getElementById("emailInput").value.trim();
-  const password = document.getElementById("passwordInput").value.trim();
+  const password = document.getElementById("passwordInput").value;
+  const status = document.getElementById("loginStatus");
 
-  loginStatus.textContent = "로그인 중...";
+  if(!email || !password){
+    status.innerText = "이메일과 비밀번호를 입력해주세요.";
+    return;
+  }
 
   try{
+    status.innerText = "로그인 중...";
     await signInWithEmailAndPassword(auth, email, password);
-    loginStatus.textContent = "";
+    status.innerText = "로그인 성공!";
     loginSection.classList.add("hidden");
   }catch(err){
-    loginStatus.textContent = "❌ 로그인 실패: " + (err.message || err);
+    status.innerText = "로그인 실패: " + err.message;
   }
-});
+};
 
-onAuthStateChanged(auth, user=>{
-  if(user && user.uid === ADMIN_UID){
+
+onAuthStateChanged(auth, (user)=>{
+  const isAdmin = user && user.uid === ADMIN_UID;
+
+  if(isAdmin){
     loginBtn.classList.add("hidden");
     logoutBtn.classList.remove("hidden");
     groupAdmin.classList.remove("hidden");
@@ -2145,6 +1926,7 @@ onAuthStateChanged(auth, user=>{
     logoutBtn.classList.add("hidden");
     groupAdmin.classList.add("hidden");
     sendGroupDiscordBtn.classList.add("hidden");
+    loginSection.classList.add("hidden");
   }
 
   if(selected){
@@ -2153,10 +1935,71 @@ onAuthStateChanged(auth, user=>{
 });
 
 
-/* ================================
-   초기 실행
-   ================================ */
+// 관리자 정보 저장 버튼
+document.getElementById("saveGroupOrderBtn").onclick = async ()=>{
+  const grid = document.getElementById("groupOrderGrid");
+  const items = grid.querySelectorAll(".admin-food");
+  const newOrders = [];
 
+  items.forEach((item, index)=>{
+    const name = item.querySelector(".admin-name").value.trim();
+    const price = Number(item.querySelector(".admin-price").value || 0);
+    const multiplier = item.querySelector(".admin-multiplier").value.trim();
+
+    newOrders[index] = { name, price, multiplier };
+  });
+
+  const dateVal =
+    document.getElementById("groupOrderDate").value.trim() ||
+    getFormattedToday();
+
+  const boostVal = document.getElementById("boostCategory").value;
+
+  try{
+    await setDoc(
+      groupOrderRef,
+      {
+        orders: newOrders,
+        date: dateVal,
+        boost: boostVal,
+        updatedAt: Date.now()
+      },
+      { merge: true }
+    );
+    document.getElementById("adminStatus").innerText = "저장되었습니다.";
+  }catch(err){
+    document.getElementById("adminStatus").innerText = "저장 실패: " + err.message;
+  }
+};
+
+
+// 전체 삭제 버튼
+document.getElementById("clearGroupOrderBtn").onclick = async ()=>{
+  if(!confirm("정말 전체 삭제하시겠습니까?")) return;
+
+  try{
+    await setDoc(
+      groupOrderRef,
+      {
+        orders: [],
+        date: getFormattedToday(),
+        boost: "낚시",
+        updatedAt: Date.now()
+      },
+      { merge: true }
+    );
+    document.getElementById("adminStatus").innerText = "삭제되었습니다.";
+  }catch(err){
+    document.getElementById("adminStatus").innerText = "삭제 실패: " + err.message;
+  }
+};
+
+
+// 단체 주문 디스코드 전송 버튼
+sendGroupDiscordBtn.onclick = sendGroupOrderToDiscord;
+
+
+// 초기 목록 렌더링
 renderList();
 
 </script>
