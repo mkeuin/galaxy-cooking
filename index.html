@@ -1270,34 +1270,62 @@ async function sendGroupOrderToDiscord(){
     const basePrice = Math.round(Number(food.price));
     const multiplierText = food.multiplier ? ` (x${food.multiplier.trim()})` : "";
 
-    let detailsList = [];
+    let lines = [`${foodName}`];
 
-    // 전설/신화 요리인 경우 하위 요리 구성 포함
+    // 전설/신화 요리인 경우
     if(recipes["전설"][foodName] || recipes["신화"][foodName]){
       const sub = recipes["전설"][foodName] || recipes["신화"][foodName];
+      
+      // 하위 요리 목록 추가
       for(const [subName, amount] of Object.entries(sub)){
-        const subIngs = all[subName] || {};
-        let subDetails = [];
-        for(const [matName, matNeed] of Object.entries(subIngs)){
-          let prefix = matName.includes("피쉬") ? "[A]" : "";
-          subDetails.push(`${prefix}${matName} ${matNeed * amount}개`);
-        }
-        detailsList.push(`• ${subName}(40초 3200크론): ${subDetails.join(", ")}`);
+        lines.push(`${subName} ${amount}개`);
       }
+
+      // 총 재료를 카테고리별로 분류
+      const rawMaterialsMap = {};
+      for(const [subName, subAmount] of Object.entries(sub)){
+        const subExpanded = expandRecipe(subName, subAmount);
+        for(const [matName, matNeed] of Object.entries(subExpanded)){
+          rawMaterialsMap[matName] = (rawMaterialsMap[matName] || 0) + matNeed;
+        }
+      }
+
+      const groups = { 1: [], 3: [], 2: [] };
+      Object.entries(rawMaterialsMap).forEach(([name, need])=>{
+        groups[getIngredientCategory(name)].push([name, need]);
+      });
+
+      [1, 3, 2].forEach(category=>{
+        if(!groups[category].length) return;
+        groups[category].sort(([a], [b])=> a.localeCompare(b, "ko"));
+
+        lines.push(getCategoryName(category));
+        groups[category].forEach(([name, need])=>{
+          lines.push(`${name} ${need}개`);
+        });
+      });
+
     } else if(all[foodName]) {
       // 일반/영웅 요리인 경우
       const mats = expandRecipe(foodName, 1);
-      let subDetails = [];
-      for(const [matName, count] of Object.entries(mats)){
-        subDetails.push(`${matName} ${count}개`);
-      }
-      detailsList.push(subDetails.join(", "));
+      const groups = { 1: [], 3: [], 2: [] };
+      Object.entries(mats).forEach(([name, need])=>{
+        groups[getIngredientCategory(name)].push([name, need]);
+      });
+
+      [1, 3, 2].forEach(category=>{
+        if(!groups[category].length) return;
+        groups[category].sort(([a], [b])=> a.localeCompare(b, "ko"));
+
+        lines.push(getCategoryName(category));
+        groups[category].forEach(([name, need])=>{
+          lines.push(`${name} ${need}개`);
+        });
+      });
     }
 
-    const matText = detailsList.length > 0 ? detailsList.join("\n") : "재료 정보 없음";
-
     messageLines.push(
-      `# ${foodName} : ${formatWon(basePrice)}${multiplierText}\n${matText}\n`
+      lines.join("\n") + `\n\n가격: ${formatWon(basePrice)}${multiplierText}\n--------------------------------------------------`
     );
   });
 
