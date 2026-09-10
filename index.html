@@ -1270,19 +1270,31 @@ async function sendGroupOrderToDiscord(){
     const basePrice = Math.round(Number(food.price));
     const multiplierText = food.multiplier ? ` (x${food.multiplier.trim()})` : "";
 
-    let ingredientsList = [];
+    let detailsList = [];
 
-    if(all[foodName]){
-      const mats = expandRecipe(foodName, 1);
-      for(const [matName, count] of Object.entries(mats)){
-        ingredientsList.push(`${matName} ${count}개`);
+    // 전설/신화 요리인 경우 하위 요리 구성 포함
+    if(recipes["전설"][foodName] || recipes["신화"][foodName]){
+      const sub = recipes["전설"][foodName] || recipes["신화"][foodName];
+      for(const [subName, amount] of Object.entries(sub)){
+        const subIngs = all[subName] || {};
+        let subDetails = [];
+        for(const [matName, matNeed] of Object.entries(subIngs)){
+          let prefix = matName.includes("피쉬") ? "[A]" : "";
+          subDetails.push(`${prefix}${matName} ${matNeed * amount}개`);
+        }
+        detailsList.push(`• ${subName}(40초 3200크론): ${subDetails.join(", ")}`);
       }
+    } else if(all[foodName]) {
+      // 일반/영웅 요리인 경우
+      const mats = expandRecipe(foodName, 1);
+      let subDetails = [];
+      for(const [matName, count] of Object.entries(mats)){
+        subDetails.push(`${matName} ${count}개`);
+      }
+      detailsList.push(subDetails.join(", "));
     }
 
-    const matText =
-      ingredientsList.length > 0
-      ? ingredientsList.join("\n")
-      : "재료 정보 없음";
+    const matText = detailsList.length > 0 ? detailsList.join("\n") : "재료 정보 없음";
 
     messageLines.push(
       `# ${foodName} : ${formatWon(basePrice)}${multiplierText}\n${matText}\n`
@@ -1513,7 +1525,6 @@ function renderRecipe(){
   let highGradeHtml = "";
 
   if(isHighGrade){
-    /* 1. 하위 요리 카드 목록 리스트 (요청하신 양식 적용) */
     const subSummary =
       Object.entries(sub)
         .map(
@@ -1543,7 +1554,6 @@ function renderRecipe(){
         )
         .join("");
 
-    /* 2. 하위 요리에 필요한 원재료들의 정확한 누적 합산 */
     const rawMaterialsMap = {};
     for(const [subName, subAmount] of Object.entries(sub)){
       const subExpanded = expandRecipe(subName, subAmount);
