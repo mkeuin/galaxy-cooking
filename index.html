@@ -471,21 +471,25 @@ input[type="number"]{
   font-weight:bold;
 }
 
-/* 하위요리 리스트 영역 */
+/* 하위요리 카드 영역 */
 .high-grade-sub-box{
-  padding:15px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.high-grade-sub-item-card{
+  padding:16px;
   border-radius:14px;
   background:rgba(255,255,255,.035);
   border:1px solid var(--line);
-  display:flex;
-  flex-direction:column;
-  gap:6px;
 }
 
-.high-grade-sub-item{
-  padding:6px 4px;
-  font-size:17px;
+.high-grade-sub-header{
+  font-size:18px;
   font-weight:bold;
+  margin-bottom:10px;
+  color:var(--accent2);
 }
 
 /* 총 재료 카테고리별 박스 */
@@ -1544,15 +1548,33 @@ function renderRecipe(){
   let highGradeHtml = "";
 
   if(isHighGrade){
-    /* 1. 하위 요리 목록 (텍스트 나열) */
+    /* 1. 하위 요리 카드 목록 리스트 (요청하신 양식 적용) */
     const subSummary =
       Object.entries(sub)
         .map(
-          ([subName, amount])=>`
-            <div class="high-grade-sub-item">
-              ${escapeHtml(subName)} ${formatNumber(amount)}개
-            </div>
-          `
+          ([subName, amount])=>{
+            const subIngs = all[subName] || {};
+            const subIngsList = Object.entries(subIngs)
+              .map(([matName, matNeed])=>{
+                let prefix = "";
+                if(matName.includes("피쉬")){
+                  prefix = "[A]";
+                }
+                return `<div>${prefix}${escapeHtml(matName)} ${formatNumber(matNeed * amount)}개</div>`;
+              })
+              .join("");
+
+            return `
+              <div class="high-grade-sub-item-card">
+                <div class="high-grade-sub-header">
+                  ${escapeHtml(subName)}(40초 3200크론)
+                </div>
+                <div style="display:flex; flex-direction:column; gap:4px; font-size:16px;">
+                  ${subIngsList}
+                </div>
+              </div>
+            `;
+          }
         )
         .join("");
 
@@ -1583,7 +1605,7 @@ function renderRecipe(){
         </div>
 
         <div class="high-grade-sub-section">
-          <div class="high-grade-section-title">🥘 하위요리</div>
+          <div class="high-grade-section-title">🥘 하위요리 구성</div>
           <div class="high-grade-sub-box">
             ${subSummary}
           </div>
