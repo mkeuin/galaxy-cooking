@@ -434,65 +434,49 @@ input[type="number"]{
 }
 .hidden{display:none!important}
 
-/* ================================
-   전설 / 신화 레이아웃 및 서식
-   ================================ */
+/* 전설/신화 레이아웃 */
 .high-grade-layout{
   display:flex;
   flex-direction:column;
   gap:18px;
 }
-
 .high-grade-section-title{
   font-size:22px;
   font-weight:bold;
   margin:0 0 10px;
 }
-
 .high-grade-main-card{
   padding:18px;
   border-radius:16px;
-  background:linear-gradient(
-    135deg,
-    rgba(155,140,255,.22),
-    rgba(97,214,255,.12)
-  );
+  background:linear-gradient(135deg,rgba(155,140,255,.22),rgba(97,214,255,.12));
   border:1px solid rgba(150,150,255,.28);
 }
-
 .high-grade-main-grade{
   color:var(--muted);
   font-size:14px;
   margin-bottom:5px;
 }
-
 .high-grade-main-name{
   font-size:25px;
   font-weight:bold;
 }
-
-/* 하위요리 카드 영역 */
 .high-grade-sub-box{
   display:flex;
   flex-direction:column;
   gap:12px;
 }
-
 .high-grade-sub-item-card{
   padding:16px;
   border-radius:14px;
   background:rgba(255,255,255,.035);
   border:1px solid var(--line);
 }
-
 .high-grade-sub-header{
   font-size:18px;
   font-weight:bold;
   margin-bottom:10px;
   color:var(--accent2);
 }
-
-/* 총 재료 카테고리별 박스 */
 .high-grade-total-category{
   margin-bottom:14px;
   padding:13px;
@@ -500,7 +484,6 @@ input[type="number"]{
   background:rgba(255,255,255,.025);
   border:1px solid var(--line);
 }
-
 .high-grade-category-title{
   font-size:19px;
   font-weight:bold;
@@ -510,37 +493,19 @@ input[type="number"]{
 @media(max-width:700px){
   .app{padding:14px 8px 30px}
   .content,.controls,.group-card{padding:13px}
-
-  th:nth-child(2),
-  td:nth-child(2){display:none}
-
+  th:nth-child(2),td:nth-child(2){display:none}
   .table{font-size:13px}
   input.num{width:60px}
   .recipe-btn{font-size:18px}
-
-  body:before,
-  body:after{
+  body:before,body:after{
     font-size:24px;
     letter-spacing:14px;
     line-height:110px;
   }
-
-  .login-row{
-    grid-template-columns:1fr;
-  }
-
-  .group-item{
-    align-items:flex-start;
-    flex-direction:column;
-  }
-
-  .group-price{
-    text-align:left;
-  }
-
-  .high-grade-main-name{
-    font-size:21px;
-  }
+  .login-row{grid-template-columns:1fr}
+  .group-item{align-items:flex-start;flex-direction:column}
+  .group-price{text-align:left}
+  .high-grade-main-name{font-size:21px}
 }
 </style>
 </head>
@@ -1428,8 +1393,8 @@ function selectRecipe(grade, name){
 
 
 function displayIngredientName(name){
-  if(name === "고기 육수") return "고기육수";
-  if(name === "치킨스톡") return "치킨 스톡";
+  if(name === "고기 육수") return "고기 육수";
+  if(name === "치킨스톡") return "치킨스톡";
   return name;
 }
 
@@ -1578,19 +1543,13 @@ function renderRecipe(){
         )
         .join("");
 
-    /* 2. 하위 요리에 필요한 '원재료'들 목록 추출 */
+    /* 2. 하위 요리에 필요한 원재료들의 정확한 누적 합산 */
     const rawMaterialsMap = {};
     for(const [subName, subAmount] of Object.entries(sub)){
       const subExpanded = expandRecipe(subName, subAmount);
       for(const [matName, matNeed] of Object.entries(subExpanded)){
         rawMaterialsMap[matName] = (rawMaterialsMap[matName] || 0) + matNeed;
       }
-    }
-
-    /* 3. 하위 요리 이름 자체도 체크를 위해 하위요리 목록에 추가 */
-    let finalCombinedIngredients = { ...rawMaterialsMap };
-    for(const [subName, subAmount] of Object.entries(sub)){
-      finalCombinedIngredients[subName] = subAmount;
     }
 
     highGradeHtml = `
@@ -1613,7 +1572,7 @@ function renderRecipe(){
 
         <div class="high-grade-total-section">
           <div class="high-grade-section-title">📦 총 재료양</div>
-          ${createHighGradeMaterialTable(finalCombinedIngredients)}
+          ${createHighGradeMaterialTable(rawMaterialsMap)}
         </div>
 
       </div>
@@ -1710,7 +1669,6 @@ function updateCalculation(){
   if(isHighGrade){
     const sub = all[selected];
     for(const [subName, subAmount] of Object.entries(sub)){
-      req[subName] = subAmount;
       const subExpanded = expandRecipe(subName, subAmount);
       for(const [matName, matNeed] of Object.entries(subExpanded)){
         req[matName] = (req[matName] || 0) + matNeed;
