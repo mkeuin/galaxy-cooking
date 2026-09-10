@@ -434,7 +434,7 @@ input[type="number"]{
 }
 .hidden{display:none!important}
 
-/* 전설/신화 레이아웃 */
+/* 전설/신화 레이아웃 스타일 */
 .high-grade-layout{
   display:flex;
   flex-direction:column;
@@ -1223,10 +1223,71 @@ async function sendSingleRecipeToDiscord(){
     return;
   }
 
-  const message =
-    `🌌 **[요리 수량 정보]**\n` +
-    `🍳 **요리명:** [${selectedGrade}] ${selected}\n` +
-    `🍲 **제작 가능 수량:** ${formatStack(currentPossibleCount)}`;
+  let message = "";
+
+  if(selected === "아스텔라 A급 생선 정식"){
+    message =
+      `아스텔라 A급 생선 정식 : 37,000크론 (x2.03)\n` +
+      `요정피쉬 마나찜 1개\n` +
+      `홀로그램 피쉬 베리글레이즈 1개\n` +
+      `다크 피쉬 비트조림 1개\n` +
+      `고스트 피쉬 크림탕 1개\n` +
+      `엔젤피쉬 황금호박스튜 1개\n\n` +
+      `🐟 피쉬\n` +
+      `요정 피쉬 1개\n` +
+      `홀로그램 피쉬 1개\n` +
+      `다크 피쉬 1개\n` +
+      `고스트 피쉬 1개\n` +
+      `엔젤 피쉬 1개\n\n` +
+      `🧂 가공재료\n` +
+      `당근즙 8개\n` +
+      `우유 12개\n` +
+      `베리 소스 4개\n` +
+      `수박시럽 4개\n` +
+      `비트소스 4개\n` +
+      `고기 육수 4개\n` +
+      `치킨스톡 4개\n` +
+      `호박 퓌레 4개\n\n` +
+      `🌱 커스텀 농작물\n` +
+      `팬텀 양배추 8개\n` +
+      `레드펄 양파 8개\n` +
+      `마나블라썸 16개\n` +
+      `슬라임 콜라비 8개`;
+  } else if(selected === "왕실 해산물 만찬"){
+    message =
+      `왕실 해산물 만찬 : [신화 등급 가격 및 배율 입력]\n` +
+      `마나 해산물 스튜 1개\n` +
+      `그림자 생선조림 1개\n` +
+      `환영 생선 샐러드 1개\n` +
+      `천상의 크림스튜 1개\n` +
+      `마나블라썸 밀크 1개\n\n` +
+      `🐟 피쉬\n` +
+      `요정 피쉬 2개\n` +
+      `엔젤 피쉬 2개\n` +
+      `다크 피쉬 1개\n` +
+      `고스트 피쉬 1개\n` +
+      `홀로그램 피쉬 1개\n\n` +
+      `🧂 가공재료\n` +
+      `치킨 스톡 4개\n` +
+      `우유 14개\n` +
+      `각설탕 8개\n` +
+      `비트소스 4개\n` +
+      `고기 육수 4개\n` +
+      `베리 소스 4개\n` +
+      `수박시럽 4개\n\n` +
+      `🌱 커스텀 농작물\n` +
+      `마나블라썸 14개\n` +
+      `호박 퓌레 4개\n` +
+      `엔더 콩 8개\n` +
+      `초승달 무 8개\n` +
+      `슬라임 콜라비 6개\n` +
+      `피치가지 8개`;
+  } else {
+    message =
+      `🌌 **[요리 수량 정보]**\n` +
+      `🍳 **요리명:** [${selectedGrade}] ${selected}\n` +
+      `🍲 **제작 가능 수량:** ${formatStack(currentPossibleCount)}`;
+  }
 
   await postToDiscord(message);
 }
@@ -1275,29 +1336,88 @@ async function sendGroupOrderToDiscord(){
     const basePrice = Math.round(Number(food.price));
     const multiplierText = food.multiplier ? ` (${food.multiplier.trim()})` : "";
 
-    let lines = [`${foodName} : ${formatNumber(basePrice)}크론${multiplierText}`];
+    let foodBlock = "";
 
-    if(recipes["전설"][foodName] || recipes["신화"][foodName]){
-      const sub = recipes["전설"][foodName] || recipes["신화"][foodName];
-      
-      for(const [subName, amount] of Object.entries(sub)){
-        const subIngs = all[subName] || {};
-        const subIngsStr = Object.entries(subIngs)
-          .map(([matName, matNeed])=>{
-            let prefix = "";
-            if(FISH.includes(matName)){
-              prefix = "[A]";
-            }
-            return `${prefix}${matName} ${matNeed * amount}개`;
-          })
-          .join(", ");
-
-        lines.push(`• ${subName}(40초 3200크론): ${subIngsStr}`);
+    if(foodName === "아스텔라 A급 생선 정식"){
+      foodBlock =
+        `아스텔라 A급 생선 정식 : ${formatNumber(basePrice)}크론${multiplierText}\n` +
+        `요정피쉬 마나찜 1개\n` +
+        `홀로그램 피쉬 베리글레이즈 1개\n` +
+        `다크 피쉬 비트조림 1개\n` +
+        `고스트 피쉬 크림탕 1개\n` +
+        `엔젤피쉬 황금호박스튜 1개\n\n` +
+        `🐟 피쉬\n` +
+        `요정 피쉬 1개\n` +
+        `홀로그램 피쉬 1개\n` +
+        `다크 피쉬 1개\n` +
+        `고스트 피쉬 1개\n` +
+        `엔젤 피쉬 1개\n\n` +
+        `🧂 가공재료\n` +
+        `당근즙 8개\n` +
+        `우유 12개\n` +
+        `베리 소스 4개\n` +
+        `수박시럽 4개\n` +
+        `비트소스 4개\n` +
+        `고기 육수 4개\n` +
+        `치킨스톡 4개\n` +
+        `호박 퓌레 4개\n\n` +
+        `🌱 커스텀 농작물\n` +
+        `팬텀 양배추 8개\n` +
+        `레드펄 양파 8개\n` +
+        `마나블라썸 16개\n` +
+        `슬라임 콜라비 8개`;
+    } else if(foodName === "왕실 해산물 만찬"){
+      foodBlock =
+        `왕실 해산물 만찬 : ${formatNumber(basePrice)}크론${multiplierText}\n` +
+        `마나 해산물 스튜 1개\n` +
+        `그림자 생선조림 1개\n` +
+        `환영 생선 샐러드 1개\n` +
+        `천상의 크림스튜 1개\n` +
+        `마나블라썸 밀크 1개\n\n` +
+        `🐟 피쉬\n` +
+        `요정 피쉬 2개\n` +
+        `엔젤 피쉬 2개\n` +
+        `다크 피쉬 1개\n` +
+        `고스트 피쉬 1개\n` +
+        `홀로그램 피쉬 1개\n\n` +
+        `🧂 가공재료\n` +
+        `치킨 스톡 4개\n` +
+        `우유 14개\n` +
+        `각설탕 8개\n` +
+        `비트소스 4개\n` +
+        `고기 육수 4개\n` +
+        `베리 소스 4개\n` +
+        `수박시럽 4개\n\n` +
+        `🌱 커스텀 농작물\n` +
+        `마나블라썸 14개\n` +
+        `호박 퓌레 4개\n` +
+        `엔더 콩 8개\n` +
+        `초승달 무 8개\n` +
+        `슬라임 콜라비 6개\n` +
+        `피치가지 8개`;
+    } else {
+      let lines = [`${foodName} : ${formatNumber(basePrice)}크론${multiplierText}`];
+      if(recipes["전설"][foodName] || recipes["신화"][foodName]){
+        const sub = recipes["전설"][foodName] || recipes["신화"][foodName];
+        for(const [subName, amount] of Object.entries(sub)){
+          const subIngs = all[subName] || {};
+          const subIngsStr = Object.entries(subIngs)
+            .map(([matName, matNeed])=>{
+              let prefix = "";
+              if(FISH.includes(matName)){
+                prefix = "[A]";
+              }
+              return `${prefix}${matName} ${matNeed * amount}개`;
+            })
+            .join(", ");
+          lines.push(`• ${subName}(40초 3200크론): ${subIngsStr}`);
+        }
       }
+      foodBlock = lines.join("\n");
     }
 
     messageLines.push(
-      lines.join("\n") + `\n--------------------------------------------------`
+      foodBlock + `\n--------------------------------------------------`
     );
   });
 
@@ -1406,7 +1526,7 @@ function selectRecipe(grade, name){
 
 function displayIngredientName(name){
   if(name === "고기 육수") return "고기 육수";
-  if(name === "치킨스톡") return "치킨스톡";
+  if(name === "치킨스톡" || name === "치킨 스톡") return "치킨스톡";
   return name;
 }
 
@@ -1525,8 +1645,33 @@ function renderRecipe(){
   let highGradeHtml = "";
 
   if(isHighGrade){
-    const subSummary =
-      Object.entries(sub)
+    let subSummary = "";
+    if(selected === "아스텔라 A급 생선 정식"){
+      subSummary = `
+        <div class="high-grade-sub-item-card">
+          <div style="display:flex; flex-direction:column; gap:4px; font-size:16px;">
+            <div>요정피쉬 마나찜 1개</div>
+            <div>홀로그램 피쉬 베리글레이즈 1개</div>
+            <div>다크 피쉬 비트조림 1개</div>
+            <div>고스트 피쉬 크림탕 1개</div>
+            <div>엔젤피쉬 황금호박스튜 1개</div>
+          </div>
+        </div>
+      `;
+    } else if(selected === "왕실 해산물 만찬"){
+      subSummary = `
+        <div class="high-grade-sub-item-card">
+          <div style="display:flex; flex-direction:column; gap:4px; font-size:16px;">
+            <div>마나 해산물 스튜 1개</div>
+            <div>그림자 생선조림 1개</div>
+            <div>환영 생선 샐러드 1개</div>
+            <div>천상의 크림스튜 1개</div>
+            <div>마나블라썸 밀크 1개</div>
+          </div>
+        </div>
+      `;
+    } else {
+      subSummary = Object.entries(sub)
         .map(
           ([subName, amount])=>{
             const subIngs = all[subName] || {};
@@ -1553,6 +1698,7 @@ function renderRecipe(){
           }
         )
         .join("");
+    }
 
     const rawMaterialsMap = {};
     for(const [subName, subAmount] of Object.entries(sub)){
