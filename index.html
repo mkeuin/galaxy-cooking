@@ -759,9 +759,6 @@ async function sendGroupOrderToDiscord() {
   let dateVal = document.getElementById("groupOrderDate").value.trim() || currentGroupDate || getFormattedToday();
   let boostVal = document.getElementById("boostCategory").value || currentBoostCategory || "낚시";
 
-  const applyRate = groupRateToggle.checked;
-  const rate = applyRate ? 0.15 : 0;
-
   let messageLines = [
     `${dateVal}`,
     `부스트 종목은`,
@@ -772,7 +769,6 @@ async function sendGroupOrderToDiscord() {
   validOrders.forEach(food => {
     const foodName = food.name.trim();
     const basePrice = Math.round(Number(food.price));
-    const finalPrice = Math.round(basePrice * (1 + rate));
     const multiplierText = food.multiplier ? ` (x${food.multiplier.trim()})` : "";
 
     const isLegendOrMyth = (recipes["전설"] && recipes["전설"][foodName]) || (recipes["신화"] && recipes["신화"][foodName]);
@@ -809,7 +805,7 @@ async function sendGroupOrderToDiscord() {
       }
 
       const block = [
-        `${foodName} : ${formatWon(finalPrice)}${multiplierText}`,
+        `${foodName} : ${formatWon(basePrice)}${multiplierText}`,
         ...subRecipesList,
         ...ingredientLines
       ].join("\n");
@@ -824,7 +820,7 @@ async function sendGroupOrderToDiscord() {
         }
       }
       const matText = ingredientsList.length > 0 ? ingredientsList.join("\n") : "재료 정보 없음";
-      messageLines.push(`# ${foodName} : ${formatWon(finalPrice)}${multiplierText}\n${matText}\n`);
+      messageLines.push(`# ${foodName} : ${formatWon(basePrice)}${multiplierText}\n${matText}\n`);
     }
   });
 
