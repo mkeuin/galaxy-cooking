@@ -7,27 +7,34 @@
 <title>은하 요리 계산기</title>
 <style>
 :root{
-  --bg:#080a1f;--panel:rgba(16,19,48,.88);--panel2:rgba(28,32,75,.82);
-  --text:#f4f5ff;--muted:#b9bddb;--line:rgba(255,255,255,.13);
-  --accent:#9b8cff;--accent2:#61d6ff;--success:#68e0a0;--danger:#ff647c;
+  --bg:#080a1f;
+  --panel:rgba(16,19,48,.88);
+  --panel2:rgba(28,32,75,.82);
+  --text:#f4f5ff;
+  --muted:#b9bddb;
+  --line:rgba(255,255,255,.13);
+  --accent:#9b8cff;
+  --accent2:#61d6ff;
+  --success:#68e0a0;
+  --danger:#ff647c;
 }
 *{box-sizing:border-box}
 body{
   margin:0;min-height:100vh;color:var(--text);
   font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
-  background:radial-gradient(circle at 15% 20%,rgba(111,76,255,.38),transparent 28%),
-  radial-gradient(circle at 85% 25%,rgba(0,180,255,.23),transparent 25%),
-  radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),
-  linear-gradient(135deg,#050614,#101434 55%,#070818);
+  background:
+    radial-gradient(circle at 15% 20%,rgba(111,76,255,.38),transparent 28%),
+    radial-gradient(circle at 85% 25%,rgba(0,180,255,.23),transparent 25%),
+    radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),
+    linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
 body:before,body:after{
-  content:"✦ · ✧        ·        ✦        · ✧     ·        ✦        · ✧";
   position:fixed;top:0;width:50%;height:100%;pointer-events:none;
   opacity:.45;font-size:32px;letter-spacing:24px;line-height:140px;
   overflow:hidden;z-index:0;
 }
-body:before{left:0}
-body:after{right:0;text-align:right;content:"✧ · ✦        ·        ✧        · ✦        · ✧     ·        ✦"}
+body:before{content:"✦ · ✧        ·        ✦        · ✧     ·        ✦        · ✧";left:0}
+body:after{content:"✧ · ✦        ·        ✧        · ✦        · ✧     ·        ✦";right:0;text-align:right}
 .app{position:relative;z-index:1;max-width:1150px;margin:auto;padding:25px 16px 45px}
 .hero{text-align:center;margin-bottom:18px}
 .hero h1{margin:0;font-size:clamp(28px,5vw,48px);text-shadow:0 0 24px rgba(150,120,255,.7)}
@@ -78,9 +85,12 @@ input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 .discord-send-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .hidden{display:none!important}
 @media(max-width:700px){
-  .app{padding:14px 8px 30px}.content,.controls{padding:13px}
+  .app{padding:14px 8px 30px}
+  .content,.controls{padding:13px}
   th:nth-child(2),td:nth-child(2){display:none}
-  .table{font-size:13px}input.num{width:60px}.recipe-btn{font-size:18px}
+  .table{font-size:13px}
+  input.num{width:60px}
+  .recipe-btn{font-size:18px}
   body:before,body:after{font-size:24px;letter-spacing:14px;line-height:110px}
   .login-row{grid-template-columns:1fr}
 }
@@ -142,68 +152,68 @@ const PRICE_PERCENT_REF = doc(db, "cookingOrder", "pricePercentages");
 
 const recipes = {
   "재료 요리": {
-    "빵": {"밀 박스":1,"요리용 석탄":1},
-    "쌀": {"벼 박스":1,"요리용 석탄":1},
-    "호박 액기스": {"호박 박스":1,"요리용 석탄":1},
-    "수박 액기스": {"수박 박스":1,"요리용 석탄":1},
-    "감자 액기스": {"감자 박스":1,"요리용 석탄":1},
-    "당근 액기스": {"당근 박스":1,"요리용 석탄":1},
-    "고추 액기스": {"고추 박스":1,"요리용 석탄":1},
-    "수북한 설탕": {"사탕수수 박스":1,"요리용 석탄":1},
-    "수북한 밀가루": {"밀 박스":1,"요리용 석탄":1},
-    "열매 액기스 2개": {"달콤한 열매 박스":1,"요리용 석탄":2},
-    "사과 액기스 8개": {"사과 박스":1,"요리용 석탄":8}
+    "빵": {"밀 박스":1, "요리용 석탄":1},
+    "쌀": {"벼 박스":1, "요리용 석탄":1},
+    "호박 액기스": {"호박 박스":1, "요리용 석탄":1},
+    "수박 액기스": {"수박 박스":1, "요리용 석탄":1},
+    "감자 액기스": {"감자 박스":1, "요리용 석탄":1},
+    "당근 액기스": {"당근 박스":1, "요리용 석탄":1},
+    "고추 액기스": {"고추 박스":1, "요리용 석탄":1},
+    "수북한 설탕": {"사탕수수 박스":1, "요리용 석탄":1},
+    "수북한 밀가루": {"밀 박스":1, "요리용 석탄":1},
+    "열매 액기스 2개": {"달콤한 열매 박스":1, "요리용 석탄":2},
+    "사과 액기스 8개": {"사과 박스":1, "요리용 석탄":8}
   },
   "일반 요리": {
-    "코울슬로": {"양배추":1,"당근 액기스":1,"요리용 석탄":1},
-    "마늘 바게트": {"마늘":1,"빵":1,"요리용 석탄":1},
-    "감자 대파 수프": {"대파":1,"감자 액기스":1,"요리용 석탄":1},
-    "치킨 라이스": {"닭고기":1,"쌀":1,"요리용 석탄":1},
-    "비프 샌드위치": {"소고기":1,"빵":1,"요리용 석탄":1},
-    "제육볶음": {"돼지고기":1,"고추 액기스":1,"요리용 석탄":1},
-    "새우 볶음밥": {"갯새우":1,"쌀":1,"요리용 석탄":1},
-    "달콤 오징어 구이": {"갯벌 오징어":1,"수북한 설탕":1,"요리용 석탄":1},
-    "가리비 호박 구이": {"가리비":1,"호박 액기스":1,"요리용 석탄":1},
-    "수박 미역 샐러드": {"미역":1,"수박 액기스":1,"요리용 석탄":1},
-    "사과 샐러드": {"열매 액기스":1,"사과 액기스":1,"요리용 석탄":1},
-    "호박죽": {"쌀":1,"호박 액기스":1,"요리용 석탄":1},
-    "과일 굴 무침": {"굴":1,"열매 액기스":1,"요리용 석탄":1},
-    "호박 브륄레": {"호박 액기스":1,"수북한 설탕":1,"요리용 석탄":1},
-    "당근 케이크": {"당근 액기스":1,"수북한 밀가루":1,"수북한 설탕":1,"요리용 석탄":1},
-    "감자전": {"감자 액기스":1,"수북한 밀가루":1,"요리용 석탄":1},
-    "수박 주스": {"수박 액기스":1,"수북한 설탕":1,"요리용 석탄":1},
-    "애플파이": {"사과 액기스":1,"수북한 밀가루":1,"요리용 석탄":1},
-    "게살버거": {"빵":1,"꽃게":1,"요리용 석탄":1}
+    "코울슬로": {"양배추":1, "당근 액기스":1, "요리용 석탄":1},
+    "마늘 바게트": {"마늘":1, "빵":1, "요리용 석탄":1},
+    "감자 대파 수프": {"대파":1, "감자 액기스":1, "요리용 석탄":1},
+    "치킨 라이스": {"닭고기":1, "쌀":1, "요리용 석탄":1},
+    "비프 샌드위치": {"소고기":1, "빵":1, "요리용 석탄":1},
+    "제육볶음": {"돼지고기":1, "고추 액기스":1, "요리용 석탄":1},
+    "새우 볶음밥": {"갯새우":1, "쌀":1, "요리용 석탄":1},
+    "달콤 오징어 구이": {"갯벌 오징어":1, "수북한 설탕":1, "요리용 석탄":1},
+    "가리비 호박 구이": {"가리비":1, "호박 액기스":1, "요리용 석탄":1},
+    "수박 미역 샐러드": {"미역":1, "수박 액기스":1, "요리용 석탄":1},
+    "사과 샐러드": {"열매 액기스":1, "사과 액기스":1, "요리용 석탄":1},
+    "호박죽": {"쌀":1, "호박 액기스":1, "요리용 석탄":1},
+    "과일 굴 무침": {"굴":1, "열매 액기스":1, "요리용 석탄":1},
+    "호박 브륄레": {"호박 액기스":1, "수북한 설탕":1, "요리용 석탄":1},
+    "당근 케이크": {"당근 액기스":1, "수북한 밀가루":1, "수북한 설탕":1, "요리용 석탄":1},
+    "감자전": {"감자 액기스":1, "수북한 밀가루":1, "요리용 석탄":1},
+    "수박 주스": {"수박 액기스":1, "수북한 설탕":1, "요리용 석탄":1},
+    "애플파이": {"사과 액기스":1, "수북한 밀가루":1, "요리용 석탄":1},
+    "게살버거": {"빵":1, "꽃게":1, "요리용 석탄":1}
   },
   "특수 요리": {
-    "맛의 기원 (海)": {"범고래":1,"상어":1,"소라고동":1,"황금 잉걸불":1},
-    "맛의 기원 (地)": {"빵":128,"쌀":128,"사과 액기스":32,"황금 잉걸불":1},
-    "황금 코울슬로": {"코울슬로":1,"황금 가루":1},
-    "황금 마늘 바게트": {"마늘 바게트":1,"황금 가루":1},
-    "황금 감자 대파 수프": {"감자 대파 수프":1,"황금 가루":1},
-    "황금 치킨 라이스": {"치킨 라이스":1,"황금 가루":1},
-    "황금 비프 샌드위치": {"비프 샌드위치":1,"황금 가루":1},
-    "황금 제육볶음": {"제육볶음":1,"황금 가루":1},
-    "황금 새우 볶음밥": {"새우 볶음밥":1,"황금 가루":1},
-    "황금 달콤 오징어 구이": {"달콤 오징어 구이":1,"황금 가루":1},
-    "황금 가리비 호박 구이": {"가리비 호박 구이":1,"황금 가루":1},
-    "황금 수박 미역 샐러드": {"수박 미역 샐러드":1,"황금 가루":1},
-    "황금 호박죽": {"호박죽":1,"황금 가루":1},
-    "황금 과일 굴 무침": {"과일 굴 무침":1,"황금 가루":1},
-    "황금 감자전": {"감자전":1,"황금 가루":1},
-    "황금 애플파이": {"애플파이":1,"황금 가루":1},
-    "황금 게살버거": {"게살버거":1,"황금 가루":1},
-    "황금 잉걸불": {"초록 잉걸불":20,"푸른 잉걸불":20,"잿빛 잉걸불":20,"붉은 잉걸불":20}
+    "맛의 기원 (海)": {"범고래":1, "상어":1, "소라고동":1, "황금 잉걸불":1},
+    "맛의 기원 (地)": {"빵":128, "쌀":128, "사과 액기스":32, "황금 잉걸불":1},
+    "황금 코울슬로": {"코울슬로":1, "황금 가루":1},
+    "황금 마늘 바게트": {"마늘 바게트":1, "황금 가루":1},
+    "황금 감자 대파 수프": {"감자 대파 수프":1, "황금 가루":1},
+    "황금 치킨 라이스": {"치킨 라이스":1, "황금 가루":1},
+    "황금 비프 샌드위치": {"비프 샌드위치":1, "황금 가루":1},
+    "황금 제육볶음": {"제육볶음":1, "황금 가루":1},
+    "황금 새우 볶음밥": {"새우 볶음밥":1, "황금 가루":1},
+    "황금 달콤 오징어 구이": {"달콤 오징어 구이":1, "황금 가루":1},
+    "황금 가리비 호박 구이": {"가리비 호박 구이":1, "황금 가루":1},
+    "황금 수박 미역 샐러드": {"수박 미역 샐러드":1, "황금 가루":1},
+    "황금 호박죽": {"호박죽":1, "황금 가루":1},
+    "황금 과일 굴 무침": {"과일 굴 무침":1, "황금 가루":1},
+    "황금 감자전": {"감자전":1, "황금 가루":1},
+    "황금 애플파이": {"애플파이":1, "황금 가루":1},
+    "황금 게살버거": {"게살버거":1, "황금 가루":1},
+    "황금 잉걸불": {"초록 잉걸불":20, "푸른 잉걸불":20, "잿빛 잉걸불":20, "붉은 잉걸불":20}
   }
 };
 
 const prices = {
-  "코울슬로":8384,"마늘 바게트":11763,"감자 대파 수프":8381,
-  "치킨 라이스":12733,"비프 샌드위치":12453,"제육볶음":9073,
-  "새우 볶음밥":12492,"달콤 오징어 구이":11361,"가리비 호박 구이":14012,
-  "수박 미역 샐러드":14014,"사과 샐러드":16895,"호박죽":9214,
-  "과일 굴 무침":12468,"호박 브륄레":8193,"당근 케이크":8450,
-  "감자전":5122,"수박 주스":8189,"애플파이":17537,"게살버거":12209
+  "코울슬로":8384, "마늘 바게트":11763, "감자 대파 수프":8381,
+  "치킨 라이스":12733, "비프 샌드위치":12453, "제육볶음":9073,
+  "새우 볶음밥":12492, "달콤 오징어 구이":11361, "가리비 호박 구이":14012,
+  "수박 미역 샐러드":14014, "사과 샐러드":16895, "호박죽":9214,
+  "과일 굴 무침":12468, "호박 브륄레":8193, "당근 케이크":8450,
+  "감자전":5122, "수박 주스":8189, "애플파이":17537, "게살버거":12209
 };
 
 let selected = null;
@@ -296,10 +306,7 @@ function renderList() {
       const edit = document.createElement("label");
       edit.className = "percent-edit";
       const input = document.createElement("input");
-      input.type = "number";
-      input.min = "-100";
-      input.max = "100000";
-      input.step = "1";
+      input.type = "number"; input.min = "-100"; input.max = "100000"; input.step = "1";
       input.value = Number(pricePercentages[name] || 0);
       input.setAttribute("aria-label", `${name} 추가 퍼센트`);
       input.dataset.percentName = name;
@@ -321,8 +328,7 @@ function renderList() {
     }
     list.appendChild(item);
   }
-
-  if (!list.children.length) list.innerHTML = '<div class="empty">이 카테고리에 검색 결과가 없습니다.</div>';
+  if (!list.children.length) list.innerHTML = `<div class="empty">이 카테고리에 검색 결과가 없습니다.</div>`;
   renderPriceAdminBar();
 }
 
@@ -334,7 +340,6 @@ function renderPriceAdminBar() {
     bar.className = "price-admin-bar";
     document.querySelector(".controls").appendChild(bar);
   }
-
   if (activeCategory === "일반 요리" && isAdmin) {
     bar.innerHTML = `
       <span class="price-admin-status" id="priceSaveStatus">요리별 추가 비율을 입력한 뒤 저장하세요.</span>
@@ -377,7 +382,6 @@ async function savePricePercentages() {
     const value = Number(input.value);
     pricePercentages[name] = Number.isFinite(value) ? value : 0;
   });
-
   const status = document.getElementById("priceSaveStatus");
   if (status) status.textContent = "저장 중...";
   try {
@@ -426,7 +430,6 @@ async function postToDiscord(message, showSuccess = true) {
   }
 }
 
-/* 일반 요리 전체를 사용자가 요청한 형식으로 디스코드에 전송 */
 async function sendAllGeneralRecipesToDiscord() {
   if (activeCategory !== "일반 요리") {
     alert("일반 요리 카테고리에서만 전체 전송할 수 있습니다.");
@@ -440,27 +443,22 @@ async function sendAllGeneralRecipesToDiscord() {
     alert("추가 비율을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
     return;
   }
-
   const generalRecipes = recipes["일반 요리"] || {};
   const messages = [];
-
   for (const [name, ingredients] of Object.entries(generalRecipes)) {
     const basePrice = Number(prices[name] || 0);
     const percent = Number(pricePercentages[name] || 0);
     const percentText = `${percent > 0 ? "+" : ""}${percent}%`;
     let message = `# ${name} : ${formatWon(basePrice)} (${percentText})\n\n`;
-
     for (const [ingredient, amount] of Object.entries(ingredients)) {
       message += `${ingredient} ${formatNumber(amount)}개\n`;
     }
     messages.push(message.trim());
   }
-
   if (!messages.length) {
     alert("전송할 일반 요리가 없습니다.");
     return;
   }
-
   const chunks = [];
   let chunk = "";
   for (const message of messages) {
@@ -473,7 +471,6 @@ async function sendAllGeneralRecipesToDiscord() {
     }
   }
   if (chunk) chunks.push(chunk);
-
   for (const part of chunks) {
     const sent = await postToDiscord(part, false);
     if (!sent) return;
@@ -510,7 +507,7 @@ function selectRecipe(category, name) {
 }
 
 function createIngredientRow(name, need) {
-  const saved = ownedMaterials[name] || {sets:0,pieces:0};
+  const saved = ownedMaterials[name] || {sets:0, pieces:0};
   return `<tr>
     <td>${escapeHtml(name)}</td><td>${formatNumber(need)}개</td>
     <td class="owned" id="owned-${cssId(name)}">0개</td>
@@ -528,13 +525,11 @@ function renderRecipe() {
   const adjustedPrice = getAdjustedPrice(selected);
   const percent = Number(pricePercentages[selected] || 0);
   let ingredientsHtml = "";
-
-  if (isPriceOnly || !Object.keys(ingredients).length) {
-    ingredientsHtml = '<div class="empty">재료 정보가 없습니다.</div>';
+  if (!Object.keys(ingredients).length) {
+    ingredientsHtml = `<div class="empty">재료 정보가 없습니다.</div>`;
   } else {
     ingredientsHtml = `<div style="overflow:auto"><table class="table"><thead><tr><th>재료</th><th>필요량</th><th>보유량</th><th>세트</th><th>낱개</th></tr></thead><tbody>${Object.entries(ingredients).map(([n,v]) => createIngredientRow(n,v)).join("")}</tbody></table></div>`;
   }
-
   content.innerHTML = `
     <div class="selected">[${escapeHtml(selectedCategory)}] ${escapeHtml(selected)}</div>
     ${price ? `<div class="result"><span>💰 사이트 표시 금액 (원금)</span><strong>${formatWon(price)}</strong></div>` : ""}
@@ -542,10 +537,8 @@ function renderRecipe() {
     ${!isPriceOnly && Object.keys(ingredients).length ? `<div class="result"><span>🍲 만들 수 있는 수량</span><strong id="result">0개</strong><div class="note">보유 재료를 입력하면 가장 부족한 재료를 기준으로 계산합니다. 64개 = 1세트</div></div>` : ""}
     ${isAdmin && selectedCategory === "일반 요리" ? `<div class="note">추가 비율: ${percent}% · 디스코드 전송 금액: ${formatWon(adjustedPrice)}</div>` : ""}
     ${ingredientsHtml}`;
-
   const sendRecipeBtn = document.getElementById("sendRecipeDiscordBtn");
   if (sendRecipeBtn) sendRecipeBtn.addEventListener("click", sendSelectedRecipeToDiscord);
-
   document.querySelectorAll(".set-input,.piece-input").forEach(el => {
     el.addEventListener("input", updateCalculation);
     el.addEventListener("keydown", handleTab);
@@ -557,21 +550,18 @@ function updateCalculation() {
   if (!selected) return;
   const ingredients = expandRecipe(selected);
   let possible = Infinity;
-
   for (const [name, need] of Object.entries(ingredients)) {
     const setInput = [...document.querySelectorAll(".set-input")].find(el => el.dataset.name === name);
     const pieceInput = [...document.querySelectorAll(".piece-input")].find(el => el.dataset.name === name);
     if (!setInput || !pieceInput) continue;
-
-    const sets = Math.max(0,Math.floor(Number(setInput.value) || 0));
-    const pieces = Math.max(0,Math.floor(Number(pieceInput.value) || 0));
-    ownedMaterials[name] = {sets,pieces};
+    const sets = Math.max(0, Math.floor(Number(setInput.value) || 0));
+    const pieces = Math.max(0, Math.floor(Number(pieceInput.value) || 0));
+    ownedMaterials[name] = {sets, pieces};
     const owned = sets * STACK + pieces;
-    possible = Math.min(possible,Math.floor(owned / need));
+    possible = Math.min(possible, Math.floor(owned / need));
     const cell = document.getElementById("owned-" + cssId(name));
     if (cell) cell.textContent = formatStack(owned);
   }
-
   saveOwnedMaterials();
   if (possible === Infinity) possible = 0;
   currentPossibleCount = possible;
@@ -586,8 +576,7 @@ function handleTab(e) {
   if (index < 0) return;
   e.preventDefault();
   const next = e.shiftKey ? inputs[Math.max(0,index-1)] : inputs[Math.min(inputs.length-1,index+1)];
-  next.focus();
-  next.select();
+  next.focus(); next.select();
 }
 
 document.getElementById("search").addEventListener("input", renderList);
@@ -609,14 +598,34 @@ logoutBtn.addEventListener("click", async () => { await signOut(auth); });
 
 doLoginBtn.addEventListener("click", async () => {
   const email = document.getElementById("emailInput").value.trim();
-  const password = document.getElementById("passwordInput").value.trim();
+  const password = document.getElementById("passwordInput").value;
   loginStatus.textContent = "로그인 중...";
+  doLoginBtn.disabled = true;
   try {
-    await signInWithEmailAndPassword(auth,email,password);
-    loginStatus.textContent = "";
+    if (!email || !password) throw new Error("이메일과 비밀번호를 모두 입력해주세요.");
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    loginStatus.textContent = "로그인 확인 중...";
+    if (credential.user.uid !== ADMIN_UID) {
+      await signOut(auth);
+      throw new Error("관리자 계정 UID와 일치하지 않습니다. 관리자 계정으로 로그인해주세요.");
+    }
+    loginStatus.textContent = "✅ 관리자 로그인 성공";
     loginSection.classList.add("hidden");
   } catch (err) {
-    loginStatus.textContent = "❌ 로그인 실패: " + (err.message || err);
+    const messages = {
+      "auth/invalid-email": "이메일 형식이 올바르지 않습니다.",
+      "auth/user-not-found": "등록되지 않은 이메일입니다.",
+      "auth/wrong-password": "비밀번호가 올바르지 않습니다.",
+      "auth/invalid-credential": "이메일 또는 비밀번호가 올바르지 않습니다.",
+      "auth/too-many-requests": "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.",
+      "auth/network-request-failed": "네트워크 연결을 확인해주세요.",
+      "auth/unauthorized-domain": "현재 사이트 도메인이 Firebase 인증 허용 도메인에 등록되어 있지 않습니다. Firebase Console > Authentication > Settings > Authorized domains에서 현재 도메인을 추가해주세요.",
+      "auth/operation-not-allowed": "Firebase Authentication에서 이메일/비밀번호 로그인이 비활성화되어 있습니다. Firebase Console > Authentication > Sign-in method에서 사용 설정해주세요."
+    };
+    loginStatus.textContent = "❌ 로그인 실패: " + (messages[err.code] || err.message || String(err));
+    console.error("Firebase 로그인 오류", err.code, err.message);
+  } finally {
+    doLoginBtn.disabled = false;
   }
 });
 
