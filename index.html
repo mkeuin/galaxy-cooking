@@ -663,7 +663,7 @@ function renderList() {
       });
 
       const labelText = document.createElement("span");
-      labelText.textContent = "추가 비율";
+      labelText.textContent = "변동률";
 
       const percent = document.createElement("span");
       percent.textContent = "%";
@@ -702,7 +702,7 @@ function renderPriceAdminBar() {
 
   if (activeCategory === "일반 요리" && isAdmin) {
     bar.innerHTML = `
-      <span class="price-admin-status" id="priceSaveStatus">요리별 추가 비율을 입력한 뒤 저장하세요.</span>
+      <span class="price-admin-status" id="priceSaveStatus">요리별 변동률을 입력한 뒤 저장하세요.</span>
       <button type="button" class="btn btn-success" id="savePricePercentagesBtn">💾 비율 저장</button>
     `;
 
@@ -734,14 +734,14 @@ async function loadPricePercentages() {
 
     if (selected) renderRecipe();
   } catch (error) {
-    console.error("추가 비율 불러오기 실패:", error);
+    console.error("변동률 불러오기 실패:", error);
     pricePercentagesLoaded = true;
   }
 }
 
 async function savePricePercentages() {
   if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
-    alert("관리자만 추가 비율을 저장할 수 있습니다.");
+    alert("관리자만 변동률을 저장할 수 있습니다.");
     return;
   }
 
@@ -768,7 +768,7 @@ async function savePricePercentages() {
     const savedStatus = document.getElementById("priceSaveStatus");
 
     if (savedStatus) {
-      savedStatus.textContent = "✅ 추가 비율을 저장했습니다.";
+      savedStatus.textContent = "✅ 변동률을 저장했습니다.";
     }
   } catch (error) {
     console.error(error);
@@ -833,7 +833,7 @@ async function sendSelectedRecipeToDiscord() {
   }
 
   if (!pricePercentagesLoaded) {
-    alert("추가 비율을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+    alert("변동률을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
     return;
   }
 
@@ -917,9 +917,9 @@ function renderRecipe() {
   content.innerHTML = `
     <div class="selected">[${escapeHtml(selectedCategory)}] ${escapeHtml(selected)}</div>
     ${price ? `<div class="result"><span>💰 사이트 표시 금액 (원금)</span><strong>${formatWon(price)}</strong></div>` : ""}
-    ${isPriceOnly && isAdmin ? `<div class="discord-send-row"><button type="button" class="btn btn-discord" id="sendRecipeDiscordBtn">📢 추가 비율 적용 금액을 디스코드로 전송</button></div>` : ""}
+    ${isPriceOnly && isAdmin ? `<div class="discord-send-row"><button type="button" class="btn btn-discord" id="sendRecipeDiscordBtn">📢 변동률 적용 금액을 디스코드로 전송</button></div>` : ""}
     ${!isPriceOnly && Object.keys(ingredients).length ? `<div class="result"><span>🍲 만들 수 있는 수량</span><strong id="result">0개</strong><div class="note">보유 재료를 입력하면 가장 부족한 재료를 기준으로 계산합니다. 64개 = 1세트</div></div>` : ""}
-    ${isAdmin && selectedCategory === "일반 요리" ? `<div class="note">추가 비율: ${percent}% · 디스코드 전송 금액: ${formatWon(adjustedPrice)}</div>` : ""}
+    ${isAdmin && selectedCategory === "일반 요리" ? `<div class="note">변동률: ${percent}% · 디스코드 전송 금액: ${formatWon(adjustedPrice)}</div>` : ""}
     ${ingredientsHtml}
   `;
 
