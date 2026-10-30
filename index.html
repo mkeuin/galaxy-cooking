@@ -328,12 +328,6 @@ input[type="number"]{
   font-size:14px;
   color:var(--muted);
 }
-.discord-send-row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin:12px 0;
-}
 .hidden{display:none!important}
 @media(max-width:700px){
   .app{padding:14px 8px 30px}
@@ -390,13 +384,17 @@ input[type="number"]{
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import {
   getFirestore,
   doc,
@@ -422,8 +420,8 @@ const STACK = 64;
 const OWNED_STORAGE_KEY = "galaxyCookingOwnedMaterials";
 
 /*
- * 기존에 사용하던 디스코드 웹훅 직접 전송 방식입니다.
- * 주의: 웹훅 URL이 공개되면 다른 사람도 메시지를 보낼 수 있습니다.
+ * 기존 웹훅 직접 전송 방식입니다.
+ * 주의: 웹훅 주소가 공개되면 다른 사람도 메시지를 보낼 수 있습니다.
  */
 const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1545326131798872094/UP4tY7F6tmLzwK6UtprLSUNTost3g-KvBxdm1X5hfrqnDaXosDA7ukD223PRfEJClv9y";
 
@@ -443,6 +441,7 @@ const recipes = {
     "열매 액기스 2개": {"달콤한 열매 박스":1, "요리용 석탄":2},
     "사과 액기스 8개": {"사과 박스":1, "요리용 석탄":8}
   },
+
   "일반 요리": {
     "코울슬로": {"양배추":1, "당근 액기스":1, "요리용 석탄":1},
     "마늘 바게트": {"마늘":1, "빵":1, "요리용 석탄":1},
@@ -464,6 +463,7 @@ const recipes = {
     "애플파이": {"사과 액기스":1, "수북한 밀가루":1, "요리용 석탄":1},
     "게살버거": {"빵":1, "꽃게":1, "요리용 석탄":1}
   },
+
   "특수 요리": {
     "맛의 기원 (海)": {"범고래":1, "상어":1, "소라고동":1, "황금 잉걸불":1},
     "맛의 기원 (地)": {"빵":128, "쌀":128, "사과 액기스":32, "황금 잉걸불":1},
@@ -543,12 +543,8 @@ function formatStack(n) {
   const sets = Math.floor(n / STACK);
   const pieces = n % STACK;
 
-  if (sets && pieces) {
-    return `${formatNumber(n)}개 (${formatNumber(sets)}세트 + ${formatNumber(pieces)}개)`;
-  }
-  if (sets) {
-    return `${formatNumber(n)}개 (${formatNumber(sets)}세트)`;
-  }
+  if (sets && pieces) return `${formatNumber(n)}개 (${formatNumber(sets)}세트 + ${formatNumber(pieces)}개)`;
+  if (sets) return `${formatNumber(n)}개 (${formatNumber(sets)}세트)`;
   return `${formatNumber(n)}개`;
 }
 
@@ -718,9 +714,11 @@ function renderPriceAdminBar() {
     bar.innerHTML = `
       <span class="price-admin-status" id="priceSaveStatus">기준가 대비 ±5%, 하루 변동 최대 ±2%p</span>
       <button type="button" class="btn btn-success" id="savePricePercentagesBtn">💾 변동률 저장</button>
+      <button type="button" class="btn btn-discord" id="sendAllRecipesDiscordBtn">📢 일반 요리 전체 디스코드 전송</button>
     `;
 
     document.getElementById("savePricePercentagesBtn").onclick = savePricePercentages;
+    document.getElementById("sendAllRecipesDiscordBtn").onclick = sendAllGeneralRecipesToDiscord;
   } else {
     bar.innerHTML = "";
   }
@@ -821,10 +819,6 @@ async function savePricePercentages() {
   }
 }
 
-/*
- * 디스코드 전송 함수
- * 기존 Worker 방식 대신 기존 웹훅 주소로 직접 POST합니다.
- */
 async function postToDiscord(message) {
   if (!DISCORD_WEBHOOK_URL) {
     alert("디스코드 웹훅 URL이 설정되지 않았습니다.");
@@ -848,7 +842,6 @@ async function postToDiscord(message) {
       throw new Error(`HTTP ${response.status} ${response.statusText} ${detail}`);
     }
 
-    alert("디스코드로 성공적으로 전송되었습니다!");
     return true;
   } catch (error) {
     console.error("Discord 전송 실패:", error);
@@ -857,9 +850,9 @@ async function postToDiscord(message) {
   }
 }
 
-async function sendSelectedRecipeToDiscord() {
-  if (!selected || selectedCategory !== "일반 요리") {
-    alert("일반 요리를 선택해주세요.");
+async function sendAllGeneralRecipesToDiscord() {
+  if (activeCategory !== "일반 요리") {
+    alert("일반 요리 카테고리에서만 전송할 수 있습니다.");
     return;
   }
 
@@ -873,19 +866,43 @@ async function sendSelectedRecipeToDiscord() {
     return;
   }
 
-  const adjusted = getAdjustedPrice(selected);
-  const percent = Number(pricePercentages[selected] || 0);
-  const signedPercent = `${percent > 0 ? "+" : ""}${percent}%`;
+  const lines = Object.keys(recipes["일반 요리"])
+    .filter(name => prices[name] !== undefined)
+    .map(name => {
+      const percent = Number(pricePercentages[name] || 0);
+      const signedPercent = `${percent > 0 ? "+" : ""}${percent}%`;
 
-  const message =
-    `🌌 **은하 요리 가격 변동**\n` +
-    `🍳 **요리명:** ${selected}\n` +
-    `📌 **기준가:** ${formatWon(prices[selected] || 0)}\n` +
-    `📈 **변동률:** ${signedPercent}\n` +
-    `💰 **변동 적용 판매가:** ${formatWon(adjusted)}\n` +
-    `_(하루 변동 최대 ±2%p · 기준가 대비 ±5% 이내)_`;
+      return `🍳 **${name}** | 📌 기준가: ${formatWon(prices[name])} | 📈 변동률: ${signedPercent} | 💰 변동 적용 판매가: ${formatWon(getAdjustedPrice(name))}`;
+    });
 
-  await postToDiscord(message);
+  if (!lines.length) {
+    alert("전송할 일반 요리 가격 정보가 없습니다.");
+    return;
+  }
+
+  // 디스코드 메시지 길이 제한을 넘지 않도록 여러 메시지로 나눠 전송합니다.
+  const chunks = [];
+  let chunk = "";
+
+  for (const line of lines) {
+    const next = chunk ? `${chunk}\n${line}` : line;
+
+    if (next.length > 1900) {
+      if (chunk) chunks.push(chunk);
+      chunk = line;
+    } else {
+      chunk = next;
+    }
+  }
+
+  if (chunk) chunks.push(chunk);
+
+  for (const message of chunks) {
+    const sent = await postToDiscord(message);
+    if (!sent) return;
+  }
+
+  alert("일반 요리 전체 가격 정보가 디스코드로 전송되었습니다!");
 }
 
 function selectRecipe(category, name) {
@@ -916,15 +933,10 @@ function renderRecipe() {
   const content = document.getElementById("appContent");
   const ingredients = expandRecipe(selected);
   const price = prices[selected];
-  const isPriceOnly = selectedCategory === "일반 요리" && !Object.keys(ingredients).length;
-  const adjustedPrice = getAdjustedPrice(selected);
-  const percent = Number(pricePercentages[selected] || 0);
 
   let ingredientsHtml = "";
 
-  if (isPriceOnly) {
-    ingredientsHtml = '<div class="empty">재료 정보가 없습니다.</div>';
-  } else if (!Object.keys(ingredients).length) {
+  if (!Object.keys(ingredients).length) {
     ingredientsHtml = '<div class="empty">재료 정보가 없습니다.</div>';
   } else {
     ingredientsHtml = `
@@ -946,6 +958,9 @@ function renderRecipe() {
       </div>`;
   }
 
+  const percent = Number(pricePercentages[selected] || 0);
+  const adjustedPrice = getAdjustedPrice(selected);
+
   content.innerHTML = `
     <div class="selected">[${escapeHtml(selectedCategory)}] ${escapeHtml(selected)}</div>
 
@@ -955,30 +970,18 @@ function renderRecipe() {
         <strong>${formatWon(price)}</strong>
       </div>` : ""}
 
-    ${selectedCategory === "일반 요리" && isAdmin ? `
-      <div class="discord-send-row">
-        <button type="button" class="btn btn-discord" id="sendRecipeDiscordBtn">
-          📢 변동률·판매가 디스코드 전송
-        </button>
-      </div>` : ""}
-
-    ${!isPriceOnly && Object.keys(ingredients).length ? `
+    ${!Object.keys(ingredients).length ? "" : `
       <div class="result">
         <span>🍲 만들 수 있는 수량</span>
         <strong id="result">0개</strong>
         <div class="note">보유 재료를 입력하면 가장 부족한 재료를 기준으로 계산합니다. 64개 = 1세트</div>
-      </div>` : ""}
+      </div>`}
 
     ${isAdmin && selectedCategory === "일반 요리" ? `
-      <div class="note">추가 비율: ${percent}% · 디스코드 전송 금액: ${formatWon(adjustedPrice)}</div>` : ""}
+      <div class="note">추가 비율: ${percent}% · 변동 적용 판매가: ${formatWon(adjustedPrice)}</div>` : ""}
 
     ${ingredientsHtml}
   `;
-
-  const sendRecipeBtn = document.getElementById("sendRecipeDiscordBtn");
-  if (sendRecipeBtn) {
-    sendRecipeBtn.addEventListener("click", sendSelectedRecipeToDiscord);
-  }
 
   document.querySelectorAll(".set-input,.piece-input").forEach(el => {
     el.addEventListener("input", updateCalculation);
@@ -997,6 +1000,7 @@ function updateCalculation() {
   for (const [name, need] of Object.entries(ingredients)) {
     const setInput = [...document.querySelectorAll(".set-input")]
       .find(el => el.dataset.name === name);
+
     const pieceInput = [...document.querySelectorAll(".piece-input")]
       .find(el => el.dataset.name === name);
 
@@ -1083,7 +1087,7 @@ doLoginBtn.addEventListener("click", async () => {
 
     if (credential.user.uid !== ADMIN_UID) {
       await signOut(auth);
-      throw new Error("로그인 계정은 확인됐지만 관리자 계정 UID와 일치하지 않습니다. 관리자 계정으로 로그인해주세요.");
+      throw new Error("관리자 계정 UID와 일치하지 않습니다. 관리자 계정으로 로그인해주세요.");
     }
 
     loginStatus.textContent = "✅ 관리자 로그인 성공";
@@ -1097,7 +1101,7 @@ doLoginBtn.addEventListener("click", async () => {
       "auth/too-many-requests": "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.",
       "auth/network-request-failed": "네트워크 연결을 확인해주세요.",
       "auth/unauthorized-domain": "현재 사이트 도메인이 Firebase 인증 허용 도메인에 등록되어 있지 않습니다. Firebase Console > Authentication > Settings > Authorized domains에서 현재 도메인을 추가해주세요.",
-      "auth/operation-not-allowed": "Firebase Authentication에서 이메일/비밀번호 로그인이 비활성화되어 있습니다. Firebase Console > Authentication > Sign-in method에서 사용 설정해주세요."
+      "auth/operation-not-allowed": "Firebase Authentication에서 이메일/비밀번호 로그인을 사용 설정해주세요."
     };
 
     loginStatus.textContent =
