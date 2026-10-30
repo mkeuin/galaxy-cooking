@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,343 +7,81 @@
 <title>은하 요리 계산기</title>
 <style>
 :root{
-  --bg:#080a1f;
-  --panel:rgba(16,19,48,.88);
-  --panel2:rgba(28,32,75,.82);
-  --text:#f4f5ff;
-  --muted:#b9bddb;
-  --line:rgba(255,255,255,.13);
-  --accent:#9b8cff;
-  --accent2:#61d6ff;
-  --success:#68e0a0;
-  --danger:#ff647c;
+  --bg:#080a1f;--panel:rgba(16,19,48,.88);--panel2:rgba(28,32,75,.82);
+  --text:#f4f5ff;--muted:#b9bddb;--line:rgba(255,255,255,.13);
+  --accent:#9b8cff;--accent2:#61d6ff;--success:#68e0a0;--danger:#ff647c;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;
-  min-height:100vh;
-  color:var(--text);
+  margin:0;min-height:100vh;color:var(--text);
   font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
-  background:
-    radial-gradient(circle at 15% 20%,rgba(111,76,255,.38),transparent 28%),
-    radial-gradient(circle at 85% 25%,rgba(0,180,255,.23),transparent 25%),
-    radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),
-    linear-gradient(135deg,#050614,#101434 55%,#070818);
+  background:radial-gradient(circle at 15% 20%,rgba(111,76,255,.38),transparent 28%),
+  radial-gradient(circle at 85% 25%,rgba(0,180,255,.23),transparent 25%),
+  radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),
+  linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
-body:before{
+body:before,body:after{
   content:"✦ · ✧        ·        ✦        · ✧     ·        ✦        · ✧";
-  position:fixed;
-  left:0;
-  top:0;
-  width:50%;
-  height:100%;
-  pointer-events:none;
-  opacity:.45;
-  font-size:32px;
-  letter-spacing:24px;
-  line-height:140px;
-  overflow:hidden;
-  z-index:0;
+  position:fixed;top:0;width:50%;height:100%;pointer-events:none;
+  opacity:.45;font-size:32px;letter-spacing:24px;line-height:140px;
+  overflow:hidden;z-index:0;
 }
-body:after{
-  content:"✧ · ✦        ·        ✧        · ✦        · ✧     ·        ✦";
-  position:fixed;
-  right:0;
-  top:0;
-  width:50%;
-  height:100%;
-  pointer-events:none;
-  opacity:.45;
-  font-size:32px;
-  letter-spacing:24px;
-  line-height:140px;
-  overflow:hidden;
-  text-align:right;
-  z-index:0;
-}
-.app{
-  position:relative;
-  z-index:1;
-  max-width:1150px;
-  margin:auto;
-  padding:25px 16px 45px;
-}
-.hero{
-  text-align:center;
-  margin-bottom:18px;
-}
-.hero h1{
-  margin:0;
-  font-size:clamp(28px,5vw,48px);
-  text-shadow:0 0 24px rgba(150,120,255,.7);
-}
-.hero p{
-  color:var(--muted);
-  margin:8px 0 0;
-  font-size:17px;
-}
-.card{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:22px;
-  backdrop-filter:blur(14px);
-  box-shadow:0 20px 60px rgba(0,0,0,.35);
-}
-.controls{
-  padding:18px;
-  margin-bottom:16px;
-}
-.category-tabs{
-  display:flex;
-  gap:9px;
-  flex-wrap:wrap;
-  margin-bottom:14px;
-}
-.category-tab{
-  flex:1 1 150px;
-  padding:14px 12px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:rgba(255,255,255,.06);
-  color:var(--text);
-  font-size:17px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.15s;
-}
+body:before{left:0}
+body:after{right:0;text-align:right;content:"✧ · ✦        ·        ✧        · ✦        · ✧     ·        ✦"}
+.app{position:relative;z-index:1;max-width:1150px;margin:auto;padding:25px 16px 45px}
+.hero{text-align:center;margin-bottom:18px}
+.hero h1{margin:0;font-size:clamp(28px,5vw,48px);text-shadow:0 0 24px rgba(150,120,255,.7)}
+.hero p{color:var(--muted);margin:8px 0 0;font-size:17px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.controls{padding:18px;margin-bottom:16px}
+.category-tabs{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.category-tab{flex:1 1 150px;padding:14px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.06);color:var(--text);font-size:17px;font-weight:bold;cursor:pointer;transition:.15s}
 .category-tab:hover{border-color:var(--accent2)}
-.category-tab.active{
-  background:linear-gradient(135deg,rgba(155,140,255,.35),rgba(97,214,255,.2));
-  border-color:var(--accent2);
-  box-shadow:0 0 15px rgba(97,214,255,.2);
-}
-.search{
-  width:100%;
-  padding:16px 18px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  background:#080a20;
-  color:var(--text);
-  font-size:19px;
-  outline:none;
-}
-.recipe-list{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:8px;
-  margin-top:14px;
-  max-height:300px;
-  overflow:auto;
-}
-.recipe-btn{
-  padding:15px;
-  border:1px solid var(--line);
-  background:var(--panel2);
-  color:var(--text);
-  border-radius:12px;
-  cursor:pointer;
-  text-align:left;
-  font-size:19px;
-  font-weight:bold;
-}
-.recipe-btn:hover,
-.recipe-btn.active{
-  border-color:var(--accent2);
-  box-shadow:0 0 16px rgba(97,214,255,.22);
-}
-.grade{
-  font-size:14px;
-  opacity:.75;
-  display:block;
-  margin-bottom:5px;
-}
+.category-tab.active{background:linear-gradient(135deg,rgba(155,140,255,.35),rgba(97,214,255,.2));border-color:var(--accent2);box-shadow:0 0 15px rgba(97,214,255,.2)}
+.search{width:100%;padding:16px 18px;border-radius:12px;border:1px solid var(--line);background:#080a20;color:var(--text);font-size:19px;outline:none}
+.recipe-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:14px;max-height:300px;overflow:auto}
+.recipe-btn{padding:15px;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;cursor:pointer;text-align:left;font-size:19px;font-weight:bold}
+.recipe-btn:hover,.recipe-btn.active{border-color:var(--accent2);box-shadow:0 0 16px rgba(97,214,255,.22)}
+.grade{font-size:14px;opacity:.75;display:block;margin-bottom:5px}
 .content{padding:20px}
-.selected{
-  font-size:26px;
-  font-weight:bold;
-  margin:0 0 16px;
-}
-.result{
-  padding:18px;
-  border-radius:16px;
-  background:linear-gradient(135deg,rgba(110,85,255,.22),rgba(55,180,255,.14));
-  border:1px solid rgba(150,150,255,.28);
-  margin-bottom:18px;
-  font-size:18px;
-}
-.result strong{
-  font-size:clamp(28px,4vw,42px);
-  display:block;
-  margin-top:6px;
-}
-.section-title{
-  font-size:21px;
-  font-weight:bold;
-  margin:22px 0 10px;
-}
-.table{
-  width:100%;
-  border-collapse:collapse;
-  overflow:hidden;
-  border-radius:14px;
-  font-size:16px;
-}
-th,td{
-  padding:13px 10px;
-  border-bottom:1px solid var(--line);
-  text-align:center;
-}
-th{
-  color:#d9d7ff;
-  background:rgba(255,255,255,.05);
-}
-td:first-child{
-  text-align:left;
-  font-weight:bold;
-}
-input.num{
-  width:90px;
-  padding:11px;
-  border-radius:9px;
-  border:1px solid var(--line);
-  background:#090b23;
-  color:white;
-  text-align:center;
-  font-size:17px;
-}
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button{
-  -webkit-appearance:none;
-  margin:0;
-}
-input[type="number"]{
-  -moz-appearance:textfield;
-  appearance:textfield;
-}
+.selected{font-size:26px;font-weight:bold;margin:0 0 16px}
+.result{padding:18px;border-radius:16px;background:linear-gradient(135deg,rgba(110,85,255,.22),rgba(55,180,255,.14));border:1px solid rgba(150,150,255,.28);margin-bottom:18px;font-size:18px}
+.result strong{font-size:clamp(28px,4vw,42px);display:block;margin-top:6px}
+.section-title{font-size:21px;font-weight:bold;margin:22px 0 10px}
+.table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:14px;font-size:16px}
+th,td{padding:13px 10px;border-bottom:1px solid var(--line);text-align:center}
+th{color:#d9d7ff;background:rgba(255,255,255,.05)}
+td:first-child{text-align:left;font-weight:bold}
+input.num{width:90px;padding:11px;border-radius:9px;border:1px solid var(--line);background:#090b23;color:white;text-align:center;font-size:17px}
+input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 .owned{white-space:nowrap}
-.subrecipes{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-  gap:8px;
-}
-.sub{
-  padding:13px 14px;
-  border-radius:10px;
-  background:rgba(255,255,255,.05);
-  border:1px solid var(--line);
-  font-size:16px;
-}
-.note{
-  color:var(--muted);
-  font-size:14px;
-}
-.empty{
-  text-align:center;
-  color:var(--muted);
-  padding:30px;
-  font-size:18px;
-}
-.category-row td{
-  text-align:left!important;
-  font-size:18px!important;
-  font-weight:bold!important;
-  padding:14px 12px!important;
-  background:rgba(255,255,255,.08);
-}
-.top-actions{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  margin-top:15px;
-  flex-wrap:wrap;
-}
-.btn{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.07);
-  color:white;
-  padding:11px 16px;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:15px;
-}
+.subrecipes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+.sub{padding:13px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:16px}
+.note{color:var(--muted);font-size:14px}
+.empty{text-align:center;color:var(--muted);padding:30px;font-size:18px}
+.category-row td{text-align:left!important;font-size:18px!important;font-weight:bold!important;padding:14px 12px!important;background:rgba(255,255,255,.08)}
+.top-actions{display:flex;justify-content:center;gap:8px;margin-top:15px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:rgba(255,255,255,.07);color:white;padding:11px 16px;border-radius:10px;cursor:pointer;font-size:15px}
 .btn:hover{filter:brightness(1.15)}
-.btn-primary{
-  background:rgba(155,140,255,.25);
-  border-color:rgba(155,140,255,.6);
-}
-.btn-success{
-  background:rgba(104,224,160,.14);
-  border-color:rgba(104,224,160,.4);
-}
-.btn-danger{
-  background:rgba(255,100,124,.14);
-  border-color:rgba(255,100,124,.4);
-}
-.btn-discord{
-  background:rgba(88,101,242,.3);
-  border-color:rgba(88,101,242,.7);
-  color:#fff;
-  font-weight:bold;
-}
-.btn:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-.recipe-item{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  padding:10px;
-  border:1px solid var(--line);
-  background:var(--panel2);
-  border-radius:12px;
-  min-width:0;
-}
+.btn-primary{background:rgba(155,140,255,.25);border-color:rgba(155,140,255,.6)}
+.btn-success{background:rgba(104,224,160,.14);border-color:rgba(104,224,160,.4)}
+.btn-danger{background:rgba(255,100,124,.14);border-color:rgba(255,100,124,.4)}
+.btn-discord{background:rgba(88,101,242,.3);border-color:rgba(88,101,242,.7);color:#fff;font-weight:bold}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.recipe-item{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--line);background:var(--panel2);border-radius:12px;min-width:0}
 .recipe-item .recipe-btn{width:100%;min-width:0}
-.percent-edit{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-size:14px;
-  color:var(--muted);
-}
-.percent-edit input{
-  width:76px;
-  min-width:0;
-  padding:8px;
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:#090b23;
-  color:#fff;
-  text-align:center;
-}
-.price-admin-bar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:12px;
-}
-.price-admin-status{
-  font-size:14px;
-  color:var(--muted);
-}
+.percent-edit{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+.percent-edit input{width:76px;min-width:0;padding:8px;border:1px solid var(--line);border-radius:8px;background:#090b23;color:#fff;text-align:center}
+.price-admin-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
+.price-admin-status{font-size:14px;color:var(--muted)}
+.discord-send-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .hidden{display:none!important}
 @media(max-width:700px){
-  .app{padding:14px 8px 30px}
-  .content,.controls{padding:13px}
-  th:nth-child(2),
-  td:nth-child(2){display:none}
-  .table{font-size:13px}
-  input.num{width:60px}
-  .recipe-btn{font-size:18px}
-  body:before,
-  body:after{
-    font-size:24px;
-    letter-spacing:14px;
-    line-height:110px;
-  }
+  .app{padding:14px 8px 30px}.content,.controls{padding:13px}
+  th:nth-child(2),td:nth-child(2){display:none}
+  .table{font-size:13px}input.num{width:60px}.recipe-btn{font-size:18px}
+  body:before,body:after{font-size:24px;letter-spacing:14px;line-height:110px}
   .login-row{grid-template-columns:1fr}
 }
 </style>
@@ -357,19 +96,14 @@ input[type="number"]{
       <button class="btn btn-danger hidden" id="logoutBtn">로그아웃</button>
     </div>
   </div>
-
   <div class="card controls">
     <div id="categoryTabs" class="category-tabs"></div>
     <input id="search" class="search" placeholder="🔎 선택한 카테고리에서 요리 검색">
     <div id="recipeList" class="recipe-list"></div>
   </div>
-
   <div class="card content">
-    <div id="appContent" class="empty">
-      위에서 요리를 선택해주세요.
-    </div>
+    <div id="appContent" class="empty">위에서 요리를 선택해주세요.</div>
   </div>
-
   <div id="loginSection" class="card group-card hidden">
     <div class="section-title">🔐 관리자 인증</div>
     <div class="login-box">
@@ -384,26 +118,12 @@ input[type="number"]{
 </div>
 
 <script type="module">
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBi3CTzTaWPwDJ9CgwuRgpROac45Ag-54Y",
+  apiKey: "AIzaSyBi3CTzTaWPwDJ9CgwuRgpROac45Ag-54",
   authDomain: "galaxy-cooking.firebaseapp.com",
   projectId: "galaxy-cooking",
   storageBucket: "galaxy-cooking.firebasestorage.app",
@@ -414,98 +134,76 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 const ADMIN_UID = "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
 const STACK = 64;
 const OWNED_STORAGE_KEY = "galaxyCookingOwnedMaterials";
-
-/*
- * 기존 웹훅 직접 전송 방식입니다.
- * 주의: 웹훅 주소가 공개되면 다른 사람도 메시지를 보낼 수 있습니다.
- */
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1545326131798872094/UP4tY7F6tmLzwK6UtprLSUNTost3g-KvBxdm1X5hfrqnDaXosDA7ukD223PRfEJClv9y";
-
+const DISCORD_PROXY_URL = "https://discord-proxy.galaxycooking.workers.dev";
 const PRICE_PERCENT_REF = doc(db, "cookingOrder", "pricePercentages");
 
 const recipes = {
   "재료 요리": {
-    "빵": {"밀 박스":1, "요리용 석탄":1},
-    "쌀": {"벼 박스":1, "요리용 석탄":1},
-    "호박 액기스": {"호박 박스":1, "요리용 석탄":1},
-    "수박 액기스": {"수박 박스":1, "요리용 석탄":1},
-    "감자 액기스": {"감자 박스":1, "요리용 석탄":1},
-    "당근 액기스": {"당근 박스":1, "요리용 석탄":1},
-    "고추 액기스": {"고추 박스":1, "요리용 석탄":1},
-    "수북한 설탕": {"사탕수수 박스":1, "요리용 석탄":1},
-    "수북한 밀가루": {"밀 박스":1, "요리용 석탄":1},
-    "열매 액기스 2개": {"달콤한 열매 박스":1, "요리용 석탄":2},
-    "사과 액기스 8개": {"사과 박스":1, "요리용 석탄":8}
+    "빵": {"밀 박스":1,"요리용 석탄":1},
+    "쌀": {"벼 박스":1,"요리용 석탄":1},
+    "호박 액기스": {"호박 박스":1,"요리용 석탄":1},
+    "수박 액기스": {"수박 박스":1,"요리용 석탄":1},
+    "감자 액기스": {"감자 박스":1,"요리용 석탄":1},
+    "당근 액기스": {"당근 박스":1,"요리용 석탄":1},
+    "고추 액기스": {"고추 박스":1,"요리용 석탄":1},
+    "수북한 설탕": {"사탕수수 박스":1,"요리용 석탄":1},
+    "수북한 밀가루": {"밀 박스":1,"요리용 석탄":1},
+    "열매 액기스 2개": {"달콤한 열매 박스":1,"요리용 석탄":2},
+    "사과 액기스 8개": {"사과 박스":1,"요리용 석탄":8}
   },
-
   "일반 요리": {
-    "코울슬로": {"양배추":1, "당근 액기스":1, "요리용 석탄":1},
-    "마늘 바게트": {"마늘":1, "빵":1, "요리용 석탄":1},
-    "감자 대파 수프": {"대파":1, "감자 액기스":1, "요리용 석탄":1},
-    "치킨 라이스": {"닭고기":1, "쌀":1, "요리용 석탄":1},
-    "비프 샌드위치": {"소고기":1, "빵":1, "요리용 석탄":1},
-    "제육볶음": {"돼지고기":1, "고추 액기스":1, "요리용 석탄":1},
-    "새우 볶음밥": {"갯새우":1, "쌀":1, "요리용 석탄":1},
-    "달콤 오징어 구이": {"갯벌 오징어":1, "수북한 설탕":1, "요리용 석탄":1},
-    "가리비 호박 구이": {"가리비":1, "호박 액기스":1, "요리용 석탄":1},
-    "수박 미역 샐러드": {"미역":1, "수박 액기스":1, "요리용 석탄":1},
-    "사과 샐러드": {"열매 액기스":1, "사과 액기스":1, "요리용 석탄":1},
-    "호박죽": {"쌀":1, "호박 액기스":1, "요리용 석탄":1},
-    "과일 굴 무침": {"굴":1, "열매 액기스":1, "요리용 석탄":1},
-    "호박 브륄레": {"호박 액기스":1, "수북한 설탕":1, "요리용 석탄":1},
-    "당근 케이크": {"당근 액기스":1, "수북한 밀가루":1, "수북한 설탕":1, "요리용 석탄":1},
-    "감자전": {"감자 액기스":1, "수북한 밀가루":1, "요리용 석탄":1},
-    "수박 주스": {"수박 액기스":1, "수북한 설탕":1, "요리용 석탄":1},
-    "애플파이": {"사과 액기스":1, "수북한 밀가루":1, "요리용 석탄":1},
-    "게살버거": {"빵":1, "꽃게":1, "요리용 석탄":1}
+    "코울슬로": {"양배추":1,"당근 액기스":1,"요리용 석탄":1},
+    "마늘 바게트": {"마늘":1,"빵":1,"요리용 석탄":1},
+    "감자 대파 수프": {"대파":1,"감자 액기스":1,"요리용 석탄":1},
+    "치킨 라이스": {"닭고기":1,"쌀":1,"요리용 석탄":1},
+    "비프 샌드위치": {"소고기":1,"빵":1,"요리용 석탄":1},
+    "제육볶음": {"돼지고기":1,"고추 액기스":1,"요리용 석탄":1},
+    "새우 볶음밥": {"갯새우":1,"쌀":1,"요리용 석탄":1},
+    "달콤 오징어 구이": {"갯벌 오징어":1,"수북한 설탕":1,"요리용 석탄":1},
+    "가리비 호박 구이": {"가리비":1,"호박 액기스":1,"요리용 석탄":1},
+    "수박 미역 샐러드": {"미역":1,"수박 액기스":1,"요리용 석탄":1},
+    "사과 샐러드": {"열매 액기스":1,"사과 액기스":1,"요리용 석탄":1},
+    "호박죽": {"쌀":1,"호박 액기스":1,"요리용 석탄":1},
+    "과일 굴 무침": {"굴":1,"열매 액기스":1,"요리용 석탄":1},
+    "호박 브륄레": {"호박 액기스":1,"수북한 설탕":1,"요리용 석탄":1},
+    "당근 케이크": {"당근 액기스":1,"수북한 밀가루":1,"수북한 설탕":1,"요리용 석탄":1},
+    "감자전": {"감자 액기스":1,"수북한 밀가루":1,"요리용 석탄":1},
+    "수박 주스": {"수박 액기스":1,"수북한 설탕":1,"요리용 석탄":1},
+    "애플파이": {"사과 액기스":1,"수북한 밀가루":1,"요리용 석탄":1},
+    "게살버거": {"빵":1,"꽃게":1,"요리용 석탄":1}
   },
-
   "특수 요리": {
-    "맛의 기원 (海)": {"범고래":1, "상어":1, "소라고동":1, "황금 잉걸불":1},
-    "맛의 기원 (地)": {"빵":128, "쌀":128, "사과 액기스":32, "황금 잉걸불":1},
-    "황금 코울슬로": {"코울슬로":1, "황금 가루":1},
-    "황금 마늘 바게트": {"마늘 바게트":1, "황금 가루":1},
-    "황금 감자 대파 수프": {"감자 대파 수프":1, "황금 가루":1},
-    "황금 치킨 라이스": {"치킨 라이스":1, "황금 가루":1},
-    "황금 비프 샌드위치": {"비프 샌드위치":1, "황금 가루":1},
-    "황금 제육볶음": {"제육볶음":1, "황금 가루":1},
-    "황금 새우 볶음밥": {"새우 볶음밥":1, "황금 가루":1},
-    "황금 달콤 오징어 구이": {"달콤 오징어 구이":1, "황금 가루":1},
-    "황금 가리비 호박 구이": {"가리비 호박 구이":1, "황금 가루":1},
-    "황금 수박 미역 샐러드": {"수박 미역 샐러드":1, "황금 가루":1},
-    "황금 호박죽": {"호박죽":1, "황금 가루":1},
-    "황금 과일 굴 무침": {"과일 굴 무침":1, "황금 가루":1},
-    "황금 감자전": {"감자전":1, "황금 가루":1},
-    "황금 애플파이": {"애플파이":1, "황금 가루":1},
-    "황금 게살버거": {"게살버거":1, "황금 가루":1},
-    "황금 잉걸불": {"초록 잉걸불":20, "푸른 잉걸불":20, "잿빛 잉걸불":20, "붉은 잉걸불":20}
+    "맛의 기원 (海)": {"범고래":1,"상어":1,"소라고동":1,"황금 잉걸불":1},
+    "맛의 기원 (地)": {"빵":128,"쌀":128,"사과 액기스":32,"황금 잉걸불":1},
+    "황금 코울슬로": {"코울슬로":1,"황금 가루":1},
+    "황금 마늘 바게트": {"마늘 바게트":1,"황금 가루":1},
+    "황금 감자 대파 수프": {"감자 대파 수프":1,"황금 가루":1},
+    "황금 치킨 라이스": {"치킨 라이스":1,"황금 가루":1},
+    "황금 비프 샌드위치": {"비프 샌드위치":1,"황금 가루":1},
+    "황금 제육볶음": {"제육볶음":1,"황금 가루":1},
+    "황금 새우 볶음밥": {"새우 볶음밥":1,"황금 가루":1},
+    "황금 달콤 오징어 구이": {"달콤 오징어 구이":1,"황금 가루":1},
+    "황금 가리비 호박 구이": {"가리비 호박 구이":1,"황금 가루":1},
+    "황금 수박 미역 샐러드": {"수박 미역 샐러드":1,"황금 가루":1},
+    "황금 호박죽": {"호박죽":1,"황금 가루":1},
+    "황금 과일 굴 무침": {"과일 굴 무침":1,"황금 가루":1},
+    "황금 감자전": {"감자전":1,"황금 가루":1},
+    "황금 애플파이": {"애플파이":1,"황금 가루":1},
+    "황금 게살버거": {"게살버거":1,"황금 가루":1},
+    "황금 잉걸불": {"초록 잉걸불":20,"푸른 잉걸불":20,"잿빛 잉걸불":20,"붉은 잉걸불":20}
   }
 };
 
 const prices = {
-  "코울슬로":8384,
-  "마늘 바게트":11763,
-  "감자 대파 수프":8381,
-  "치킨 라이스":12733,
-  "비프 샌드위치":12453,
-  "제육볶음":9073,
-  "새우 볶음밥":12492,
-  "달콤 오징어 구이":11361,
-  "가리비 호박 구이":14012,
-  "수박 미역 샐러드":14014,
-  "사과 샐러드":16895,
-  "호박죽":9214,
-  "과일 굴 무침":12468,
-  "호박 브륄레":8193,
-  "당근 케이크":8450,
-  "감자전":5122,
-  "수박 주스":8189,
-  "애플파이":17537,
-  "게살버거":12209
+  "코울슬로":8384,"마늘 바게트":11763,"감자 대파 수프":8381,
+  "치킨 라이스":12733,"비프 샌드위치":12453,"제육볶음":9073,
+  "새우 볶음밥":12492,"달콤 오징어 구이":11361,"가리비 호박 구이":14012,
+  "수박 미역 샐러드":14014,"사과 샐러드":16895,"호박죽":9214,
+  "과일 굴 무침":12468,"호박 브륄레":8193,"당근 케이크":8450,
+  "감자전":5122,"수박 주스":8189,"애플파이":17537,"게살버거":12209
 };
 
 let selected = null;
@@ -513,106 +211,67 @@ let selectedCategory = null;
 let currentPossibleCount = 0;
 let isAdmin = false;
 let pricePercentages = {};
-let dailyStartPercentages = {};
-let pricePercentagesDate = new Date().toLocaleDateString("sv-SE");
 let pricePercentagesLoaded = false;
 let ownedMaterials = loadOwnedMaterials();
 
 function loadOwnedMaterials() {
-  try {
-    return JSON.parse(localStorage.getItem(OWNED_STORAGE_KEY)) || {};
-  } catch {
-    return {};
-  }
+  try { return JSON.parse(localStorage.getItem(OWNED_STORAGE_KEY)) || {}; }
+  catch { return {}; }
 }
-
 function saveOwnedMaterials() {
   localStorage.setItem(OWNED_STORAGE_KEY, JSON.stringify(ownedMaterials));
 }
-
-function formatNumber(n) {
-  return Number(n || 0).toLocaleString("ko-KR");
-}
-
-function formatWon(n) {
-  return `${formatNumber(Math.round(n || 0))}원`;
-}
-
+function formatNumber(n) { return Number(n || 0).toLocaleString("ko-KR"); }
+function formatWon(n) { return `${formatNumber(Math.round(n || 0))}원`; }
 function formatStack(n) {
   n = Math.floor(Number(n || 0));
-  const sets = Math.floor(n / STACK);
-  const pieces = n % STACK;
-
+  const sets = Math.floor(n / STACK), pieces = n % STACK;
   if (sets && pieces) return `${formatNumber(n)}개 (${formatNumber(sets)}세트 + ${formatNumber(pieces)}개)`;
   if (sets) return `${formatNumber(n)}개 (${formatNumber(sets)}세트)`;
   return `${formatNumber(n)}개`;
 }
-
 function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#39;");
+  return String(value).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#39;");
 }
-
-function cssId(name) {
-  return btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, "");
-}
+function cssId(name) { return btoa(unescape(encodeURIComponent(name))).replace(/[^a-zA-Z0-9]/g, ""); }
 
 function expandRecipe(name, amount = 1, result = {}) {
   const recipe = findRecipe(name);
   if (!recipe || !Object.keys(recipe).length) return result;
-
   for (const [item, need] of Object.entries(recipe)) {
     const total = need * amount;
     const nested = findRecipe(item);
-
-    if (nested && Object.keys(nested).length) {
-      expandRecipe(item, total, result);
-    } else {
-      result[item] = (result[item] || 0) + total;
-    }
+    if (nested && Object.keys(nested).length) expandRecipe(item, total, result);
+    else result[item] = (result[item] || 0) + total;
   }
-
   return result;
 }
-
 function findRecipe(name) {
-  for (const group of Object.values(recipes)) {
-    if (group[name]) return group[name];
-  }
+  for (const group of Object.values(recipes)) if (group[name]) return group[name];
   return null;
 }
-
 function isNestedRecipe(name) {
   return Boolean(findRecipe(name) && Object.keys(findRecipe(name)).length);
 }
-
 let activeCategory = Object.keys(recipes)[0];
 
 function renderCategoryTabs() {
   const tabs = document.getElementById("categoryTabs");
   tabs.innerHTML = "";
-
   for (const category of Object.keys(recipes)) {
     const button = document.createElement("button");
     button.className = "category-tab" + (activeCategory === category ? " active" : "");
     button.textContent = category;
-
     button.onclick = () => {
       activeCategory = category;
       selected = null;
       selectedCategory = category;
       document.getElementById("search").value = "";
-      document.getElementById("appContent").innerHTML =
-        '<div class="empty">요리를 선택해주세요.</div>';
-
+      document.getElementById("appContent").innerHTML = '<div class="empty">요리를 선택해주세요.</div>';
       renderCategoryTabs();
       renderList();
     };
-
     tabs.appendChild(button);
   }
 }
@@ -621,88 +280,54 @@ function renderList() {
   const q = document.getElementById("search").value.trim().toLowerCase();
   const list = document.getElementById("recipeList");
   list.innerHTML = "";
-
   const group = recipes[activeCategory] || {};
-  const matches = Object.keys(group).filter(name =>
-    name.toLowerCase().includes(q)
-  );
+  const matches = Object.keys(group).filter(name => name.toLowerCase().includes(q));
 
   for (const name of matches) {
     const item = document.createElement("div");
     item.className = "recipe-item";
-
     const button = document.createElement("button");
     button.className = "recipe-btn" + (selected === name ? " active" : "");
-    button.innerHTML =
-      `${escapeHtml(name)}${prices[name] ? `<span class="grade" style="margin-top:6px">원금: ${formatWon(prices[name])}</span>` : ""}`;
+    button.innerHTML = `${escapeHtml(name)}${prices[name] ? `<span class="grade" style="margin-top:6px">원금: ${formatWon(prices[name])}</span>` : ""}`;
     button.onclick = () => selectRecipe(activeCategory, name);
     item.appendChild(button);
 
     if (activeCategory === "일반 요리" && isAdmin) {
       const edit = document.createElement("label");
       edit.className = "percent-edit";
-
       const input = document.createElement("input");
       input.type = "number";
-      input.min = "-5";
-      input.max = "5";
-      input.step = "0.1";
-      input.value = Object.prototype.hasOwnProperty.call(pricePercentages, name)
-        ? String(pricePercentages[name])
-        : "0";
-      input.setAttribute("aria-label", `${name} 기준가 대비 변동률`);
+      input.min = "-100";
+      input.max = "100000";
+      input.step = "1";
+      input.value = Number(pricePercentages[name] || 0);
+      input.setAttribute("aria-label", `${name} 추가 퍼센트`);
       input.dataset.percentName = name;
-      input.title = "기준가 대비 -5%~+5%, 하루 변동은 최대 ±2%p입니다.";
-
-      input.addEventListener("focus", () => {
-        if (input.value === "0") input.value = "";
-      });
-
       input.addEventListener("input", () => {
-        if (input.value.trim() !== "" && Number.isFinite(Number(input.value))) {
-          pricePercentages[name] = Number(input.value);
-        }
-
+        pricePercentages[name] = Number(input.value || 0);
         const preview = item.querySelector(".percent-preview");
-        if (preview) {
-          preview.textContent = `예상 판매가: ${formatWon(getAdjustedPrice(name))}`;
-        }
+        if (preview) preview.textContent = `디코 전송 금액: ${formatWon(getAdjustedPrice(name))}`;
       });
-
-      input.addEventListener("blur", () => {
-        if (input.value.trim() === "") {
-          input.value = String(Number(pricePercentages[name] || 0));
-        }
-      });
-
       const labelText = document.createElement("span");
       labelText.textContent = "추가 비율";
-
       const percent = document.createElement("span");
       percent.textContent = "%";
-
       edit.append(labelText, input, percent);
       item.appendChild(edit);
-
       const preview = document.createElement("div");
       preview.className = "note percent-preview";
-      preview.textContent = `예상 판매가: ${formatWon(getAdjustedPrice(name))}`;
+      preview.textContent = `디코 전송 금액: ${formatWon(getAdjustedPrice(name))}`;
       item.appendChild(preview);
     }
-
     list.appendChild(item);
   }
 
-  if (!list.children.length) {
-    list.innerHTML = '<div class="empty">이 카테고리에 검색 결과가 없습니다.</div>';
-  }
-
+  if (!list.children.length) list.innerHTML = '<div class="empty">이 카테고리에 검색 결과가 없습니다.</div>';
   renderPriceAdminBar();
 }
 
 function renderPriceAdminBar() {
   let bar = document.getElementById("priceAdminBar");
-
   if (!bar) {
     bar = document.createElement("div");
     bar.id = "priceAdminBar";
@@ -712,13 +337,12 @@ function renderPriceAdminBar() {
 
   if (activeCategory === "일반 요리" && isAdmin) {
     bar.innerHTML = `
-      <span class="price-admin-status" id="priceSaveStatus">기준가 대비 ±5%, 하루 변동 최대 ±2%p</span>
-      <button type="button" class="btn btn-success" id="savePricePercentagesBtn">💾 변동률 저장</button>
-      <button type="button" class="btn btn-discord" id="sendAllRecipesDiscordBtn">📢 일반 요리 전체 디스코드 전송</button>
+      <span class="price-admin-status" id="priceSaveStatus">요리별 추가 비율을 입력한 뒤 저장하세요.</span>
+      <button type="button" class="btn btn-success" id="savePricePercentagesBtn">💾 비율 저장</button>
+      <button type="button" class="btn btn-discord" id="sendAllGeneralRecipesBtn">📢 일반 요리 전체 디스코드 전송</button>
     `;
-
     document.getElementById("savePricePercentagesBtn").onclick = savePricePercentages;
-    document.getElementById("sendAllRecipesDiscordBtn").onclick = sendAllGeneralRecipesToDiscord;
+    document.getElementById("sendAllGeneralRecipesBtn").onclick = sendAllGeneralRecipesToDiscord;
   } else {
     bar.innerHTML = "";
   }
@@ -733,21 +357,8 @@ function getAdjustedPrice(name) {
 async function loadPricePercentages() {
   try {
     const snap = await getDoc(PRICE_PERCENT_REF);
-    const data = snap.exists() ? snap.data() : {};
-
-    pricePercentages = data.percentages || {};
-
-    const today = new Date().toLocaleDateString("sv-SE");
-
-    if (data.updatedDate === today) {
-      dailyStartPercentages = data.dailyStartPercentages || { ...pricePercentages };
-    } else {
-      dailyStartPercentages = { ...pricePercentages };
-    }
-
-    pricePercentagesDate = today;
+    pricePercentages = snap.exists() && snap.data().percentages ? snap.data().percentages : {};
     pricePercentagesLoaded = true;
-
     renderList();
     if (selected) renderRecipe();
   } catch (error) {
@@ -758,169 +369,150 @@ async function loadPricePercentages() {
 
 async function savePricePercentages() {
   if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
-    alert("관리자만 변동률을 저장할 수 있습니다.");
+    alert("관리자만 추가 비율을 저장할 수 있습니다.");
     return;
   }
-
-  const status = document.getElementById("priceSaveStatus");
-  if (status) status.textContent = "변동률 저장 중...";
-
-  const today = new Date().toLocaleDateString("sv-SE");
-
-  if (pricePercentagesDate !== today) {
-    dailyStartPercentages = { ...pricePercentages };
-    pricePercentagesDate = today;
-  }
-
   document.querySelectorAll("[data-percent-name]").forEach(input => {
     const name = input.dataset.percentName;
-
-    if (input.value.trim() === "") return;
-
-    const requested = Number(input.value);
-    if (!Number.isFinite(requested)) return;
-
-    const dailyStart = Number(
-      dailyStartPercentages[name] ?? pricePercentages[name] ?? 0
-    );
-
-    const minAllowed = Math.max(-5, dailyStart - 2);
-    const maxAllowed = Math.min(5, dailyStart + 2);
-    const clamped = Math.min(maxAllowed, Math.max(minAllowed, requested));
-
-    pricePercentages[name] = Math.round(clamped * 10) / 10;
-    input.value = String(pricePercentages[name]);
+    const value = Number(input.value);
+    pricePercentages[name] = Number.isFinite(value) ? value : 0;
   });
 
+  const status = document.getElementById("priceSaveStatus");
+  if (status) status.textContent = "저장 중...";
   try {
     await setDoc(PRICE_PERCENT_REF, {
       percentages: pricePercentages,
-      dailyStartPercentages,
-      updatedDate: today,
       updatedAt: Date.now(),
       updatedBy: auth.currentUser.uid
     }, { merge: true });
-
     renderList();
     if (selected) renderRecipe();
-
     const savedStatus = document.getElementById("priceSaveStatus");
-    if (savedStatus) {
-      savedStatus.textContent = "✅ 저장 완료 · 하루 ±2%p / 기준가 ±5%";
-    }
+    if (savedStatus) savedStatus.textContent = "✅ 추가 비율을 저장했습니다.";
   } catch (error) {
     console.error(error);
-
-    if (status) {
-      status.textContent = "❌ 저장 실패: Firestore 권한을 확인해주세요.";
-    }
-
-    alert("변동률 저장에 실패했습니다. Firebase Firestore 규칙을 확인해주세요.");
+    if (status) status.textContent = "❌ 저장 실패: Firestore 권한을 확인해주세요.";
+    alert("비율 저장에 실패했습니다. Firebase Firestore 규칙을 확인해주세요.");
   }
 }
 
-async function postToDiscord(message) {
-  if (!DISCORD_WEBHOOK_URL) {
-    alert("디스코드 웹훅 URL이 설정되지 않았습니다.");
+async function postToDiscord(message, showSuccess = true) {
+  const user = auth.currentUser;
+  if (!user || user.uid !== ADMIN_UID) {
+    alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
     return false;
   }
-
   try {
-    const response = await fetch(DISCORD_WEBHOOK_URL, {
+    const token = await user.getIdToken(true);
+    const response = await fetch(DISCORD_PROXY_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({
-        username: "은하 요리 계산기",
-        content: message
-      })
+      body: JSON.stringify({ content: message })
     });
-
     if (!response.ok) {
       const detail = await response.text().catch(() => "");
-      throw new Error(`HTTP ${response.status} ${response.statusText} ${detail}`);
+      throw new Error(`${response.status} ${response.statusText} ${detail}`);
     }
-
+    if (showSuccess) alert("디스코드로 전송했습니다.");
     return true;
   } catch (error) {
     console.error("Discord 전송 실패:", error);
-    alert("디스코드 전송 실패: " + (error.message || error));
+    alert("디스코드 전송에 실패했습니다. 로그인 상태와 Worker 설정을 확인해주세요.");
     return false;
   }
 }
 
+/* 일반 요리 전체를 사용자가 요청한 형식으로 디스코드에 전송 */
 async function sendAllGeneralRecipesToDiscord() {
   if (activeCategory !== "일반 요리") {
-    alert("일반 요리 카테고리에서만 전송할 수 있습니다.");
+    alert("일반 요리 카테고리에서만 전체 전송할 수 있습니다.");
     return;
   }
-
   if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
     alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
     return;
   }
-
   if (!pricePercentagesLoaded) {
     alert("추가 비율을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
     return;
   }
 
-  const lines = Object.keys(recipes["일반 요리"])
-    .filter(name => prices[name] !== undefined)
-    .map(name => {
-      const percent = Number(pricePercentages[name] || 0);
-      const signedPercent = `${percent > 0 ? "+" : ""}${percent}%`;
+  const generalRecipes = recipes["일반 요리"] || {};
+  const messages = [];
 
-      return `🍳 **${name}** | 📌 기준가: ${formatWon(prices[name])} | 📈 변동률: ${signedPercent} | 💰 변동 적용 판매가: ${formatWon(getAdjustedPrice(name))}`;
-    });
+  for (const [name, ingredients] of Object.entries(generalRecipes)) {
+    const basePrice = Number(prices[name] || 0);
+    const percent = Number(pricePercentages[name] || 0);
+    const percentText = `${percent > 0 ? "+" : ""}${percent}%`;
+    let message = `# ${name} : ${formatWon(basePrice)} (${percentText})\n\n`;
 
-  if (!lines.length) {
-    alert("전송할 일반 요리 가격 정보가 없습니다.");
+    for (const [ingredient, amount] of Object.entries(ingredients)) {
+      message += `${ingredient} ${formatNumber(amount)}개\n`;
+    }
+    messages.push(message.trim());
+  }
+
+  if (!messages.length) {
+    alert("전송할 일반 요리가 없습니다.");
     return;
   }
 
-  // 디스코드 메시지 길이 제한을 넘지 않도록 여러 메시지로 나눠 전송합니다.
   const chunks = [];
   let chunk = "";
-
-  for (const line of lines) {
-    const next = chunk ? `${chunk}\n${line}` : line;
-
+  for (const message of messages) {
+    const next = chunk ? `${chunk}\n\n${message}` : message;
     if (next.length > 1900) {
       if (chunk) chunks.push(chunk);
-      chunk = line;
+      chunk = message;
     } else {
       chunk = next;
     }
   }
-
   if (chunk) chunks.push(chunk);
 
-  for (const message of chunks) {
-    const sent = await postToDiscord(message);
+  for (const part of chunks) {
+    const sent = await postToDiscord(part, false);
     if (!sent) return;
   }
+  alert(`일반 요리 ${Object.keys(generalRecipes).length}개를 디스코드로 전송했습니다.`);
+}
 
-  alert("일반 요리 전체 가격 정보가 디스코드로 전송되었습니다!");
+async function sendSelectedRecipeToDiscord() {
+  if (!selected || selectedCategory !== "일반 요리") {
+    alert("일반 요리를 선택해주세요.");
+    return;
+  }
+  if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+    alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
+    return;
+  }
+  if (!pricePercentagesLoaded) {
+    alert("추가 비율을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+    return;
+  }
+  const adjusted = getAdjustedPrice(selected);
+  const percent = Number(pricePercentages[selected] || 0);
+  const message = `🌌 **은하 요리 가격**\n🍳 **요리명:** ${selected}\n💰 **판매 금액:** ${formatWon(adjusted)}${percent ? ` (+${percent}%)` : ""}`;
+  await postToDiscord(message);
 }
 
 function selectRecipe(category, name) {
   activeCategory = category;
   selectedCategory = category;
   selected = name;
-
   renderCategoryTabs();
   renderList();
   renderRecipe();
 }
 
 function createIngredientRow(name, need) {
-  const saved = ownedMaterials[name] || {sets:0, pieces:0};
-
+  const saved = ownedMaterials[name] || {sets:0,pieces:0};
   return `<tr>
-    <td>${escapeHtml(name)}</td>
-    <td>${formatNumber(need)}개</td>
+    <td>${escapeHtml(name)}</td><td>${formatNumber(need)}개</td>
     <td class="owned" id="owned-${cssId(name)}">0개</td>
     <td><input class="num set-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.sets || 0))}"></td>
     <td><input class="num piece-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.pieces || 0))}"></td>
@@ -929,125 +521,76 @@ function createIngredientRow(name, need) {
 
 function renderRecipe() {
   if (!selected) return;
-
   const content = document.getElementById("appContent");
   const ingredients = expandRecipe(selected);
   const price = prices[selected];
-
+  const isPriceOnly = selectedCategory === "일반 요리" && !Object.keys(ingredients).length;
+  const adjustedPrice = getAdjustedPrice(selected);
+  const percent = Number(pricePercentages[selected] || 0);
   let ingredientsHtml = "";
 
-  if (!Object.keys(ingredients).length) {
+  if (isPriceOnly || !Object.keys(ingredients).length) {
     ingredientsHtml = '<div class="empty">재료 정보가 없습니다.</div>';
   } else {
-    ingredientsHtml = `
-      <div style="overflow:auto">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>재료</th>
-              <th>필요량</th>
-              <th>보유량</th>
-              <th>세트</th>
-              <th>낱개</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${Object.entries(ingredients).map(([name, amount]) => createIngredientRow(name, amount)).join("")}
-          </tbody>
-        </table>
-      </div>`;
+    ingredientsHtml = `<div style="overflow:auto"><table class="table"><thead><tr><th>재료</th><th>필요량</th><th>보유량</th><th>세트</th><th>낱개</th></tr></thead><tbody>${Object.entries(ingredients).map(([n,v]) => createIngredientRow(n,v)).join("")}</tbody></table></div>`;
   }
-
-  const percent = Number(pricePercentages[selected] || 0);
-  const adjustedPrice = getAdjustedPrice(selected);
 
   content.innerHTML = `
     <div class="selected">[${escapeHtml(selectedCategory)}] ${escapeHtml(selected)}</div>
+    ${price ? `<div class="result"><span>💰 사이트 표시 금액 (원금)</span><strong>${formatWon(price)}</strong></div>` : ""}
+    ${isPriceOnly && isAdmin ? `<div class="discord-send-row"><button type="button" class="btn btn-discord" id="sendRecipeDiscordBtn">📢 추가 비율 적용 금액을 디스코드로 전송</button></div>` : ""}
+    ${!isPriceOnly && Object.keys(ingredients).length ? `<div class="result"><span>🍲 만들 수 있는 수량</span><strong id="result">0개</strong><div class="note">보유 재료를 입력하면 가장 부족한 재료를 기준으로 계산합니다. 64개 = 1세트</div></div>` : ""}
+    ${isAdmin && selectedCategory === "일반 요리" ? `<div class="note">추가 비율: ${percent}% · 디스코드 전송 금액: ${formatWon(adjustedPrice)}</div>` : ""}
+    ${ingredientsHtml}`;
 
-    ${price ? `
-      <div class="result">
-        <span>💰 사이트 표시 금액 (원금)</span>
-        <strong>${formatWon(price)}</strong>
-      </div>` : ""}
-
-    ${!Object.keys(ingredients).length ? "" : `
-      <div class="result">
-        <span>🍲 만들 수 있는 수량</span>
-        <strong id="result">0개</strong>
-        <div class="note">보유 재료를 입력하면 가장 부족한 재료를 기준으로 계산합니다. 64개 = 1세트</div>
-      </div>`}
-
-    ${isAdmin && selectedCategory === "일반 요리" ? `
-      <div class="note">추가 비율: ${percent}% · 변동 적용 판매가: ${formatWon(adjustedPrice)}</div>` : ""}
-
-    ${ingredientsHtml}
-  `;
+  const sendRecipeBtn = document.getElementById("sendRecipeDiscordBtn");
+  if (sendRecipeBtn) sendRecipeBtn.addEventListener("click", sendSelectedRecipeToDiscord);
 
   document.querySelectorAll(".set-input,.piece-input").forEach(el => {
     el.addEventListener("input", updateCalculation);
     el.addEventListener("keydown", handleTab);
   });
-
   updateCalculation();
 }
 
 function updateCalculation() {
   if (!selected) return;
-
   const ingredients = expandRecipe(selected);
   let possible = Infinity;
 
   for (const [name, need] of Object.entries(ingredients)) {
-    const setInput = [...document.querySelectorAll(".set-input")]
-      .find(el => el.dataset.name === name);
-
-    const pieceInput = [...document.querySelectorAll(".piece-input")]
-      .find(el => el.dataset.name === name);
-
+    const setInput = [...document.querySelectorAll(".set-input")].find(el => el.dataset.name === name);
+    const pieceInput = [...document.querySelectorAll(".piece-input")].find(el => el.dataset.name === name);
     if (!setInput || !pieceInput) continue;
 
-    const sets = Math.max(0, Math.floor(Number(setInput.value) || 0));
-    const pieces = Math.max(0, Math.floor(Number(pieceInput.value) || 0));
-
-    ownedMaterials[name] = {sets, pieces};
-
+    const sets = Math.max(0,Math.floor(Number(setInput.value) || 0));
+    const pieces = Math.max(0,Math.floor(Number(pieceInput.value) || 0));
+    ownedMaterials[name] = {sets,pieces};
     const owned = sets * STACK + pieces;
-    possible = Math.min(possible, Math.floor(owned / need));
-
+    possible = Math.min(possible,Math.floor(owned / need));
     const cell = document.getElementById("owned-" + cssId(name));
     if (cell) cell.textContent = formatStack(owned);
   }
 
   saveOwnedMaterials();
-
   if (possible === Infinity) possible = 0;
-
   currentPossibleCount = possible;
-
   const result = document.getElementById("result");
   if (result) result.textContent = formatStack(possible);
 }
 
 function handleTab(e) {
   if (e.key !== "Tab") return;
-
   const inputs = [...document.querySelectorAll(".set-input,.piece-input")];
   const index = inputs.indexOf(e.target);
-
   if (index < 0) return;
-
   e.preventDefault();
-
-  const next = e.shiftKey
-    ? inputs[Math.max(0,index-1)]
-    : inputs[Math.min(inputs.length-1,index+1)];
-
+  const next = e.shiftKey ? inputs[Math.max(0,index-1)] : inputs[Math.min(inputs.length-1,index+1)];
   next.focus();
   next.select();
 }
 
 document.getElementById("search").addEventListener("input", renderList);
-
 document.getElementById("search").addEventListener("keydown", e => {
   if (e.key === "Enter") {
     const first = document.querySelector(".recipe-btn");
@@ -1061,79 +604,36 @@ const loginSection = document.getElementById("loginSection");
 const doLoginBtn = document.getElementById("doLoginBtn");
 const loginStatus = document.getElementById("loginStatus");
 
-loginBtn.addEventListener("click", () => {
-  loginSection.classList.toggle("hidden");
-});
-
-logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
-});
+loginBtn.addEventListener("click", () => loginSection.classList.toggle("hidden"));
+logoutBtn.addEventListener("click", async () => { await signOut(auth); });
 
 doLoginBtn.addEventListener("click", async () => {
   const email = document.getElementById("emailInput").value.trim();
-  const password = document.getElementById("passwordInput").value;
-
+  const password = document.getElementById("passwordInput").value.trim();
   loginStatus.textContent = "로그인 중...";
-  doLoginBtn.disabled = true;
-
   try {
-    if (!email || !password) {
-      throw new Error("이메일과 비밀번호를 모두 입력해주세요.");
-    }
-
-    const credential = await signInWithEmailAndPassword(auth, email, password);
-
-    loginStatus.textContent = "로그인 확인 중...";
-
-    if (credential.user.uid !== ADMIN_UID) {
-      await signOut(auth);
-      throw new Error("관리자 계정 UID와 일치하지 않습니다. 관리자 계정으로 로그인해주세요.");
-    }
-
-    loginStatus.textContent = "✅ 관리자 로그인 성공";
+    await signInWithEmailAndPassword(auth,email,password);
+    loginStatus.textContent = "";
     loginSection.classList.add("hidden");
   } catch (err) {
-    const messages = {
-      "auth/invalid-email": "이메일 형식이 올바르지 않습니다.",
-      "auth/user-not-found": "등록되지 않은 이메일입니다.",
-      "auth/wrong-password": "비밀번호가 올바르지 않습니다.",
-      "auth/invalid-credential": "이메일 또는 비밀번호가 올바르지 않습니다.",
-      "auth/too-many-requests": "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.",
-      "auth/network-request-failed": "네트워크 연결을 확인해주세요.",
-      "auth/unauthorized-domain": "현재 사이트 도메인이 Firebase 인증 허용 도메인에 등록되어 있지 않습니다. Firebase Console > Authentication > Settings > Authorized domains에서 현재 도메인을 추가해주세요.",
-      "auth/operation-not-allowed": "Firebase Authentication에서 이메일/비밀번호 로그인을 사용 설정해주세요."
-    };
-
-    loginStatus.textContent =
-      "❌ 로그인 실패: " + (messages[err.code] || err.message || String(err));
-
-    console.error("Firebase 로그인 오류", err.code, err.message);
-  } finally {
-    doLoginBtn.disabled = false;
+    loginStatus.textContent = "❌ 로그인 실패: " + (err.message || err);
   }
 });
 
 onAuthStateChanged(auth, async user => {
   isAdmin = Boolean(user && user.uid === ADMIN_UID);
-
   if (isAdmin) {
     loginBtn.classList.add("hidden");
     logoutBtn.classList.remove("hidden");
-
-    if (!pricePercentagesLoaded) {
-      await loadPricePercentages();
-    }
+    if (!pricePercentagesLoaded) await loadPricePercentages();
   } else {
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
     pricePercentagesLoaded = false;
     pricePercentages = {};
-    dailyStartPercentages = {};
   }
-
   renderCategoryTabs();
   renderList();
-
   if (selected) renderRecipe();
 });
 
