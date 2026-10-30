@@ -5,25 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>은하 요리 계산기</title>
 <style>
-:root{
-  --bg:#080a1f;--panel:rgba(16,19,48,.88);--panel2:rgba(28,32,75,.82);
-  --text:#f4f5ff;--muted:#b9bddb;--line:rgba(255,255,255,.13);
-  --accent:#9b8cff;--accent2:#61d6ff;--success:#68e0a0;--danger:#ff647c;
-}
+:root{--bg:#080a1f;--panel:rgba(16,19,48,.88);--panel2:rgba(28,32,75,.82);--text:#f4f5ff;--muted:#b9bddb;--line:rgba(255,255,255,.13);--accent:#9b8cff;--accent2:#61d6ff;--success:#68e0a0;--danger:#ff647c}
 *{box-sizing:border-box}
-body{
-  margin:0;min-height:100vh;color:var(--text);
-  font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
-  background:radial-gradient(circle at 15% 20%,rgba(111,76,255,.38),transparent 28%),
-  radial-gradient(circle at 85% 25%,rgba(0,180,255,.23),transparent 25%),
-  radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),
-  linear-gradient(135deg,#050614,#101434 55%,#070818);
-}
-body:before,body:after{
-  position:fixed;top:0;width:50%;height:100%;pointer-events:none;
-  opacity:.45;font-size:32px;letter-spacing:24px;line-height:140px;
-  overflow:hidden;z-index:0;
-}
+body{margin:0;min-height:100vh;color:var(--text);font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:radial-gradient(circle at 15% 20%,rgba(111,76,255,.38),transparent 28%),radial-gradient(circle at 85% 25%,rgba(0,180,255,.23),transparent 25%),radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),linear-gradient(135deg,#050614,#101434 55%,#070818)}
+body:before,body:after{position:fixed;top:0;width:50%;height:100%;pointer-events:none;opacity:.45;font-size:32px;letter-spacing:24px;line-height:140px;overflow:hidden;z-index:0}
 body:before{content:"✦ · ✧        ·        ✦        · ✧     ·        ✦        · ✧";left:0}
 body:after{content:"✧ · ✦        ·        ✧        · ✦        · ✧     ·        ✦";right:0;text-align:right}
 .app{position:relative;z-index:1;max-width:1150px;margin:auto;padding:25px 16px 45px}
@@ -33,11 +18,11 @@ body:after{content:"✧ · ✦        ·        ✧        · ✦        · ✧ 
 .card{background:var(--panel);border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
 .controls{padding:18px;margin-bottom:16px}
 .category-tabs{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
-.category-tab{flex:1 1 150px;padding:14px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.06);color:var(--text);font-size:17px;font-weight:bold;cursor:pointer;transition:.15s}
+.category-tab{flex:1 1 150px;padding:14px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.06);color:var(--text);font-size:17px;font-weight:bold;cursor:pointer}
 .category-tab:hover{border-color:var(--accent2)}
 .category-tab.active{background:linear-gradient(135deg,rgba(155,140,255,.35),rgba(97,214,255,.2));border-color:var(--accent2);box-shadow:0 0 15px rgba(97,214,255,.2)}
 .search{width:100%;padding:16px 18px;border-radius:12px;border:1px solid var(--line);background:#080a20;color:var(--text);font-size:19px;outline:none}
-.recipe-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:14px;max-height:500px;overflow:auto}
+.recipe-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:14px;max-height:300px;overflow:auto}
 .recipe-btn{padding:15px;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;cursor:pointer;text-align:left;font-size:19px;font-weight:bold}
 .recipe-btn:hover,.recipe-btn.active{border-color:var(--accent2);box-shadow:0 0 16px rgba(97,214,255,.22)}
 .grade{font-size:14px;opacity:.75;display:block;margin-bottom:5px}
@@ -54,6 +39,8 @@ input.num{width:90px;padding:11px;border-radius:9px;border:1px solid var(--line)
 input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 .owned{white-space:nowrap}
+.subrecipes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+.sub{padding:13px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:16px}
 .note{color:var(--muted);font-size:14px}
 .empty{text-align:center;color:var(--muted);padding:30px;font-size:18px}
 .top-actions{display:flex;justify-content:center;gap:8px;margin-top:15px;flex-wrap:wrap}
@@ -72,12 +59,11 @@ input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 .price-admin-status{font-size:14px;color:var(--muted)}
 .discord-send-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .hidden{display:none!important}
-@media(max-width:700px){
-  .app{padding:14px 8px 30px}.content,.controls{padding:13px}
-  th:nth-child(2),td:nth-child(2){display:none}
-  .table{font-size:13px}input.num{width:60px}.recipe-btn{font-size:18px}
-  body:before,body:after{font-size:24px;letter-spacing:14px;line-height:110px}
-}
+.login-box{padding:0 0 16px}
+.login-row{display:flex;gap:8px;flex-wrap:wrap}
+.login-row input{flex:1;min-width:180px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#090b23;color:white;font-size:16px}
+.status{margin-top:10px;color:var(--muted);overflow-wrap:anywhere}
+@media(max-width:700px){.app{padding:14px 8px 30px}.content,.controls{padding:13px}th:nth-child(2),td:nth-child(2){display:none}.table{font-size:13px}input.num{width:60px}.recipe-btn{font-size:18px}body:before,body:after{font-size:24px;letter-spacing:14px;line-height:110px}.login-row{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -103,19 +89,25 @@ input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 
   <div id="loginSection" class="card hidden" style="padding:18px;margin-top:16px">
     <div class="section-title">🔐 관리자 인증</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <input type="email" id="emailInput" placeholder="관리자 이메일" style="flex:1;min-width:180px;padding:12px">
-      <input type="password" id="passwordInput" placeholder="관리자 비밀번호" style="flex:1;min-width:180px;padding:12px">
-      <button class="btn btn-primary" id="doLoginBtn">로그인</button>
+    <div class="login-box">
+      <div class="login-row">
+        <input type="email" id="emailInput" placeholder="관리자 이메일" autocomplete="username">
+        <input type="password" id="passwordInput" placeholder="관리자 비밀번호" autocomplete="current-password">
+        <button class="btn btn-primary" id="doLoginBtn">로그인</button>
+      </div>
+      <div id="loginStatus" class="status"></div>
     </div>
-    <div id="loginStatus" class="note" style="margin-top:10px"></div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBi3CTzTaWPwDJ9CgwuRgpROac45Ag-54",
@@ -193,29 +185,17 @@ const recipes = {
 };
 
 const prices = {
-  "코울슬로":8384,
-  "마늘 바게트":11763,
-  "감자 대파 수프":8381,
-  "치킨 라이스":12733,
-  "비프 샌드위치":12453,
-  "제육볶음":9073,
-  "새우 볶음밥":12492,
-  "달콤 오징어 구이":11361,
-  "가리비 호박 구이":14012,
-  "수박 미역 샐러드":14014,
-  "사과 샐러드":16895,
-  "호박죽":9214,
-  "과일 굴 무침":12468,
-  "호박 브륄레":8193,
-  "당근 케이크":8450,
-  "감자전":5122,
-  "수박 주스":8189,
-  "애플파이":17537,
-  "게살버거":12209
+  "코울슬로":8384,"마늘 바게트":11763,"감자 대파 수프":8381,
+  "치킨 라이스":12733,"비프 샌드위치":12453,"제육볶음":9073,
+  "새우 볶음밥":12492,"달콤 오징어 구이":11361,"가리비 호박 구이":14012,
+  "수박 미역 샐러드":14014,"사과 샐러드":16895,"호박죽":9214,
+  "과일 굴 무침":12468,"호박 브륄레":8193,"당근 케이크":8450,
+  "감자전":5122,"수박 주스":8189,"애플파이":17537,"게살버거":12209
 };
 
 let selected = null;
 let selectedCategory = null;
+let currentPossibleCount = 0;
 let isAdmin = false;
 let pricePercentages = {};
 let pricePercentagesLoaded = false;
@@ -275,9 +255,7 @@ function renderCategoryTabs(){
   }
 }
 function getAdjustedPrice(name){
-  const base=Number(prices[name]||0);
-  const percent=Number(pricePercentages[name]||0);
-  return Math.round(base*(1+percent/100));
+  return Math.round(Number(prices[name]||0)*(1+Number(pricePercentages[name]||0)/100));
 }
 function renderList(){
   const q=document.getElementById("search").value.trim().toLowerCase();
@@ -291,7 +269,7 @@ function renderList(){
     item.className="recipe-item";
     const button=document.createElement("button");
     button.className="recipe-btn"+(selected===name?" active":"");
-    button.innerHTML=`${escapeHtml(name)}${prices[name]?`<span class="grade" style="margin-top:6px">사이트 표시 원금: ${formatWon(prices[name])}</span>`:""}`;
+    button.innerHTML=`${escapeHtml(name)}${prices[name]?`<span class="grade" style="margin-top:6px">원금: ${formatWon(prices[name])}</span>`:""}`;
     button.onclick=()=>selectRecipe(activeCategory,name);
     item.appendChild(button);
 
@@ -307,7 +285,6 @@ function renderList(){
         pricePercentages[name]=Number(input.value||0);
         const preview=item.querySelector(".percent-preview");
         if(preview)preview.textContent=`디코 전송 금액: ${formatWon(getAdjustedPrice(name))}`;
-        if(selected===name)renderRecipe();
       });
       const labelText=document.createElement("span");labelText.textContent="추가 비율";
       const percent=document.createElement("span");percent.textContent="%";
@@ -355,9 +332,7 @@ async function savePricePercentages(){
   const status=document.getElementById("priceSaveStatus");
   if(status)status.textContent="저장 중...";
   try{
-    await setDoc(PRICE_PERCENT_REF,{
-      percentages:pricePercentages,updatedAt:Date.now(),updatedBy:auth.currentUser.uid
-    },{merge:true});
+    await setDoc(PRICE_PERCENT_REF,{percentages:pricePercentages,updatedAt:Date.now(),updatedBy:auth.currentUser.uid},{merge:true});
     renderList();if(selected)renderRecipe();
     const savedStatus=document.getElementById("priceSaveStatus");
     if(savedStatus)savedStatus.textContent="✅ 추가 비율을 저장했습니다.";
@@ -369,9 +344,7 @@ async function savePricePercentages(){
 }
 async function postToDiscord(message){
   const user=auth.currentUser;
-  if(!user||user.uid!==ADMIN_UID){
-    alert("관리자만 디스코드 전송을 사용할 수 있습니다.");return false;
-  }
+  if(!user||user.uid!==ADMIN_UID){alert("관리자만 디스코드 전송을 사용할 수 있습니다.");return false}
   try{
     const token=await user.getIdToken(true);
     const response=await fetch(DISCORD_PROXY_URL,{
@@ -379,10 +352,7 @@ async function postToDiscord(message){
       headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},
       body:JSON.stringify({content:message})
     });
-    if(!response.ok){
-      const detail=await response.text().catch(()=>"");
-      throw new Error(`${response.status} ${response.statusText} ${detail}`);
-    }
+    if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
     alert("디스코드로 전송했습니다.");return true;
   }catch(error){
     console.error("Discord 전송 실패:",error);
@@ -391,15 +361,9 @@ async function postToDiscord(message){
   }
 }
 async function sendSelectedRecipeToDiscord(){
-  if(!selected||selectedCategory!=="일반 요리"){
-    alert("일반 요리를 선택해주세요.");return;
-  }
-  if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID){
-    alert("관리자만 디스코드 전송을 사용할 수 있습니다.");return;
-  }
-  if(!pricePercentagesLoaded){
-    alert("추가 비율을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");return;
-  }
+  if(!selected||selectedCategory!=="일반 요리"){alert("일반 요리를 선택해주세요.");return}
+  if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID){alert("관리자만 디스코드 전송을 사용할 수 있습니다.");return}
+  if(!pricePercentagesLoaded){alert("추가 비율을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");return}
   const adjusted=getAdjustedPrice(selected);
   const percent=Number(pricePercentages[selected]||0);
   const sign=percent>0?"+":"";
@@ -412,12 +376,7 @@ function selectRecipe(category,name){
 }
 function createIngredientRow(name,need){
   const saved=ownedMaterials[name]||{sets:0,pieces:0};
-  return `<tr>
-    <td>${escapeHtml(name)}</td><td>${formatNumber(need)}개</td>
-    <td class="owned" id="owned-${cssId(name)}">0개</td>
-    <td><input class="num set-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.sets||0))}"></td>
-    <td><input class="num piece-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.pieces||0))}"></td>
-  </tr>`;
+  return `<tr><td>${escapeHtml(name)}</td><td>${formatNumber(need)}개</td><td class="owned" id="owned-${cssId(name)}">0개</td><td><input class="num set-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.sets||0))}"></td><td><input class="num piece-input" data-name="${escapeHtml(name)}" type="number" min="0" value="${Math.max(0,Number(saved.pieces||0))}"></td></tr>`;
 }
 function renderRecipe(){
   if(!selected)return;
@@ -426,18 +385,17 @@ function renderRecipe(){
   const price=prices[selected];
   const adjustedPrice=getAdjustedPrice(selected);
   const percent=Number(pricePercentages[selected]||0);
-  let ingredientsHtml="";
-  if(!Object.keys(ingredients).length){
-    ingredientsHtml='<div class="empty">재료 정보가 없습니다.</div>';
-  }else{
-    ingredientsHtml=`<div style="overflow:auto"><table class="table"><thead><tr><th>재료</th><th>필요량</th><th>보유량</th><th>세트</th><th>낱개</th></tr></thead><tbody>${Object.entries(ingredients).map(([n,v])=>createIngredientRow(n,v)).join("")}</tbody></table></div>`;
-  }
+  const ingredientsHtml=Object.keys(ingredients).length
+    ?`<div style="overflow:auto"><table class="table"><thead><tr><th>재료</th><th>필요량</th><th>보유량</th><th>세트</th><th>낱개</th></tr></thead><tbody>${Object.entries(ingredients).map(([n,v])=>createIngredientRow(n,v)).join("")}</tbody></table></div>`
+    :'<div class="empty">재료 정보가 없습니다.</div>';
+
   content.innerHTML=`
     <div class="selected">[${escapeHtml(selectedCategory)}] ${escapeHtml(selected)}</div>
     ${price?`<div class="result"><span>💰 사이트 표시 금액 (원금)</span><strong>${formatWon(price)}</strong></div>`:""}
     ${selectedCategory==="일반 요리"&&isAdmin?`<div class="discord-send-row"><button type="button" class="btn btn-discord" id="sendRecipeDiscordBtn">📢 추가 비율 적용 금액을 디스코드로 전송</button></div><div class="note">추가 비율: ${percent}% · 디스코드 전송 금액: ${formatWon(adjustedPrice)}</div>`:""}
     ${Object.keys(ingredients).length?`<div class="result"><span>🍲 만들 수 있는 수량</span><strong id="result">0개</strong><div class="note">보유 재료를 입력하면 가장 부족한 재료를 기준으로 계산합니다. 64개 = 1세트</div></div>`:""}
     ${ingredientsHtml}`;
+
   const sendButton=document.getElementById("sendRecipeDiscordBtn");
   if(sendButton)sendButton.addEventListener("click",sendSelectedRecipeToDiscord);
   document.querySelectorAll(".set-input,.piece-input").forEach(el=>{
@@ -464,6 +422,7 @@ function updateCalculation(){
   }
   saveOwnedMaterials();
   if(possible===Infinity)possible=0;
+  currentPossibleCount=possible;
   const result=document.getElementById("result");
   if(result)result.textContent=formatStack(possible);
 }
@@ -484,29 +443,66 @@ document.getElementById("search").addEventListener("keydown",e=>{
     if(first)first.click();
   }
 });
+
 const loginBtn=document.getElementById("loginBtn");
 const logoutBtn=document.getElementById("logoutBtn");
 const loginSection=document.getElementById("loginSection");
 const doLoginBtn=document.getElementById("doLoginBtn");
 const loginStatus=document.getElementById("loginStatus");
 
-loginBtn.addEventListener("click",()=>loginSection.classList.toggle("hidden"));
-logoutBtn.addEventListener("click",async()=>{await signOut(auth)});
+loginBtn.addEventListener("click",()=>{
+  loginSection.classList.toggle("hidden");
+});
+logoutBtn.addEventListener("click",async()=>{
+  try{await signOut(auth)}
+  catch(error){console.error("로그아웃 오류:",error);alert("로그아웃에 실패했습니다.")}
+});
+
 doLoginBtn.addEventListener("click",async()=>{
   const email=document.getElementById("emailInput").value.trim();
-  const password=document.getElementById("passwordInput").value.trim();
+  // 비밀번호는 공백을 포함한 원문 그대로 사용합니다.
+  const password=document.getElementById("passwordInput").value;
+
   loginStatus.textContent="로그인 중...";
+  doLoginBtn.disabled=true;
+
   try{
-    await signInWithEmailAndPassword(auth,email,password);
-    loginStatus.textContent="";
+    if(!email||!password){
+      loginStatus.textContent="이메일과 비밀번호를 모두 입력해주세요.";
+      return;
+    }
+
+    const credential=await signInWithEmailAndPassword(auth,email,password);
+
+    if(credential.user.uid!==ADMIN_UID){
+      await signOut(auth);
+      loginStatus.textContent="로그인한 계정이 등록된 관리자 계정과 다릅니다.";
+      return;
+    }
+
+    loginStatus.textContent="✅ 관리자 로그인 성공";
     loginSection.classList.add("hidden");
   }catch(err){
-    loginStatus.textContent="❌ 로그인 실패: "+(err.message||err);
+    const messages={
+      "auth/invalid-email":"이메일 형식이 올바르지 않습니다.",
+      "auth/user-not-found":"등록되지 않은 이메일입니다.",
+      "auth/wrong-password":"비밀번호가 올바르지 않습니다.",
+      "auth/invalid-credential":"이메일 또는 비밀번호가 올바르지 않습니다.",
+      "auth/too-many-requests":"로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.",
+      "auth/network-request-failed":"네트워크 연결을 확인해주세요.",
+      "auth/unauthorized-domain":"현재 사이트 도메인이 Firebase 인증 허용 도메인에 등록되어 있지 않습니다. Firebase Console의 Authentication 설정에서 도메인을 확인해주세요.",
+      "auth/operation-not-allowed":"Firebase Authentication에서 이메일/비밀번호 로그인이 비활성화되어 있습니다."
+    };
+    loginStatus.textContent="❌ 로그인 실패: "+(messages[err.code]||err.message||String(err));
+    console.error("Firebase 로그인 오류:",err.code,err.message);
+  }finally{
+    doLoginBtn.disabled=false;
   }
 });
 
 onAuthStateChanged(auth,async user=>{
   isAdmin=Boolean(user&&user.uid===ADMIN_UID);
+
   if(isAdmin){
     loginBtn.classList.add("hidden");
     logoutBtn.classList.remove("hidden");
@@ -517,7 +513,9 @@ onAuthStateChanged(auth,async user=>{
     pricePercentagesLoaded=false;
     pricePercentages={};
   }
-  renderCategoryTabs();renderList();
+
+  renderCategoryTabs();
+  renderList();
   if(selected)renderRecipe();
 });
 
