@@ -4,298 +4,418 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>은하 요리 계산기</title>
+
 <style>
-:root{
-  --bg:#080a1f;
-  --panel:rgba(16,19,48,.88);
-  --panel2:rgba(28,32,75,.82);
-  --text:#f4f5ff;
-  --muted:#b9bddb;
-  --line:rgba(255,255,255,.13);
-  --accent:#9b8cff;
-  --accent2:#61d6ff;
-  --success:#68e0a0;
-  --danger:#ff647c;
+:root {
+  --bg: #080a1f;
+  --panel: rgba(16,19,48,.88);
+  --panel2: rgba(28,32,75,.82);
+  --text: #f4f5ff;
+  --muted: #b9bddb;
+  --line: rgba(255,255,255,.13);
+  --accent: #9b8cff;
+  --accent2: #61d6ff;
+  --success: #68e0a0;
+  --danger: #ff647c;
 }
-*{box-sizing:border-box}
-body{
-  margin:0;
-  min-height:100vh;
-  color:var(--text);
-  font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
   background:
-    radial-gradient(circle at 15% 20%,rgba(111,76,255,.38),transparent 28%),
-    radial-gradient(circle at 85% 25%,rgba(0,180,255,.23),transparent 25%),
-    radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),
+    radial-gradient(circle at 15% 20%, rgba(111,76,255,.38), transparent 28%),
+    radial-gradient(circle at 85% 25%, rgba(0,180,255,.23), transparent 25%),
+    radial-gradient(circle at 50% 90%, rgba(180,50,255,.18), transparent 30%),
     linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
-body:before{
-  content:"✦ · ✧        ·        ✦        · ✧     ·        ✦        · ✧";
-  position:fixed;
-  left:0;
-  top:0;
-  width:50%;
-  height:100%;
-  pointer-events:none;
-  opacity:.45;
-  font-size:32px;
-  letter-spacing:24px;
-  line-height:140px;
-  overflow:hidden;
-  z-index:0;
+
+body:before {
+  content: "✦ · ✧        ·        ✦        · ✧     ·        ✦        · ✧";
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  pointer-events: none;
+  opacity: .45;
+  font-size: 32px;
+  letter-spacing: 24px;
+  line-height: 140px;
+  overflow: hidden;
+  z-index: 0;
 }
-body:after{
-  content:"✧ · ✦        ·        ✧        · ✦        · ✧     ·        ✦";
-  position:fixed;
-  right:0;
-  top:0;
-  width:50%;
-  height:100%;
-  pointer-events:none;
-  opacity:.45;
-  font-size:32px;
-  letter-spacing:24px;
-  line-height:140px;
-  overflow:hidden;
-  text-align:right;
-  z-index:0;
+
+body:after {
+  content: "✧ · ✦        ·        ✧        · ✦        · ✧     ·        ✦";
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  pointer-events: none;
+  opacity: .45;
+  font-size: 32px;
+  letter-spacing: 24px;
+  line-height: 140px;
+  overflow: hidden;
+  text-align: right;
+  z-index: 0;
 }
-.app{
-  position:relative;
-  z-index:1;
-  max-width:1150px;
-  margin:auto;
-  padding:25px 16px 45px;
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 1150px;
+  margin: auto;
+  padding: 25px 16px 45px;
 }
-.hero{
-  text-align:center;
-  margin-bottom:18px;
+
+.hero {
+  text-align: center;
+  margin-bottom: 18px;
 }
-.hero h1{
-  margin:0;
-  font-size:clamp(28px,5vw,48px);
-  text-shadow:0 0 24px rgba(150,120,255,.7);
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(28px,5vw,48px);
+  text-shadow: 0 0 24px rgba(150,120,255,.7);
 }
-.hero p{
-  color:var(--muted);
-  margin:8px 0 0;
-  font-size:17px;
+
+.hero p {
+  color: var(--muted);
+  margin: 8px 0 0;
+  font-size: 17px;
 }
-.card{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:22px;
-  backdrop-filter:blur(14px);
-  box-shadow:0 20px 60px rgba(0,0,0,.35);
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
 }
-.controls{
-  padding:18px;
-  margin-bottom:16px;
+
+.controls {
+  padding: 18px;
+  margin-bottom: 16px;
 }
-.search{
-  width:100%;
-  padding:16px 18px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  background:#080a20;
-  color:var(--text);
-  font-size:19px;
-  outline:none;
+
+/* 카테고리 버튼 */
+.category-tabs {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
 }
-.recipe-list{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:8px;
-  margin-top:14px;
-  max-height:300px;
-  overflow:auto;
+
+.category-tab {
+  flex: 1 1 150px;
+  padding: 14px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .15s;
 }
-.recipe-btn{
-  padding:15px;
-  border:1px solid var(--line);
-  background:var(--panel2);
-  color:var(--text);
-  border-radius:12px;
-  cursor:pointer;
-  text-align:left;
-  font-size:19px;
-  font-weight:bold;
+
+.category-tab:hover {
+  border-color: var(--accent2);
 }
+
+.category-tab.active {
+  background: linear-gradient(
+    135deg,
+    rgba(155,140,255,.35),
+    rgba(97,214,255,.2)
+  );
+  border-color: var(--accent2);
+  box-shadow: 0 0 15px rgba(97,214,255,.2);
+}
+
+/* 검색창 */
+.search {
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #080a20;
+  color: var(--text);
+  font-size: 19px;
+  outline: none;
+}
+
+.recipe-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+  gap: 8px;
+  margin-top: 14px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.recipe-btn {
+  padding: 15px;
+  border: 1px solid var(--line);
+  background: var(--panel2);
+  color: var(--text);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 19px;
+  font-weight: bold;
+}
+
 .recipe-btn:hover,
-.recipe-btn.active{
-  border-color:var(--accent2);
-  box-shadow:0 0 16px rgba(97,214,255,.22);
+.recipe-btn.active {
+  border-color: var(--accent2);
+  box-shadow: 0 0 16px rgba(97,214,255,.22);
 }
-.grade{
-  font-size:14px;
-  opacity:.75;
-  display:block;
-  margin-bottom:5px;
+
+.grade {
+  font-size: 14px;
+  opacity: .75;
+  display: block;
+  margin-bottom: 5px;
 }
-.content{padding:20px}
-.selected{
-  font-size:26px;
-  font-weight:bold;
-  margin:0 0 16px;
+
+.content {
+  padding: 20px;
 }
-.result{
-  padding:18px;
-  border-radius:16px;
-  background:linear-gradient(135deg,rgba(110,85,255,.22),rgba(55,180,255,.14));
-  border:1px solid rgba(150,150,255,.28);
-  margin-bottom:18px;
-  font-size:18px;
+
+.selected {
+  font-size: 26px;
+  font-weight: bold;
+  margin: 0 0 16px;
 }
-.result strong{
-  font-size:clamp(28px,4vw,42px);
-  display:block;
-  margin-top:6px;
+
+.result {
+  padding: 18px;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(110,85,255,.22),
+    rgba(55,180,255,.14)
+  );
+  border: 1px solid rgba(150,150,255,.28);
+  margin-bottom: 18px;
+  font-size: 18px;
 }
-.section-title{
-  font-size:21px;
-  font-weight:bold;
-  margin:22px 0 10px;
+
+.result strong {
+  font-size: clamp(28px,4vw,42px);
+  display: block;
+  margin-top: 6px;
 }
-.table{
-  width:100%;
-  border-collapse:collapse;
-  overflow:hidden;
-  border-radius:14px;
-  font-size:16px;
+
+.section-title {
+  font-size: 21px;
+  font-weight: bold;
+  margin: 22px 0 10px;
 }
-th,td{
-  padding:13px 10px;
-  border-bottom:1px solid var(--line);
-  text-align:center;
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 14px;
+  font-size: 16px;
 }
-th{
-  color:#d9d7ff;
-  background:rgba(255,255,255,.05);
+
+th,
+td {
+  padding: 13px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
 }
-td:first-child{
-  text-align:left;
-  font-weight:bold;
+
+th {
+  color: #d9d7ff;
+  background: rgba(255,255,255,.05);
 }
-input.num{
-  width:90px;
-  padding:11px;
-  border-radius:9px;
-  border:1px solid var(--line);
-  background:#090b23;
-  color:white;
-  text-align:center;
-  font-size:17px;
+
+td:first-child {
+  text-align: left;
+  font-weight: bold;
 }
+
+input.num {
+  width: 90px;
+  padding: 11px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: #090b23;
+  color: white;
+  text-align: center;
+  font-size: 17px;
+}
+
 input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button{
-  -webkit-appearance:none;
-  margin:0;
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
-input[type="number"]{
-  -moz-appearance:textfield;
-  appearance:textfield;
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
-.owned{white-space:nowrap}
-.subrecipes{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-  gap:8px;
+
+.owned {
+  white-space: nowrap;
 }
-.sub{
-  padding:13px 14px;
-  border-radius:10px;
-  background:rgba(255,255,255,.05);
-  border:1px solid var(--line);
-  font-size:16px;
+
+.note {
+  color: var(--muted);
+  font-size: 14px;
 }
-.note{
-  color:var(--muted);
-  font-size:14px;
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 30px;
+  font-size: 18px;
 }
-.empty{
-  text-align:center;
-  color:var(--muted);
-  padding:30px;
-  font-size:18px;
+
+.top-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 15px;
+  flex-wrap: wrap;
 }
-.category-row td{
-  text-align:left!important;
-  font-size:18px!important;
-  font-weight:bold!important;
-  padding:14px 12px!important;
-  background:rgba(255,255,255,.08);
+
+.btn {
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.07);
+  color: white;
+  padding: 11px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
 }
-.top-actions{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  margin-top:15px;
-  flex-wrap:wrap;
+
+.btn:hover {
+  filter: brightness(1.15);
 }
-.btn{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.07);
-  color:white;
-  padding:11px 16px;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:15px;
+
+.btn-primary {
+  background: rgba(155,140,255,.25);
+  border-color: rgba(155,140,255,.6);
 }
-.btn:hover{filter:brightness(1.15)}
-.btn-primary{
-  background:rgba(155,140,255,.25);
-  border-color:rgba(155,140,255,.6);
+
+.btn-danger {
+  background: rgba(255,100,124,.14);
+  border-color: rgba(255,100,124,.4);
 }
-.btn-success{
-  background:rgba(104,224,160,.14);
-  border-color:rgba(104,224,160,.4);
+
+.hidden {
+  display: none !important;
 }
-.btn-danger{
-  background:rgba(255,100,124,.14);
-  border-color:rgba(255,100,124,.4);
+
+.login-box {
+  padding: 18px;
 }
-.btn-discord{
-  background:rgba(88,101,242,.3);
-  border-color:rgba(88,101,242,.7);
-  color:#fff;
-  font-weight:bold;
+
+.login-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
-.btn:disabled{
-  opacity:.5;
-  cursor:not-allowed;
+
+.login-row input {
+  flex: 1;
+  min-width: 150px;
+  padding: 12px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: #090b23;
+  color: white;
 }
-.hidden{display:none!important}
-@media(max-width:700px){
-  .app{padding:14px 8px 30px}
-  .content,.controls{padding:13px}
-  th:nth-child(2),
-  td:nth-child(2){display:none}
-  .table{font-size:13px}
-  input.num{width:60px}
-  .recipe-btn{font-size:18px}
-  body:before,
-  body:after{
-    font-size:24px;
-    letter-spacing:14px;
-    line-height:110px;
+
+.status {
+  margin-top: 12px;
+  color: var(--muted);
+}
+
+@media(max-width:700px) {
+  .app {
+    padding: 14px 8px 30px;
   }
-  .login-row{grid-template-columns:1fr}
+
+  .content,
+  .controls {
+    padding: 13px;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    display: none;
+  }
+
+  .table {
+    font-size: 13px;
+  }
+
+  input.num {
+    width: 60px;
+  }
+
+  .recipe-btn {
+    font-size: 18px;
+  }
+
+  body:before,
+  body:after {
+    font-size: 24px;
+    letter-spacing: 14px;
+    line-height: 110px;
+  }
+
+  .login-row {
+    flex-direction: column;
+  }
 }
 </style>
 </head>
+
 <body>
 <div class="app">
+
   <div class="hero">
     <h1>🌌 은하 요리 계산기 🍳</h1>
     <p>64개 = 1세트 · 보유 재료를 세트 + 낱개로 입력하세요</p>
+
     <div class="top-actions">
-      <button class="btn btn-primary" id="loginBtn">🔐 관리자 로그인</button>
-      <button class="btn btn-danger hidden" id="logoutBtn">로그아웃</button>
+      <button class="btn btn-primary" id="loginBtn">
+        🔐 관리자 로그인
+      </button>
+
+      <button class="btn btn-danger hidden" id="logoutBtn">
+        로그아웃
+      </button>
     </div>
   </div>
 
   <div class="card controls">
-    <input id="search" class="search" placeholder="🔎 요리 이름을 검색하세요">
+
+    <!-- 카테고리 버튼이 검색창 위에 표시됨 -->
+    <div id="categoryTabs" class="category-tabs"></div>
+
+    <input
+      id="search"
+      class="search"
+      placeholder="🔎 선택한 카테고리에서 요리 검색"
+    >
+
     <div id="recipeList" class="recipe-list"></div>
   </div>
 
@@ -305,17 +425,20 @@ input[type="number"]{
     </div>
   </div>
 
-  <div id="loginSection" class="card group-card hidden">
+  <div id="loginSection" class="card hidden">
     <div class="section-title">🔐 관리자 인증</div>
+
     <div class="login-box">
       <div class="login-row">
         <input type="email" id="emailInput" placeholder="관리자 이메일">
         <input type="password" id="passwordInput" placeholder="관리자 비밀번호">
         <button class="btn btn-primary" id="doLoginBtn">로그인</button>
       </div>
+
       <div id="loginStatus" class="status"></div>
     </div>
   </div>
+
 </div>
 
 <script type="module">
@@ -345,6 +468,10 @@ const auth = getAuth(app);
 const ADMIN_UID = "5xfn6hpdXHeZ73wSYhHKkyLPnmF2";
 const STACK = 64;
 const OWNED_STORAGE_KEY = "galaxyCookingOwnedMaterials";
+
+/* =========================
+   요리 목록
+========================= */
 
 const recipes = {
   "재료 요리": {
@@ -498,6 +625,10 @@ const recipes = {
   }
 };
 
+/* =========================
+   일반 요리 판매 가격
+========================= */
+
 const prices = {
   "코울슬로": 8384,
   "마늘 바게트": 11763,
@@ -520,14 +651,22 @@ const prices = {
   "게살버거": 12209
 };
 
+/* =========================
+   기본 변수 및 저장 기능
+========================= */
+
 let selected = null;
 let selectedCategory = null;
 let currentPossibleCount = 0;
+let activeCategory = Object.keys(recipes)[0];
+
 let ownedMaterials = loadOwnedMaterials();
 
 function loadOwnedMaterials() {
   try {
-    return JSON.parse(localStorage.getItem(OWNED_STORAGE_KEY)) || {};
+    return JSON.parse(
+      localStorage.getItem(OWNED_STORAGE_KEY)
+    ) || {};
   } catch {
     return {};
   }
@@ -575,9 +714,14 @@ function escapeHtml(value) {
 }
 
 function cssId(name) {
-  return btoa(unescape(encodeURIComponent(name)))
-    .replace(/[^a-zA-Z0-9]/g, "");
+  return btoa(
+    unescape(encodeURIComponent(name))
+  ).replace(/[^a-zA-Z0-9]/g, "");
 }
+
+/* =========================
+   재료 계산
+========================= */
 
 function findRecipe(name) {
   for (const group of Object.values(recipes)) {
@@ -610,68 +754,106 @@ function expandRecipe(name, amount = 1, result = {}) {
   return result;
 }
 
+/* =========================
+   카테고리 버튼 표시
+========================= */
+
+function renderCategoryTabs() {
+  const tabs = document.getElementById("categoryTabs");
+  tabs.innerHTML = "";
+
+  for (const category of Object.keys(recipes)) {
+    const button = document.createElement("button");
+
+    button.className =
+      "category-tab" +
+      (activeCategory === category ? " active" : "");
+
+    button.textContent = category;
+
+    button.onclick = () => {
+      activeCategory = category;
+      selected = null;
+      selectedCategory = category;
+
+      document.getElementById("search").value = "";
+
+      document.getElementById("appContent").innerHTML =
+        '<div class="empty">요리를 선택해주세요.</div>';
+
+      renderCategoryTabs();
+      renderList();
+    };
+
+    tabs.appendChild(button);
+  }
+}
+
+/* =========================
+   선택한 카테고리의 요리만 표시
+========================= */
+
 function renderList() {
   const q = document
     .getElementById("search")
-    .value.trim()
+    .value
+    .trim()
     .toLowerCase();
 
   const list = document.getElementById("recipeList");
   list.innerHTML = "";
 
-  for (const [category, group] of Object.entries(recipes)) {
-    const matches = Object.keys(group).filter(name =>
-      (`${category} ${name}`).toLowerCase().includes(q)
-    );
+  const group = recipes[activeCategory] || {};
 
-    if (!matches.length) {
-      continue;
-    }
+  const matches = Object.keys(group).filter(name =>
+    name.toLowerCase().includes(q)
+  );
 
-    const heading = document.createElement("div");
-    heading.className = "category-row";
-    heading.style.gridColumn = "1 / -1";
-    heading.style.padding = "10px 4px";
-    heading.style.fontWeight = "bold";
-    heading.textContent = category;
+  for (const name of matches) {
+    const button = document.createElement("button");
 
-    list.appendChild(heading);
+    button.className =
+      "recipe-btn" +
+      (selected === name ? " active" : "");
 
-    for (const name of matches) {
-      const button = document.createElement("button");
+    button.innerHTML =
+      `${escapeHtml(name)}` +
+      (
+        prices[name]
+          ? `<span class="grade" style="margin-top:6px">${formatWon(prices[name])}</span>`
+          : ""
+      );
 
-      button.className =
-        "recipe-btn" + (selected === name ? " active" : "");
+    button.onclick = () => {
+      selectRecipe(activeCategory, name);
+    };
 
-      button.innerHTML = `
-        <span class="grade">${escapeHtml(category)}</span>
-        ${escapeHtml(name)}
-        ${
-          prices[name]
-            ? `<span class="grade" style="margin-top:6px">${formatWon(prices[name])}</span>`
-            : ""
-        }
-      `;
-
-      button.onclick = () => selectRecipe(category, name);
-      list.appendChild(button);
-    }
+    list.appendChild(button);
   }
 
   if (!list.children.length) {
-    list.innerHTML = `
-      <div class="empty">검색 결과가 없습니다.</div>
-    `;
+    list.innerHTML =
+      '<div class="empty">이 카테고리에 검색 결과가 없습니다.</div>';
   }
 }
 
+/* =========================
+   요리 선택
+========================= */
+
 function selectRecipe(category, name) {
+  activeCategory = category;
   selectedCategory = category;
   selected = name;
 
+  renderCategoryTabs();
   renderList();
   renderRecipe();
 }
+
+/* =========================
+   재료 표 생성
+========================= */
 
 function createIngredientRow(name, need) {
   const saved = ownedMaterials[name] || {
@@ -706,6 +888,10 @@ function createIngredientRow(name, need) {
   `;
 }
 
+/* =========================
+   선택한 요리 표시
+========================= */
+
 function renderRecipe() {
   if (!selected) {
     return;
@@ -714,7 +900,9 @@ function renderRecipe() {
   const content = document.getElementById("appContent");
   const ingredients = expandRecipe(selected);
   const price = prices[selected];
-  const isPriceOnly = selectedCategory === "일반 요리";
+
+  const isPriceOnly =
+    selectedCategory === "일반 요리";
 
   let ingredientsHtml = "";
 
@@ -747,7 +935,9 @@ function renderRecipe() {
           <tbody>
             ${
               Object.entries(ingredients)
-                .map(([name, need]) => createIngredientRow(name, need))
+                .map(([name, need]) =>
+                  createIngredientRow(name, need)
+                )
                 .join("")
             }
           </tbody>
@@ -799,6 +989,10 @@ function renderRecipe() {
 
   updateCalculation();
 }
+
+/* =========================
+   만들 수 있는 수량 계산
+========================= */
 
 function updateCalculation() {
   if (!selected) {
@@ -867,6 +1061,10 @@ function updateCalculation() {
   }
 }
 
+/* =========================
+   입력창 탭 이동
+========================= */
+
 function handleTab(e) {
   if (e.key !== "Tab") {
     return;
@@ -892,6 +1090,10 @@ function handleTab(e) {
   next.select();
 }
 
+/* =========================
+   검색
+========================= */
+
 document
   .getElementById("search")
   .addEventListener("input", renderList);
@@ -907,6 +1109,10 @@ document
       }
     }
   });
+
+/* =========================
+   관리자 로그인
+========================= */
 
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
@@ -925,11 +1131,13 @@ logoutBtn.addEventListener("click", async () => {
 doLoginBtn.addEventListener("click", async () => {
   const email = document
     .getElementById("emailInput")
-    .value.trim();
+    .value
+    .trim();
 
   const password = document
     .getElementById("passwordInput")
-    .value.trim();
+    .value
+    .trim();
 
   loginStatus.textContent = "로그인 중...";
 
@@ -958,7 +1166,13 @@ onAuthStateChanged(auth, user => {
   }
 });
 
+/* =========================
+   최초 화면 표시
+========================= */
+
+renderCategoryTabs();
 renderList();
+
 </script>
 </body>
 </html>
