@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,13 +7,22 @@
 <title>은하 요리 계산기</title>
 <style>
 :root{
-  --bg:#080a1f;--panel:rgba(16,19,48,.88);--panel2:rgba(28,32,75,.82);
-  --text:#f4f5ff;--muted:#b9bddb;--line:rgba(255,255,255,.13);
-  --accent:#9b8cff;--accent2:#61d6ff;--success:#68e0a0;--danger:#ff647c;
+  --bg:#080a1f;
+  --panel:rgba(16,19,48,.88);
+  --panel2:rgba(28,32,75,.82);
+  --text:#f4f5ff;
+  --muted:#b9bddb;
+  --line:rgba(255,255,255,.13);
+  --accent:#9b8cff;
+  --accent2:#61d6ff;
+  --success:#68e0a0;
+  --danger:#ff647c;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;min-height:100vh;color:var(--text);
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
   font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
   background:
     radial-gradient(circle at 15% 20%,rgba(111,76,255,.38),transparent 28%),
@@ -20,14 +30,19 @@ body{
     radial-gradient(circle at 50% 90%,rgba(180,50,255,.18),transparent 30%),
     linear-gradient(135deg,#050614,#101434 55%,#070818);
 }
-body:before,body:after{
+body:before{
   content:"✦ · ✧        ·        ✦        · ✧     ·        ✦        · ✧";
-  position:fixed;top:0;width:50%;height:100%;pointer-events:none;
-  opacity:.45;font-size:32px;letter-spacing:24px;line-height:140px;
-  overflow:hidden;z-index:0;
+  position:fixed;left:0;top:0;width:50%;height:100%;
+  pointer-events:none;opacity:.45;font-size:32px;
+  letter-spacing:24px;line-height:140px;overflow:hidden;z-index:0;
 }
-body:before{left:0}
-body:after{right:0;text-align:right;content:"✧ · ✦        ·        ✧        · ✦        · ✧     ·        ✦"}
+body:after{
+  content:"✧ · ✦        ·        ✧        · ✦        · ✧     ·        ✦";
+  position:fixed;right:0;top:0;width:50%;height:100%;
+  pointer-events:none;opacity:.45;font-size:32px;
+  letter-spacing:24px;line-height:140px;overflow:hidden;
+  text-align:right;z-index:0;
+}
 .app{position:relative;z-index:1;max-width:1150px;margin:auto;padding:25px 16px 45px}
 .hero{text-align:center;margin-bottom:18px}
 .hero h1{margin:0;font-size:clamp(28px,5vw,48px);text-shadow:0 0 24px rgba(150,120,255,.7)}
@@ -56,8 +71,11 @@ input.num{width:90px;padding:11px;border-radius:9px;border:1px solid var(--line)
 input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 .owned{white-space:nowrap}
+.subrecipes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+.sub{padding:13px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:16px}
 .note{color:var(--muted);font-size:14px}
 .empty{text-align:center;color:var(--muted);padding:30px;font-size:18px}
+.category-row td{text-align:left!important;font-size:18px!important;font-weight:bold!important;padding:14px 12px!important;background:rgba(255,255,255,.08)}
 .top-actions{display:flex;justify-content:center;gap:8px;margin-top:15px;flex-wrap:wrap}
 .btn{border:1px solid var(--line);background:rgba(255,255,255,.07);color:white;padding:11px 16px;border-radius:10px;cursor:pointer;font-size:15px}
 .btn:hover{filter:brightness(1.15)}
@@ -72,7 +90,7 @@ input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 .percent-edit input{width:76px;min-width:0;padding:8px;border:1px solid var(--line);border-radius:8px;background:#090b23;color:#fff;text-align:center}
 .price-admin-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
 .price-admin-status{font-size:14px;color:var(--muted)}
-.admin-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.discord-send-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .hidden{display:none!important}
 .login-box{padding:0 18px 18px}
 .login-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
@@ -151,67 +169,67 @@ const STACK = 64;
 const OWNED_STORAGE_KEY = "galaxyCookingOwnedMaterials";
 
 /*
-  여기는 Discord 웹훅 주소가 아니라 Cloudflare Worker 주소입니다.
-  Worker 안에 DISCORD_WEBHOOK_URL 비밀 변수를 설정해야 합니다.
-*/
+ * Discord 전송은 기존 Cloudflare Worker를 사용합니다.
+ * Worker가 POST JSON { content, username } 형식을 처리해야 합니다.
+ */
 const DISCORD_WORKER_URL = "https://discord.com/api/webhooks/1545326131798872094/UP4tY7F6tmLzwK6UtprLSUNTost3g-KvBxdm1X5hfrqnDaXosDA7ukD223PRfEJClv9y";
 
 const PRICE_PERCENT_REF = doc(db, "cookingOrder", "pricePercentages");
 
 const recipes = {
   "재료 요리": {
-    "빵": {"밀 박스":1,"요리용 석탄":1},
-    "쌀": {"벼 박스":1,"요리용 석탄":1},
-    "호박 액기스": {"호박 박스":1,"요리용 석탄":1},
-    "수박 액기스": {"수박 박스":1,"요리용 석탄":1},
-    "감자 액기스": {"감자 박스":1,"요리용 석탄":1},
-    "당근 액기스": {"당근 박스":1,"요리용 석탄":1},
-    "고추 액기스": {"고추 박스":1,"요리용 석탄":1},
-    "수북한 설탕": {"사탕수수 박스":1,"요리용 석탄":1},
-    "수북한 밀가루": {"밀 박스":1,"요리용 석탄":1},
-    "열매 액기스 2개": {"달콤한 열매 박스":1,"요리용 석탄":2},
-    "사과 액기스 8개": {"사과 박스":1,"요리용 석탄":8}
+    "빵": {"밀 박스":1, "요리용 석탄":1},
+    "쌀": {"벼 박스":1, "요리용 석탄":1},
+    "호박 액기스": {"호박 박스":1, "요리용 석탄":1},
+    "수박 액기스": {"수박 박스":1, "요리용 석탄":1},
+    "감자 액기스": {"감자 박스":1, "요리용 석탄":1},
+    "당근 액기스": {"당근 박스":1, "요리용 석탄":1},
+    "고추 액기스": {"고추 박스":1, "요리용 석탄":1},
+    "수북한 설탕": {"사탕수수 박스":1, "요리용 석탄":1},
+    "수북한 밀가루": {"밀 박스":1, "요리용 석탄":1},
+    "열매 액기스 2개": {"달콤한 열매 박스":1, "요리용 석탄":2},
+    "사과 액기스 8개": {"사과 박스":1, "요리용 석탄":8}
   },
   "일반 요리": {
-    "코울슬로": {"양배추":1,"당근 액기스":1,"요리용 석탄":1},
-    "마늘 바게트": {"마늘":1,"빵":1,"요리용 석탄":1},
-    "감자 대파 수프": {"대파":1,"감자 액기스":1,"요리용 석탄":1},
-    "치킨 라이스": {"닭고기":1,"쌀":1,"요리용 석탄":1},
-    "비프 샌드위치": {"소고기":1,"빵":1,"요리용 석탄":1},
-    "제육볶음": {"돼지고기":1,"고추 액기스":1,"요리용 석탄":1},
-    "새우 볶음밥": {"갯새우":1,"쌀":1,"요리용 석탄":1},
-    "달콤 오징어 구이": {"갯벌 오징어":1,"수북한 설탕":1,"요리용 석탄":1},
-    "가리비 호박 구이": {"가리비":1,"호박 액기스":1,"요리용 석탄":1},
-    "수박 미역 샐러드": {"미역":1,"수박 액기스":1,"요리용 석탄":1},
-    "사과 샐러드": {"열매 액기스":1,"사과 액기스":1,"요리용 석탄":1},
-    "호박죽": {"쌀":1,"호박 액기스":1,"요리용 석탄":1},
-    "과일 굴 무침": {"굴":1,"열매 액기스":1,"요리용 석탄":1},
-    "호박 브륄레": {"호박 액기스":1,"수북한 설탕":1,"요리용 석탄":1},
-    "당근 케이크": {"당근 액기스":1,"수북한 밀가루":1,"수북한 설탕":1,"요리용 석탄":1},
-    "감자전": {"감자 액기스":1,"수북한 밀가루":1,"요리용 석탄":1},
-    "수박 주스": {"수박 액기스":1,"수북한 설탕":1,"요리용 석탄":1},
-    "애플파이": {"사과 액기스":1,"수북한 밀가루":1,"요리용 석탄":1},
-    "게살버거": {"빵":1,"꽃게":1,"요리용 석탄":1}
+    "코울슬로": {"양배추":1, "당근 액기스":1, "요리용 석탄":1},
+    "마늘 바게트": {"마늘":1, "빵":1, "요리용 석탄":1},
+    "감자 대파 수프": {"대파":1, "감자 액기스":1, "요리용 석탄":1},
+    "치킨 라이스": {"닭고기":1, "쌀":1, "요리용 석탄":1},
+    "비프 샌드위치": {"소고기":1, "빵":1, "요리용 석탄":1},
+    "제육볶음": {"돼지고기":1, "고추 액기스":1, "요리용 석탄":1},
+    "새우 볶음밥": {"갯새우":1, "쌀":1, "요리용 석탄":1},
+    "달콤 오징어 구이": {"갯벌 오징어":1, "수북한 설탕":1, "요리용 석탄":1},
+    "가리비 호박 구이": {"가리비":1, "호박 액기스":1, "요리용 석탄":1},
+    "수박 미역 샐러드": {"미역":1, "수박 액기스":1, "요리용 석탄":1},
+    "사과 샐러드": {"열매 액기스":1, "사과 액기스":1, "요리용 석탄":1},
+    "호박죽": {"쌀":1, "호박 액기스":1, "요리용 석탄":1},
+    "과일 굴 무침": {"굴":1, "열매 액기스":1, "요리용 석탄":1},
+    "호박 브륄레": {"호박 액기스":1, "수북한 설탕":1, "요리용 석탄":1},
+    "당근 케이크": {"당근 액기스":1, "수북한 밀가루":1, "수북한 설탕":1, "요리용 석탄":1},
+    "감자전": {"감자 액기스":1, "수북한 밀가루":1, "요리용 석탄":1},
+    "수박 주스": {"수박 액기스":1, "수북한 설탕":1, "요리용 석탄":1},
+    "애플파이": {"사과 액기스":1, "수북한 밀가루":1, "요리용 석탄":1},
+    "게살버거": {"빵":1, "꽃게":1, "요리용 석탄":1}
   },
   "특수 요리": {
-    "맛의 기원 (海)": {"범고래":1,"상어":1,"소라고동":1,"황금 잉걸불":1},
-    "맛의 기원 (地)": {"빵":128,"쌀":128,"사과 액기스":32,"황금 잉걸불":1},
-    "황금 코울슬로": {"코울슬로":1,"황금 가루":1},
-    "황금 마늘 바게트": {"마늘 바게트":1,"황금 가루":1},
-    "황금 감자 대파 수프": {"감자 대파 수프":1,"황금 가루":1},
-    "황금 치킨 라이스": {"치킨 라이스":1,"황금 가루":1},
-    "황금 비프 샌드위치": {"비프 샌드위치":1,"황금 가루":1},
-    "황금 제육볶음": {"제육볶음":1,"황금 가루":1},
-    "황금 새우 볶음밥": {"새우 볶음밥":1,"황금 가루":1},
-    "황금 달콤 오징어 구이": {"달콤 오징어 구이":1,"황금 가루":1},
-    "황금 가리비 호박 구이": {"가리비 호박 구이":1,"황금 가루":1},
-    "황금 수박 미역 샐러드": {"수박 미역 샐러드":1,"황금 가루":1},
-    "황금 호박죽": {"호박죽":1,"황금 가루":1},
-    "황금 과일 굴 무침": {"과일 굴 무침":1,"황금 가루":1},
-    "황금 감자전": {"감자전":1,"황금 가루":1},
-    "황금 애플파이": {"애플파이":1,"황금 가루":1},
-    "황금 게살버거": {"게살버거":1,"황금 가루":1},
-    "황금 잉걸불": {"초록 잉걸불":20,"푸른 잉걸불":20,"잿빛 잉걸불":20,"붉은 잉걸불":20}
+    "맛의 기원 (海)": {"범고래":1, "상어":1, "소라고동":1, "황금 잉걸불":1},
+    "맛의 기원 (地)": {"빵":128, "쌀":128, "사과 액기스":32, "황금 잉걸불":1},
+    "황금 코울슬로": {"코울슬로":1, "황금 가루":1},
+    "황금 마늘 바게트": {"마늘 바게트":1, "황금 가루":1},
+    "황금 감자 대파 수프": {"감자 대파 수프":1, "황금 가루":1},
+    "황금 치킨 라이스": {"치킨 라이스":1, "황금 가루":1},
+    "황금 비프 샌드위치": {"비프 샌드위치":1, "황금 가루":1},
+    "황금 제육볶음": {"제육볶음":1, "황금 가루":1},
+    "황금 새우 볶음밥": {"새우 볶음밥":1, "황금 가루":1},
+    "황금 달콤 오징어 구이": {"달콤 오징어 구이":1, "황금 가루":1},
+    "황금 가리비 호박 구이": {"가리비 호박 구이":1, "황금 가루":1},
+    "황금 수박 미역 샐러드": {"수박 미역 샐러드":1, "황금 가루":1},
+    "황금 호박죽": {"호박죽":1, "황금 가루":1},
+    "황금 과일 굴 무침": {"과일 굴 무침":1, "황금 가루":1},
+    "황금 감자전": {"감자전":1, "황금 가루":1},
+    "황금 애플파이": {"애플파이":1, "황금 가루":1},
+    "황금 게살버거": {"게살버거":1, "황금 가루":1},
+    "황금 잉걸불": {"초록 잉걸불":20, "푸른 잉걸불":20, "잿빛 잉걸불":20, "붉은 잉걸불":20}
   }
 };
 
@@ -351,8 +369,7 @@ function renderList() {
     item.className = "recipe-item";
 
     const button = document.createElement("button");
-    button.className = "recipe-btn" +
-      (selected === name && selectedCategory === activeCategory ? " active" : "");
+    button.className = "recipe-btn" + (selected === name && selectedCategory === activeCategory ? " active" : "");
     button.innerHTML = `${escapeHtml(name)}${prices[name] ? `<span class="grade" style="margin-top:6px">원금: ${formatWon(prices[name])}</span>` : ""}`;
     button.onclick = () => selectRecipe(activeCategory, name);
     item.appendChild(button);
@@ -422,18 +439,10 @@ function renderPriceAdminBar() {
 
   if (activeCategory === "일반 요리" && isAdmin) {
     bar.innerHTML = `
-      <span class="price-admin-status" id="priceSaveStatus">일반 요리 가격 관리</span>
-      <div class="admin-buttons">
-        <button type="button" class="btn btn-discord" id="sendAllRecipesDiscordBtn">
-          📢 전체 일반 요리 디스코드 전송
-        </button>
-        <button type="button" class="btn btn-success" id="savePricePercentagesBtn">
-          💾 변동률 저장
-        </button>
-      </div>
+      <span class="price-admin-status" id="priceSaveStatus">기준가 대비 ±5%, 하루 변동 최대 ±2%p</span>
+      <button type="button" class="btn btn-success" id="savePricePercentagesBtn">💾 변동률 저장</button>
     `;
     document.getElementById("savePricePercentagesBtn").onclick = savePricePercentages;
-    document.getElementById("sendAllRecipesDiscordBtn").onclick = sendAllGeneralRecipesToDiscord;
   } else {
     bar.innerHTML = "";
   }
@@ -513,7 +522,7 @@ async function savePricePercentages() {
     if (selected) renderRecipe();
 
     const savedStatus = document.getElementById("priceSaveStatus");
-    if (savedStatus) savedStatus.textContent = "✅ 변동률 저장 완료";
+    if (savedStatus) savedStatus.textContent = "✅ 저장 완료 · 하루 ±2%p / 기준가 ±5%";
   } catch (error) {
     console.error(error);
     if (status) status.textContent = "❌ 저장 실패: Firestore 권한을 확인해주세요.";
@@ -522,33 +531,51 @@ async function savePricePercentages() {
 }
 
 /*
-  Worker를 통해 Discord로 전송합니다.
-  한 번에 여러 일반 요리를 전송하며, Discord 메시지 길이 제한을 고려해
-  내용이 길어지면 여러 메시지로 나눕니다.
-*/
+ * Worker를 통해 Discord에 전송합니다.
+ * Worker는 CORS와 Discord 웹훅 처리를 지원해야 합니다.
+ */
 async function postToDiscord(message) {
   if (!DISCORD_WORKER_URL) {
-    throw new Error("디스코드 Worker 주소가 설정되지 않았습니다.");
+    alert("디스코드 Worker 주소가 설정되지 않았습니다.");
+    return false;
   }
 
-  const response = await fetch(DISCORD_WORKER_URL, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      username: "은하 요리 계산기",
-      content: message
-    })
-  });
+  try {
+    const response = await fetch(DISCORD_WORKER_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        username: "은하 요리 계산기",
+        content: message
+      })
+    });
 
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error(`HTTP ${response.status} ${response.statusText} ${detail}`);
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      throw new Error(`HTTP ${response.status} ${response.statusText} ${detail}`);
+    }
+
+    alert("디스코드로 성공적으로 전송되었습니다!");
+    return true;
+  } catch (error) {
+    console.error("Discord 전송 실패:", error);
+    alert("디스코드 전송 실패. Worker 주소, CORS 설정 및 웹훅 연결을 확인해주세요.");
+    return false;
   }
 }
 
-/* 일반 요리 전체를 디스코드로 전송 */
-async function sendAllGeneralRecipesToDiscord() {
+/*
+ * 중요: 카테고리와 선택된 요리의 소속을 다시 확인합니다.
+ * 일반 요리 외 카테고리는 UI를 우회해 호출해도 전송할 수 없습니다.
+ */
+async function sendSelectedRecipeToDiscord() {
   if (sendingDiscord) return;
+
+  if (!selected || selectedCategory !== "일반 요리" ||
+      !Object.prototype.hasOwnProperty.call(recipes["일반 요리"], selected)) {
+    alert("일반 요리만 디스코드로 전송할 수 있습니다.");
+    return;
+  }
 
   if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID || !isAdmin) {
     alert("관리자만 디스코드 전송을 사용할 수 있습니다.");
@@ -560,55 +587,33 @@ async function sendAllGeneralRecipesToDiscord() {
     return;
   }
 
-  const button = document.getElementById("sendAllRecipesDiscordBtn");
-  sendingDiscord = true;
+  const adjusted = getAdjustedPrice(selected);
+  const percent = Number(pricePercentages[selected] || 0);
+  const signedPercent = `${percent > 0 ? "+" : ""}${percent}%`;
 
+  const message =
+    `🌌 **은하 요리 가격 변동**\n` +
+    `🍳 **요리명:** ${selected}\n` +
+    `📌 **기준가:** ${formatWon(prices[selected] || 0)}\n` +
+    `📈 **변동률:** ${signedPercent}\n` +
+    `💰 **변동 적용 판매가:** ${formatWon(adjusted)}\n` +
+    `_(하루 변동 최대 ±2%p · 기준가 대비 ±5% 이내)_`;
+
+  const button = document.getElementById("sendRecipeDiscordBtn");
+  sendingDiscord = true;
   if (button) {
     button.disabled = true;
-    button.textContent = "전체 요리 전송 중...";
+    button.textContent = "전송 중...";
   }
 
   try {
-    const lines = Object.keys(recipes["일반 요리"]).map(name => {
-      const base = Number(prices[name] || 0);
-      const percent = Number(pricePercentages[name] || 0);
-      const adjusted = getAdjustedPrice(name);
-      const signedPercent = `${percent > 0 ? "+" : ""}${percent}%`;
-
-      return `🍳 **${name}** | 기준가: ${formatWon(base)} | 변동률: ${signedPercent} | 판매가: ${formatWon(adjusted)}`;
-    });
-
-    // Discord의 메시지 길이 제한에 맞춰 메시지를 나눕니다.
-    const chunks = [];
-    let currentChunk = "";
-
-    for (const line of lines) {
-      const nextChunk = currentChunk ? `${currentChunk}\n${line}` : line;
-
-      if (nextChunk.length > 1800 && currentChunk) {
-        chunks.push(currentChunk);
-        currentChunk = line;
-      } else {
-        currentChunk = nextChunk;
-      }
-    }
-
-    if (currentChunk) chunks.push(currentChunk);
-
-    for (const chunk of chunks) {
-      await postToDiscord(chunk);
-    }
-
-    alert(`일반 요리 ${lines.length}개의 가격 정보를 디스코드로 전송했습니다.`);
-  } catch (error) {
-    console.error("전체 일반 요리 Discord 전송 실패:", error);
-    alert("디스코드 전송에 실패했습니다. Cloudflare Worker 주소, CORS 설정 및 웹훅 연결을 확인해주세요.");
+    await postToDiscord(message);
   } finally {
     sendingDiscord = false;
-    const currentButton = document.getElementById("sendAllRecipesDiscordBtn");
+    const currentButton = document.getElementById("sendRecipeDiscordBtn");
     if (currentButton) {
       currentButton.disabled = false;
-      currentButton.textContent = "📢 전체 일반 요리 디스코드 전송";
+      currentButton.textContent = "📢 변동률·판매가 디스코드 전송";
     }
   }
 }
@@ -640,6 +645,8 @@ function renderRecipe() {
   const ingredients = expandRecipe(selected);
   const price = prices[selected];
   const isPriceOnly = selectedCategory === "일반 요리" && !Object.keys(ingredients).length;
+  const adjustedPrice = getAdjustedPrice(selected);
+  const percent = Number(pricePercentages[selected] || 0);
 
   let ingredientsHtml = "";
   if (isPriceOnly || !Object.keys(ingredients).length) {
@@ -656,6 +663,11 @@ function renderRecipe() {
       </div>`;
   }
 
+  const canSendDiscord =
+    selectedCategory === "일반 요리" &&
+    Object.prototype.hasOwnProperty.call(recipes["일반 요리"], selected) &&
+    isAdmin;
+
   content.innerHTML = `
     <div class="selected">[${escapeHtml(selectedCategory)}] ${escapeHtml(selected)}</div>
 
@@ -663,6 +675,13 @@ function renderRecipe() {
       <div class="result">
         <span>💰 사이트 표시 금액 (원금)</span>
         <strong>${formatWon(price)}</strong>
+      </div>` : ""}
+
+    ${canSendDiscord ? `
+      <div class="discord-send-row">
+        <button type="button" class="btn btn-discord" id="sendRecipeDiscordBtn">
+          📢 변동률·판매가 디스코드 전송
+        </button>
       </div>` : ""}
 
     ${!isPriceOnly && Object.keys(ingredients).length ? `
@@ -673,11 +692,15 @@ function renderRecipe() {
       </div>` : ""}
 
     ${isAdmin && selectedCategory === "일반 요리" ? `
-      <div class="note">추가 비율: ${Number(pricePercentages[selected] || 0)}% · 변동 적용 판매가: ${formatWon(getAdjustedPrice(selected))}</div>
-    ` : ""}
+      <div class="note">추가 비율: ${percent}% · 디스코드 전송 금액: ${formatWon(adjustedPrice)}</div>` : ""}
 
     ${ingredientsHtml}
   `;
+
+  const sendRecipeBtn = document.getElementById("sendRecipeDiscordBtn");
+  if (sendRecipeBtn) {
+    sendRecipeBtn.addEventListener("click", sendSelectedRecipeToDiscord);
+  }
 
   document.querySelectorAll(".set-input,.piece-input").forEach(el => {
     el.addEventListener("input", updateCalculation);
