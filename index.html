@@ -592,11 +592,13 @@ async function sendSelectedRecipeToDiscord() {
   const signedPercent = `${percent > 0 ? "+" : ""}${percent}%`;
 
   const message =
-       `🍳 **요리명:** ${selected}\n` +
+    `🌌 **은하 요리 가격 변동**\n` +
+    `🍳 **요리명:** ${selected}\n` +
     `📌 **기준가:** ${formatWon(prices[selected] || 0)}\n` +
     `📈 **변동률:** ${signedPercent}\n` +
     `💰 **변동 적용 판매가:** ${formatWon(adjusted)}\n` +
-    
+    `_(하루 변동 최대 ±2%p · 기준가 대비 ±5% 이내)_`;
+
   const button = document.getElementById("sendRecipeDiscordBtn");
   sendingDiscord = true;
   if (button) {
